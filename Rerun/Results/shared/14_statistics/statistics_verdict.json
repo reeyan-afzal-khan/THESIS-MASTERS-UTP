@@ -1,0 +1,26 @@
+{
+  "n_pairs": 45,
+  "n_significant_holm": 4,
+  "repeat_sd_f1_macro": {
+    "tomasov": 3.126,
+    "cao": 1.756
+  },
+  "bootstrap_widening": {
+    "tomasov": {
+      "window (naive)": 1.266,
+      "zone_id": 23.456,
+      "recording_id": 31.382
+    },
+    "cao": {
+      "window (naive)": 1.114,
+      "session_id": 2.104,
+      "date_id": 2.218
+    }
+  },
+  "bootstrap_not_estimable": [
+    "tomasov/f1_macro/zone_id",
+    "tomasov/f1_macro/recording_id",
+    "cao/f1_macro/date_id"
+  ],
+  "note": "Friedman/Nemenyi over balancing strategies is retired; see the three tests in this notebook."
+}

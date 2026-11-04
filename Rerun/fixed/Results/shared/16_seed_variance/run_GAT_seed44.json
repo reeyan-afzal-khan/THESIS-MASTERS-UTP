@@ -1,0 +1,23 @@
+{
+  "dataset": "tomasov",
+  "arm": "A_blocked",
+  "model": "GAT",
+  "n_params": 52361,
+  "size_mb": 0.209,
+  "n_train": 148229,
+  "n_test": 11334,
+  "epochs_run": 14,
+  "best_epoch": 4,
+  "val_f1_macro": 70.981,
+  "accuracy": 72.71,
+  "balanced_accuracy": 72.065,
+  "f1_macro": 70.176,
+  "train_seconds": 13814.3,
+  "infer_ms_per_sample": 2.5624,
+  "online_ms_per_window": 2.5624,
+  "seed": 44,
+  "source": "seed run",
+  "openclose_f1": 30.638,
+  "finished": "2026-11-04T00:27:19",
+  "peak_gpu_mb": 4290
+}

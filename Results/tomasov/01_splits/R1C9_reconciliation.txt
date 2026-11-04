@@ -1,0 +1,5 @@
+pre_decimation_test_windows=31028
+post_decimation_test_windows=11334
+contaminated_on_final_test=0
+cross_split_block_overlaps=0
+groups_in_multiple_splits=0

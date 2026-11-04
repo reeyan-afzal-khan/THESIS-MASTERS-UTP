@@ -1,0 +1,2 @@
+accuracy,balanced_accuracy,precision_macro,recall_macro,f1_macro,f1_weighted,auc_ovr_macro
+98.5,98.39,98.02,98.39,98.18,98.5,99.97

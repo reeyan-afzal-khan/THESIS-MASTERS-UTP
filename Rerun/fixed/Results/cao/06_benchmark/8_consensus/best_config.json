@@ -1,0 +1,18 @@
+{
+  "dataset": "cao",
+  "feature_set": "consensus",
+  "n_features": 82,
+  "best_model": "LightGBM",
+  "best_strategy": "class_weight",
+  "val_f1_macro": 0.9725906869141016,
+  "test_accuracy": 0.9772601220188575,
+  "test_balanced_accuracy": 0.9764088830761914,
+  "test_f1_macro": 0.9739310944047075,
+  "cv_f1_macro_mean": 0.9722113983287605,
+  "cv_f1_ci95": [
+    0.9621365217563684,
+    0.9822862749011525
+  ],
+  "train_seconds": 5.116099700098857,
+  "inference_ms_per_sample": 0.014351913576333045
+}

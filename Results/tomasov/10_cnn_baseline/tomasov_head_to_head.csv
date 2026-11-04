@@ -1,0 +1,5 @@
+approach,detail,accuracy,balanced_accuracy,f1_macro
+Multi-domain features (full_1002),LightGBM / 1002 feat,90.709,81.972,81.978
+Multi-domain features (8_consensus),LightGBM / 52 feat,77.29,72.879,73.589
+"Tomasov CNN (rdft, dense 1024)","33,155,849 params",68.74007411328745,65.2637139041956,65.66149523694959
+"Tomasov CNN (rdft, dense 256)","8,375,561 params",67.50485265572614,65.3847810301038,64.84472725365661

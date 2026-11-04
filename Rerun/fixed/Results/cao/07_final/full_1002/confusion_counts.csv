@@ -1,0 +1,7 @@
+,background,dig,knock,shake,walk,water
+background,227,0,0,0,0,0
+dig,1,363,3,0,2,1
+knock,1,1,618,1,1,0
+shake,0,0,0,134,0,0
+walk,0,3,2,2,225,0
+water,1,0,0,5,3,209

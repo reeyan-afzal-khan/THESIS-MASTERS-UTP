@@ -1,0 +1,55 @@
+{
+  "dataset": "tomasov",
+  "model": "XGBoost",
+  "balancing": "borderline_smote",
+  "n_features": 1002,
+  "feature_set": "full multi-domain",
+  "n_classes": 9,
+  "classes": [
+    "car",
+    "construction",
+    "fence",
+    "longboard",
+    "manipulation",
+    "openclose",
+    "regular",
+    "running",
+    "walk"
+  ],
+  "n_train": 148229,
+  "n_test": 11334,
+  "test": {
+    "accuracy": 80.519,
+    "balanced_accuracy": 75.464,
+    "precision_macro": 79.93,
+    "recall_macro": 75.464,
+    "f1_macro": 76.335,
+    "f1_weighted": 80.019
+  },
+  "train_seconds": 3469.99,
+  "inference_ms_per_sample": 0.01954,
+  "hardest_classes": [
+    "openclose",
+    "regular",
+    "car"
+  ],
+  "top_error_mode": {
+    "true": "openclose",
+    "predicted": "walk",
+    "pct_of_true": 51.010101010101,
+    "n": 101
+  },
+  "top10_features": [
+    "TF:DWT_L4_entropy",
+    "SPAT:st_grad_t_mean",
+    "TF:Ef_rolloff99",
+    "SPAT:st_entropy",
+    "TF:tfband_2",
+    "SPAT:st_anisotropy",
+    "FREQ:psd_range",
+    "SPAT:st_edge_density_c",
+    "TF:Ef_rolloff95",
+    "TF:tf_sparsity"
+  ],
+  "ablation_inflation_pp": 12.08
+}

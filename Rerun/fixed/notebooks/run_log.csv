@@ -1,0 +1,25 @@
+notebook,status,seconds,finished
+00_setup_and_environment.ipynb,ok,11.9,2026-10-30T20:15:22
+01_dataset_inventory_and_leakage_audit.ipynb,ok,7.8,2026-10-30T20:15:29
+02_leakage_safe_splits.ipynb,ok,9.9,2026-10-30T20:15:39
+03_feature_extraction (cao).ipynb,ok,97.7,2026-10-30T20:17:17
+03_feature_extraction (tomasov).ipynb,ok,3182.5,2026-10-30T21:10:20
+04_multidomain_fusion (cao).ipynb,ok,36.1,2026-10-30T21:10:56
+04_multidomain_fusion (tomasov).ipynb,ok,18.5,2026-10-30T21:11:14
+05_feature_selection (cao).ipynb,ok,3308.5,2026-10-30T22:14:54
+05_feature_selection (tomasov).ipynb,ok,8667.0,2026-10-31T00:39:21
+06_balancing_and_model_benchmark (cao_8_consensus).ipynb,ok,1531.1,2026-10-31T01:04:52
+06_balancing_and_model_benchmark (cao_full_1002).ipynb,ok,3359.8,2026-10-31T02:00:52
+06_balancing_and_model_benchmark (tomasov_8_consensus).ipynb,ok,28747.4,2026-10-31T10:00:00
+06_balancing_and_model_benchmark (tomasov_full_1002).ipynb,ok,114571.2,2026-11-01T17:49:31
+07_final_model_and_ablation (cao_8_consensus).ipynb,ok,83.0,2026-11-01T17:50:54
+07_final_model_and_ablation (cao_full_1002).ipynb,ok,136.8,2026-11-01T17:53:11
+07_final_model_and_ablation (tomasov_8_consensus).ipynb,ok,282.0,2026-11-01T17:57:53
+07_final_model_and_ablation (tomasov_full_1002).ipynb,ok,13114.1,2026-11-01T21:36:27
+08_cross_dataset_generalisation.ipynb,ok,22560.7,2026-11-02T03:52:28
+09_statistics_efficiency_and_report (8_consensus).ipynb,ok,284.8,2026-11-02T03:57:13
+09_statistics_efficiency_and_report (full_1002).ipynb,ok,147.7,2026-11-02T03:59:40
+12_spatial_confound_ablation.ipynb,ok,1892.4,2026-11-02T04:31:13
+14_repeated_splits_and_bootstrap.ipynb,ok,8330.7,2026-11-02T06:50:03
+15_pipeline_protocol_attribution.ipynb,ok,1962.1,2026-11-02T07:22:46
+16_sota_head_to_head.ipynb,ok,20.9,2026-11-02T07:23:09

@@ -1,0 +1,34 @@
+notebook,status,seconds,finished
+00_setup_and_environment.ipynb,ok,10.5,2026-10-27T15:48:40
+01_dataset_inventory_and_leakage_audit.ipynb,ok,7.5,2026-10-27T15:50:03
+02_leakage_safe_splits.ipynb,ok,9.1,2026-10-27T15:50:12
+03_feature_extraction (cao).ipynb,ok,87.3,2026-10-27T15:51:39
+03_feature_extraction (tomasov).ipynb,ok,2328.8,2026-10-27T16:30:28
+04_multidomain_fusion (cao).ipynb,ok,5.9,2026-10-27T16:30:34
+04_multidomain_fusion (tomasov).ipynb,ok,8.2,2026-10-27T16:30:42
+05_feature_selection (cao).ipynb,ok,924.0,2026-10-27T16:46:06
+05_feature_selection (tomasov).ipynb,ok,1975.2,2026-10-27T17:19:02
+04_multidomain_fusion (cao).ipynb,ok,5.6,2026-10-27T17:56:45
+04_multidomain_fusion (tomasov).ipynb,ok,11.7,2026-10-27T17:56:57
+05_feature_selection (cao).ipynb,ok,1516.2,2026-10-27T18:22:13
+05_feature_selection (cao).ipynb,ok,1307.5,2026-10-27T18:58:50
+05_feature_selection (cao).ipynb,ok,2099.5,2026-10-27T19:58:17
+05_feature_selection (tomasov).ipynb,ok,5124.8,2026-10-27T21:23:41
+06_balancing_and_model_benchmark (cao_8_consensus).ipynb,ok,1342.8,2026-10-27T22:02:18
+06_balancing_and_model_benchmark (cao_full_1002).ipynb,ok,3140.6,2026-10-27T22:54:39
+06_balancing_and_model_benchmark (tomasov_8_consensus).ipynb,ok,24099.8,2026-10-28T05:36:19
+06_balancing_and_model_benchmark (tomasov_full_1002).ipynb,ok,68313.5,2026-10-29T00:34:52
+07_final_model_and_ablation (cao_8_consensus).ipynb,ok,48.4,2026-10-29T00:35:41
+07_final_model_and_ablation (cao_full_1002).ipynb,ok,56.3,2026-10-29T00:36:37
+07_final_model_and_ablation (tomasov_8_consensus).ipynb,ok,590.7,2026-10-29T00:46:28
+07_final_model_and_ablation (tomasov_full_1002).ipynb,ok,679.1,2026-10-29T00:57:47
+08_cross_dataset_generalisation.ipynb,ok,19760.8,2026-10-29T06:27:08
+09_statistics_efficiency_and_report (8_consensus).ipynb,ok,267.5,2026-10-29T06:31:35
+09_statistics_efficiency_and_report (full_1002).ipynb,ok,147.2,2026-10-29T06:34:03
+10_cao_cnn_baseline.ipynb,ok,3550.3,2026-10-29T07:38:10
+11_tomasov_cnn_baseline.ipynb,ok,1504.4,2026-10-29T08:03:14
+12_spatial_confound_ablation.ipynb,ok,1920.8,2026-10-29T08:35:15
+13_cnn_protocol_attribution.ipynb,ok,2536.9,2026-10-29T09:17:32
+14_repeated_splits_and_bootstrap.ipynb,ok,5309.3,2026-10-30T18:35:55
+15_pipeline_protocol_attribution.ipynb,ok,1873.7,2026-10-30T19:07:08
+16_sota_head_to_head.ipynb,ok,183400.4,2026-11-01T22:05:51

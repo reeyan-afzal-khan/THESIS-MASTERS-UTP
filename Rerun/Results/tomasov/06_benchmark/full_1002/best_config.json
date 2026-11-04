@@ -1,0 +1,18 @@
+{
+  "dataset": "tomasov",
+  "feature_set": "multi_domain_full",
+  "n_features": 1002,
+  "best_model": "LightGBM",
+  "best_strategy": "class_weight",
+  "val_f1_macro": 0.8654673667760863,
+  "test_accuracy": 0.9085053820363508,
+  "test_balanced_accuracy": 0.8201059691674483,
+  "test_f1_macro": 0.8201018749926097,
+  "cv_f1_macro_mean": 0.7829025119187776,
+  "cv_f1_ci95": [
+    0.7187249620644061,
+    0.8470800617731491
+  ],
+  "train_seconds": 206.81460590008646,
+  "inference_ms_per_sample": 0.030126963121359977
+}

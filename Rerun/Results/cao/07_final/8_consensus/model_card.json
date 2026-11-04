@@ -1,0 +1,52 @@
+{
+  "dataset": "cao",
+  "model": "LightGBM",
+  "balancing": "borderline_smote",
+  "n_features": 76,
+  "feature_set": "8/8 consensus",
+  "n_classes": 6,
+  "classes": [
+    "background",
+    "dig",
+    "knock",
+    "shake",
+    "walk",
+    "water"
+  ],
+  "n_train": 12155,
+  "n_test": 1803,
+  "test": {
+    "accuracy": 97.393,
+    "balanced_accuracy": 97.287,
+    "precision_macro": 96.948,
+    "recall_macro": 97.287,
+    "f1_macro": 97.078,
+    "f1_weighted": 97.389
+  },
+  "train_seconds": 8.02,
+  "inference_ms_per_sample": 0.01042,
+  "hardest_classes": [
+    "shake",
+    "walk",
+    "dig"
+  ],
+  "top_error_mode": {
+    "true": "dig",
+    "predicted": "knock",
+    "pct_of_true": 3.783783783783784,
+    "n": 14
+  },
+  "top10_features": [
+    "SPAT:st_grad_c_energy",
+    "SPAT:st_skew",
+    "SPAT:st_grad_t_energy",
+    "SPAT:st_kurt",
+    "FREQ:spec_rolloff85",
+    "TF:glcm_60_contrast_d4_a0",
+    "SPAT:st_burstiness",
+    "TF:das_tonal_ratio",
+    "TF:glcm_40_contrast_d3_a0",
+    "TF:Et_min"
+  ],
+  "ablation_inflation_pp": 1.55
+}

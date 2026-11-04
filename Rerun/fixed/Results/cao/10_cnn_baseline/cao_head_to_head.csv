@@ -1,0 +1,4 @@
+approach,model,n_params_or_features,accuracy,balanced_accuracy,f1_macro,inference_ms
+Multi-domain features (full_1002),LightGBM,1002,98.502,98.387,98.181,0.02411
+Multi-domain features (8_consensus),LightGBM,82,97.726,97.641,97.393,0.01988
+Cao et al. 2023 CNN (their architecture),2D CNN,7421,92.17970049916805,91.90246890307999,91.77253216443364,

@@ -1,0 +1,9 @@
+method,seconds
+boruta,543.86
+rfe,532.63
+relieff,117.54
+mrmr,106.56
+mutual_info,25.33
+shap,22.25
+pearson,0.21
+variance,0.02

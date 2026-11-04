@@ -1,0 +1,23 @@
+{
+  "dataset": "tomasov",
+  "arm": "A_blocked",
+  "model": "GCN",
+  "n_params": 48137,
+  "size_mb": 0.193,
+  "n_train": 148229,
+  "n_test": 11334,
+  "epochs_run": 13,
+  "best_epoch": 3,
+  "val_f1_macro": 64.79,
+  "accuracy": 66.34,
+  "balanced_accuracy": 63.815,
+  "f1_macro": 65.275,
+  "train_seconds": 12802.1,
+  "infer_ms_per_sample": 2.5916,
+  "online_ms_per_window": 2.5916,
+  "seed": 44,
+  "source": "seed run",
+  "openclose_f1": 5.797,
+  "finished": "2026-11-03T08:44:04",
+  "peak_gpu_mb": 4288
+}

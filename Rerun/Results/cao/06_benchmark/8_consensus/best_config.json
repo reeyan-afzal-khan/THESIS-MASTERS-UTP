@@ -1,0 +1,18 @@
+{
+  "dataset": "cao",
+  "feature_set": "consensus",
+  "n_features": 76,
+  "best_model": "LightGBM",
+  "best_strategy": "borderline_smote",
+  "val_f1_macro": 0.9706916807751488,
+  "test_accuracy": 0.9739323349972269,
+  "test_balanced_accuracy": 0.9728667145401256,
+  "test_f1_macro": 0.9707797655452061,
+  "cv_f1_macro_mean": 0.9700698454362481,
+  "cv_f1_ci95": [
+    0.9591929323877866,
+    0.9809467584847096
+  ],
+  "train_seconds": 3.659373699920252,
+  "inference_ms_per_sample": 0.012432445869618367
+}

@@ -1,0 +1,9 @@
+{
+  "n_dates": 10,
+  "n_dates_missing_classes": 10,
+  "published_macro_f1_union": 57.82,
+  "mean_accuracy": 86.81,
+  "within_dataset_accuracy": 99.06,
+  "accuracy_drop_pp": 12.25,
+  "note": "macro-F1 was averaged over union(y_true, y_pred); on dates holding a subset of the classes this scores absent classes as zero. Accuracy is unaffected and is the figure the manuscript should lead with, with the two genuinely failing dates named."
+}

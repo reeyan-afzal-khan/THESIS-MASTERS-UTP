@@ -1,0 +1,143 @@
+{
+  "dataset": "tomasov",
+  "arm": "A_blocked",
+  "ours": {
+    "model": "Ours (1002 features)",
+    "accuracy": 80.519,
+    "f1_macro": 76.335,
+    "openclose_f1": 26.335
+  },
+  "models": {
+    "S2-DyGNN": {
+      "n_runs": 4,
+      "openclose_f1": {
+        "mean": 19.757,
+        "sd": 23.677,
+        "min": 0.0,
+        "max": 50.187
+      },
+      "runs_reaching_openclose_limit": "1/4",
+      "ours_minus_model_f1_macro": {
+        "mean": 7.4,
+        "sd": 6.158,
+        "min": 0.788,
+        "max": 15.319
+      },
+      "ours_minus_model_accuracy": {
+        "mean": 8.687,
+        "sd": 4.802,
+        "min": 4.368,
+        "max": 14.849
+      },
+      "ours_ahead_on_f1_macro": "4/4"
+    },
+    "DAStatFormer": {
+      "n_runs": 4,
+      "openclose_f1": {
+        "mean": 20.214,
+        "sd": 6.978,
+        "min": 11.47,
+        "max": 28.391
+      },
+      "runs_reaching_openclose_limit": "0/4",
+      "ours_minus_model_f1_macro": {
+        "mean": 1.478,
+        "sd": 0.52,
+        "min": 1.019,
+        "max": 2.016
+      },
+      "ours_minus_model_accuracy": {
+        "mean": 1.441,
+        "sd": 0.59,
+        "min": 0.865,
+        "max": 2.153
+      },
+      "ours_ahead_on_f1_macro": "4/4"
+    },
+    "GCN": {
+      "n_runs": 4,
+      "openclose_f1": {
+        "mean": 21.333,
+        "sd": 11.765,
+        "min": 5.797,
+        "max": 32.934
+      },
+      "runs_reaching_openclose_limit": "1/4",
+      "ours_minus_model_f1_macro": {
+        "mean": 10.512,
+        "sd": 1.677,
+        "min": 8.228,
+        "max": 12.22
+      },
+      "ours_minus_model_accuracy": {
+        "mean": 14.278,
+        "sd": 3.32,
+        "min": 9.811,
+        "max": 17.717
+      },
+      "ours_ahead_on_f1_macro": "4/4"
+    },
+    "GAT": {
+      "n_runs": 4,
+      "openclose_f1": {
+        "mean": 31.121,
+        "sd": 6.346,
+        "min": 22.321,
+        "max": 35.897
+      },
+      "runs_reaching_openclose_limit": "3/4",
+      "ours_minus_model_f1_macro": {
+        "mean": 6.13,
+        "sd": 2.825,
+        "min": 4.023,
+        "max": 10.113
+      },
+      "ours_minus_model_accuracy": {
+        "mean": 7.983,
+        "sd": 2.95,
+        "min": 4.597,
+        "max": 11.797
+      },
+      "ours_ahead_on_f1_macro": "4/4"
+    }
+  },
+  "openclose_verdict": {
+    "rule": "best arm-A openclose F1 >= 30: REPRESENTATION LIMIT; otherwise best arm-B minus best arm-A >= 25: DATASET CONFOUND; otherwise MIXED",
+    "best_f1_random_protocol": 97.747,
+    "held_at_notebook_16": {
+      "Ours (1002 features)": 26.335,
+      "DASViT1D": 14.953
+    },
+    "per_seed": [
+      {
+        "seed": 42,
+        "best_model": "DAStatFormer",
+        "best_openclose_f1": 28.391,
+        "verdict": "DATASET CONFOUND"
+      },
+      {
+        "seed": 43,
+        "best_model": "GAT",
+        "best_openclose_f1": 35.897,
+        "verdict": "REPRESENTATION LIMIT"
+      },
+      {
+        "seed": 44,
+        "best_model": "GAT",
+        "best_openclose_f1": 30.638,
+        "verdict": "REPRESENTATION LIMIT"
+      },
+      {
+        "seed": 45,
+        "best_model": "S2-DyGNN",
+        "best_openclose_f1": 50.187,
+        "verdict": "REPRESENTATION LIMIT"
+      }
+    ],
+    "on_seed_means": {
+      "best_model": "GAT",
+      "best_openclose_f1": 31.121,
+      "verdict": "REPRESENTATION LIMIT"
+    }
+  }
+}

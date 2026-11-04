@@ -1,0 +1,14 @@
+{
+  "transform": "rdft",
+  "dense_units": 1024,
+  "published_accuracy": 85.47,
+  "published_f1_macro": 84.84,
+  "arm_A_blocked": 68.33421563437444,
+  "arm_B_random_2048": 70.05102632494491,
+  "arm_C_random_256": 95.04290352504638,
+  "total_gap_pp": 17.14,
+  "protocol_pp": 26.71,
+  "residual_pp": -9.57,
+  "protocol_share_pct": 155.9,
+  "verdict": "FAITHFUL - protocol explains the gap"
+}

@@ -1,0 +1,52 @@
+{
+  "tomasov": {
+    "f1_full_1002": 81.81,
+    "f1_no_spatial_941": 62.13,
+    "spatial_removal_cost_pp": 19.67,
+    "spatial_only_f1": 75.56,
+    "n_usable_probes": 1,
+    "usable_probes": [
+      "fence"
+    ],
+    "dropped_probes_degenerate": [
+      "car",
+      "walk"
+    ],
+    "spatial_above_chance_pp": 36.15,
+    "best_other_above_chance_pp": 13.62,
+    "spatial_differential_pp": 22.53,
+    "all_domains_confounded": false,
+    "verdict": "MIXED"
+  },
+  "cao": {
+    "f1_full_1002": 98.89,
+    "f1_no_spatial_941": 93.75,
+    "spatial_removal_cost_pp": 5.14,
+    "spatial_only_f1": 95.55,
+    "n_usable_probes": 5,
+    "usable_probes": [
+      "background",
+      "dig",
+      "knock",
+      "walk",
+      "water"
+    ],
+    "dropped_probes_degenerate": [
+      "shake"
+    ],
+    "spatial_above_chance_pp": 40.17,
+    "best_other_above_chance_pp": 31.48,
+    "spatial_differential_pp": 8.69,
+    "all_domains_confounded": true,
+    "verdict": "DATASET-WIDE CONFOUND"
+  },
+  "loro": {
+    "mean_delta_pp_dropping_spatial": -19.08,
+    "range": [
+      -60.68,
+      30.77
+    ],
+    "n_improved": 4,
+    "n_recordings": 11
+  }
+}

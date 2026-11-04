@@ -1,0 +1,18 @@
+{
+  "dataset": "tomasov",
+  "feature_set": "multi_domain_full",
+  "n_features": 1002,
+  "best_model": "XGBoost",
+  "best_strategy": "borderline_smote",
+  "val_f1_macro": 0.7765384439540378,
+  "test_accuracy": 0.8051879301217575,
+  "test_balanced_accuracy": 0.7546361060266525,
+  "test_f1_macro": 0.763350513417641,
+  "cv_f1_macro_mean": 0.6895400220123771,
+  "cv_f1_ci95": [
+    0.6286712197558584,
+    0.7504088242688958
+  ],
+  "train_seconds": 4062.2630228998605,
+  "inference_ms_per_sample": 0.02508677429389271
+}

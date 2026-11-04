@@ -1,0 +1,6 @@
+component,accuracy_pp,mechanism
+Our blocked leakage-safe split (arm A),68.1577554261514,
+"+ random split, same 2048-sample windows (arm B)",1.8352864386288417,75% window overlap straddling the partition
++ their 256-sample stride (arm C),25.015075018336645,window overlap rises to 96.9%
+= reconstruction residual,-9.538116883116885,"not explained by protocol: architecture, training, or annotation detail"
+Published Tomasov et al. figure,85.47,

@@ -1,0 +1,13 @@
+dataset,metric,level,n_groups,point,ci_low,ci_high,half_width,mean_classes_present,n_classes_total,frac_replicates_all_classes,estimable,n_boot
+tomasov,f1_macro,window (naive),11334,81.959,81.338,82.605,0.633,9.0,9,1.0,True,2000
+tomasov,f1_macro,zone_id,35,81.959,70.338,93.795,11.728,7.98,9,0.287,False,2000
+tomasov,f1_macro,recording_id,13,81.959,63.497,94.88,15.691,6.6,9,0.024,False,2000
+tomasov,accuracy,window (naive),11334,90.489,89.942,91.018,0.538,9.0,9,1.0,True,2000
+tomasov,accuracy,zone_id,35,90.489,83.44,95.009,5.784,9.0,9,1.0,True,2000
+tomasov,accuracy,recording_id,13,90.489,80.697,95.649,7.476,9.0,9,1.0,True,2000
+cao,f1_macro,window (naive),1803,98.732,98.124,99.238,0.557,6.0,6,1.0,True,2000
+cao,f1_macro,session_id,44,98.732,97.247,99.35,1.052,5.93,6,0.933,True,2000
+cao,f1_macro,date_id,18,98.732,97.284,99.501,1.109,5.74,6,0.755,False,2000
+cao,accuracy,window (naive),1803,98.891,98.336,99.334,0.499,6.0,6,1.0,True,2000
+cao,accuracy,session_id,44,98.891,98.142,99.533,0.695,6.0,6,1.0,True,2000
+cao,accuracy,date_id,18,98.891,98.378,99.449,0.535,6.0,6,1.0,True,2000

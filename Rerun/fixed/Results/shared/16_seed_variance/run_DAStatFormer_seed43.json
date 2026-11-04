@@ -1,0 +1,23 @@
+{
+  "dataset": "tomasov",
+  "arm": "A_blocked",
+  "model": "DAStatFormer",
+  "n_params": 16077327,
+  "size_mb": 64.309,
+  "n_train": 148229,
+  "n_test": 11334,
+  "epochs_run": 24,
+  "best_epoch": 14,
+  "val_f1_macro": 70.814,
+  "accuracy": 78.834,
+  "balanced_accuracy": 74.268,
+  "f1_macro": 74.503,
+  "train_seconds": 16644.9,
+  "infer_ms_per_sample": 0.4629,
+  "online_ms_per_window": 0.4629,
+  "seed": 43,
+  "source": "seed run",
+  "openclose_f1": 21.639,
+  "finished": "2026-11-02T14:54:33",
+  "peak_gpu_mb": 430
+}

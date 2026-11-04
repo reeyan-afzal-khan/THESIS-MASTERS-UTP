@@ -1,0 +1,1074 @@
+% Version 0.1.0
+% UTP MSc / PhD thesis style -- modifications to the report style
+% Please always double check against the
+% UTP Thesis Formatting Guidelines 
+%
+% People are free to borrow as long as they change the name and date
+% in the \typeout lines, the name of the file, and acknowledge the
+% work that has been done by previous people.  Ideally they should
+% comment their changes.
+
+% Original style file is based on the unofficial Stanford style from 
+% http://help-csli.stanford.edu/tex/suthesis/
+% Adapted to the UTP thesis guideline edition June 2010 by 
+% Dr Fawnizu Azmadi Hussin on 24 January 2011.
+% Email: fawnizu@ieee.org or fawnizu@petronas.com.my
+% http://sites.google.com/sites/fawnizu
+% Updated by Azman Latif, d.azman.abdul.latif@intel.com, May 2012
+% Updated byTaj, mohamed.t.m.elhussein@ieee.org, Aug 2012
+% Updated by Hassan, Sabo Miya and Kishore Bingi hsmiya2010@gmail.com, March 2018
+% Approved by Assoc. Prof. Ir. Dr. Rosdiazli Bin Ibrahim rosdiazli@utp.deu.my
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% CHANGELOG%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 24 Jan 2011: Initial development. Spent almost two days to modify the Stanford
+%                       template to match UTP requirements. Minor changes made continuously.
+% 23 Feb 2011: Fine-tuning of the initial draft by Anas Nazlee (verachens@gmail.com)
+%                       added in a few more packages and disable hyphenation feature. Use tabular
+%                       environment for most of the alignment, a bit rigid but should do the trick. 
+%                       Also changed two of the framebox for the thesis title to parbox with frame thus 
+%                       the box will expand for longer title.
+% 15 Mar 2011: Draft goes for trial to select UTP research students
+% 10 May 2011: Edited by Azman Latif (d.azman.abdul.latif@intel.com)
+%		   added some codes to  include list of abbreviations.
+%		   added \hspace by 2.5in to make the heading of references
+%  25 May 2011: Edited by Azman Latif (d.azman.abdul.latif@intel.com)
+%		   corrected the numbering style of (List of Abbreviations) from arabic to roman style. Chapter page is now 
+%		   arabic style.
+% 2 June 2011: Edited by Azman Latif (d.azman.abdul.latif@intel.com)
+%		   Removed the unnecessary wording on the copyright page by revamping the style file
+% 30 Oct 2011: The 1.5in margin in the TOC, list of figures, list of tables, table of abbreviation is work in progress by Azman %		   Latif (d.azman.abdul.latif@intel.com)
+% 6 March 2012 : First hardbound thesis ever attempted in Latex by Azman (though prelim pages made outside latex)
+% 15 June 2012 : Adjusting top margin in TOC, LOF, LOT %		   Taj (mohamed.tajelsir@gmail.com)
+%		: Adding Dedications page                               %           Taj (mohamed.tajelsir@gmail.com)
+%		: Changing orders of preliminary pages (Status of thesis, signature, title page, declaration of thesis, dedication, acknowledgment, abstract, abstrak, copyright, TOC, LOT, LOF, LOA, Nomen, )%           Taj (mohamed.tajelsir@gmail.com)
+%  26 June 2012 %%%%%%%%%%The first accepted softbound thesis fully written in Latex %%%%%%%%%%
+% 17 July 2012 : Adding List of Abbreviations, Nomenclature %           Taj (mohamed.tajelsir@gmail.com)
+%		: Changing font to Times New Romans thanks to Times Package    %Taj (mohamed.tajelsir@gmail.com)
+%		: Deleting old comments %Taj (mohamed.tajelsir@gmail.com)
+%  3 Aug 2012: The first accepted hardbound thesis fully written in Latex %Taj (mohamed.tajelsir@gmail.com)
+
+%  13th March 2018: Updated the table of conted to include preliminary pages, updated preliminary page number style and List of Figures and Tables to include the words "Figure" and "Table", added clear page in required locations. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%
+%%%%%   PRELIMS
+%%%%%
+
+\ProvidesPackage{utpthesis-2e}[2012/08/03]
+
+\typeout{Document Style Option `utpthesis' for latex2e as accepted by CGS on <$Date: 03/08/2012 $>.}
+
+% First thing we do is make sure that report has been loaded.  A
+% common error is to try to use utpthesis as a documentstyle.
+\@ifundefined{chapter}{\@latexerr{The `utpthesis' option should be used
+        with the `report' document style}{You should probably read the utphesis documentation.}}{}
+
+%%%%%
+%%%%%   SETUP FONT AS TIMES NEW ROMAN
+%%%%% Added by Taj
+\usepackage{times}
+%%%%%
+%%%%%   SETUP DOUBLESPACING
+%%%%%
+
+\RequirePackage{setspace}
+\usepackage[titles]{tocloft}
+\RequirePackage{parskip}
+\usepackage{multirow}
+\usepackage{ifthen}
+%--------Added Packages by me--------
+
+\DeclareMathAlphabet      {\mathbf}{OT1}{cmr}{bx}{n}
+%--------Added Packages by me--------
+%The following 3 lines are inserted to make the page for List of Abbreviations (Added by Taj)
+\usepackage[final]{listofsymbols}
+\let\symbol\newsym
+\let\abbr\newsub
+% Use 1.5 times the normal baseline-to-baseline skip
+\setstretch{1.5}
+\def\myparagraphindent{18pt}
+
+%\onehalfspacing
+\setlength{\parskip}{12pt}
+\setlength{\parindent}{\myparagraphindent}
+
+
+%%%%%
+%%%%%   SETUP MARGINS AND PENALTIES NEEDED FOR UTP THESIS
+%%%%%
+%A4 8.27in × 11.69in: 210 × 297mm,  Letter 8.5 × 11in : 215.9 × 279.4mm
+% We need 1" margins except on the binding edge, where it is 1 1/2"
+% Theses may be either single or double sided
+\if@twoside
+    \setlength\oddsidemargin   {36.1\p@}
+    \setlength\evensidemargin  {0\p@}
+    %\setlength\marginparwidth {40\p@}
+\else
+    \setlength\oddsidemargin   {36.1\p@}
+    \setlength\evensidemargin  {36.1\p@}
+    %\setlength\marginparwidth  {40\p@}
+\fi
+
+\marginparsep 0pt
+%\oddsidemargin 0.5in \evensidemargin 0in
+%\marginparwidth 40pt 
+
+%\voffset 1in
+\setlength{\topmargin}{0in} %Added by Taj
+\headheight 0pt
+\headsep 0pt
+%\textheight 9.3in \textwidth 5.77in %commented by Taj to replace it as below
+\textheight 9.4in \textwidth 5.77in
+
+
+%%%%%
+%%%%%   SETUP HEADINGS AND SECTION FORMATTING
+%%%%%
+
+%=========Used for bookmarks
+\newcommand{\autoBookmark}[2]{
+	\ifstrequal{#1}{chap}{
+		\pdfbookmark[1]{\thechapter: #2}{chap:\thechapter}
+	}{
+		\ifstrequal{#1}{sec}{
+			\pdfbookmark[2]{\thesection: #2}{sec:\thesection}
+		}{
+			\ifstrequal{#1}{subsec}{
+				\pdfbookmark[3]{\thesubsection: #2}{subsec:\thesubsection}
+			}{
+				\ifstrequal{#1}{subsubsec}{
+					\pdfbookmark[4]{\thesubsubsection: #2}{subsubsec:\thesubsubsection}
+				}{
+					% Do nothing for unmatched types
+				}
+			}
+		}
+	}
+}
+
+% default allows section depth up to /paragraph
+\setcounter{secnumdepth}{3}
+
+\setcounter{chapter}{0}
+\setcounter{section}{0}
+\setcounter{subsection}{1}
+\setcounter{subsubsection}{1}
+
+\newcounter{appendixcounter}
+\setcounter{appendixcounter}{1}
+
+
+\renewcommand{\appendix}{
+    \setcounter{chapter}{0}
+    \renewcommand{\thechapter}{\Alph{chapter}}
+    \renewcommand{\@thischapterhead}{APPENDIX \Alph{chapter}}
+}
+
+\def\@thischapterhead{CHAPTER \arabic{chapter}}
+
+\def\@makechapterhead#1{%
+    \vspace*{50\p@}%
+    {\parindent \z@ \centering
+        \begin{center}
+            \rm \@thischapterhead\\
+        \end{center}
+        \interlinepenalty\@M
+        \normalfont\uppercase{#1} \par\nobreak
+        \vskip 40\p@
+    }}
+
+
+
+\def\appendixchapter#1{%
+    \newpage
+    \cleardoublepage
+    \vspace{2in}
+    \begin{center}
+        {APPENDIX \Alph{appendixcounter}}\\
+    \end{center}
+    \centering\normalsize\normalfont\uppercase{#1}
+    \chapter*{}
+    \addcontentsline{toc}{appendixcounter}{#1}
+    \cleardoublepage
+}
+
+
+
+% \@startsection {NAME}{LEVEL}{INDENT}{BEFORESKIP}{AFTERSKIP}{STYLE} 
+%            optional * [ALTHEADING]{HEADING}
+%    Generic command to start a section.  
+%    NAME       : e.g., 'subsection'
+%    LEVEL      : a number, denoting depth of section -- e.g., chapter=1,
+%                 section = 2, etc.  A section number will be printed if
+%                 and only if LEVEL gt or eq the value of the secnumdepth
+%                 counter.
+%    INDENT     : Indentation of heading from left margin
+%    BEFORESKIP : Absolute value = skip to leave above the heading.  
+%                 If negative, then paragraph indent of text following 
+%                 heading is suppressed.
+%    AFTERSKIP  : if positive, then skip to leave below heading,
+%                       else - skip to leave to right of run-in heading.
+%    STYLE      : commands to set style
+%  If '*' missing, then increments the counter.  If it is present, then
+%  there should be no [ALTHEADING] argument.  A sectioning command
+%  is normally defined to \@startsection + its first six arguments.
+
+%\renewcommand{\chapter}{%
+%\@startsection
+%{chapter}{1}{0pt}{-1.5ex plus -1ex minus -.2ex}%
+%{1ex plus .2ex}{\normalsize\centering}%
+%}
+
+
+% \renewcommand{\section}{%
+% \@startsection
+% {section}{1}{0pt}{36pt plus 6pt minus 6pt}%
+% {6pt plus 1pt minus 1pt}{\bf\normalsize}%
+% % \let\@afterindentfalse % remove indent for first line
+% }
+\renewcommand{\section}{%
+    % Space before: -6.8ex ~ 136pt
+    % Space after: 1.3ex ~ 6pt
+    \@startsection{section}{1}{\z@}{-6.8ex \@plus -1ex \@minus -.2ex}{1.3ex \@plus.2ex \@minus.2ex}%
+    {\bf\normalsize}}
+
+% \renewcommand{\section}{
+%   \@startsection
+%   {section} % Name of the sectioning command to be redefined
+%   {1} % Level of the section
+%   {\z@} % Indentation of the heading from the left margin (0 means no indentation)
+%   {-1ex \@plus 6pt \@minus 6pt} % Space before the heading (negative value means it can overlap the previous text)
+%   {6pt \@plus 1pt \@minus 1pt} % Space after the heading (0 means no space, \@plus and \@minus are stretchable and shrinkable components)
+%   {\bf\normalsize} % Formatting of the heading
+%   % [indent=0pt]
+%   % \let\@afterindentfalse
+% }
+% \renewcommand{\section}{
+% \@startsection
+% {section}{1}{\z@}{-1ex \@plus.2ex \@minus.2ex}{1ex \@plus.2ex \@minus.2ex}{\normalfont\large\bfseries}}
+
+
+
+\renewcommand{\subsection}{%
+    \@startsection
+    {subsection}{2}{0pt}{36pt plus 6pt minus 6pt}%
+    {6pt plus 1pt minus 1pt}{\bf\normalsize}%
+}
+
+\renewcommand{\subsubsection}{%
+    \@startsection
+    {subsubsection}{3}{0pt}{36pt plus 6pt minus 6pt}%
+    {6pt plus 1pt minus 1pt}{\it\normalsize}%
+}
+
+\newcommand{\appendixsection}{%
+    \@startsection
+    {section}{1}{0pt}{3ex plus .5ex minus .5ex}%
+    {1ex plus .1ex}{\bf\normalsize}%
+}
+\newcommand{\appendixsubsection}{%
+    \@startsection
+    {subsection}{2}{0pt}{3ex plus .5ex minus .5ex}%
+    {1ex plus .1ex}{\bf\normalsize}%
+}
+
+%%%%%
+%%%%%   SETUP COMMANDS PECULIAR TO THESES
+%%%%%
+
+% \author, \title are defined in report; here are the rest of the
+% front matter defining macros
+\def\dept#1{\gdef\@dept{#1}}
+\def\facu#1{\gdef\@facu{#1}}
+\def\hod#1{\gdef\@hod{#1}}
+\def\degree#1{\gdef\@degree{#1}}
+\def\advis@r{Supervisor} % default spelling
+\def\mainsupervisor#1{\gdef\@mainsupervisor{#1}}
+\def\mainsupervisor#1{\gdef\@mainsupervisor{#1}\gdef\advis@r{Supervisor}}
+\def\cosupervisora#1{\gdef\@cosupervisora{#1}\gdef\advis@r{Supervisor}}
+\def\cosupervisorb#1{\gdef\@cosupervisorb{#1}\gdef\advis@r{Supervisor}}
+
+\def\submitdate#1{\gdef\@submitdate{#1}}
+\def\copyrightyear#1{\gdef\@copyrightyear{#1}} % \author, \title in report
+\def\authoraddress#1{\gdef\@authoraddress{#1}}
+% needed only for dual language departments to choose the language
+\def\languagemajor#1{\gdef\@languagemajor{#1}} \def\@language{babel}
+\def\@title{}\def\@author{}\def\@dept{}
+\def\@mainsupervisor{}\def\@firstreader{*}\def\@secondreader{*}
+\def\@cosupervisora{*}
+\def\@cosupervisorb{*}
+
+\def\@submitdate{\ifcase\the\month\or
+        January\or February\or March\or April\or May\or June\or
+        July\or August\or September\or October\or November\or December\fi
+    \space \number\the\year}
+
+% Is it confidential?
+
+\def\confidentialTrue#1{\gdef\@confidentialTrue{#1}}
+\def\confidentialFalse#1{\gdef\@confidentialFalse{#1}}
+\def\@confidentialTrue{*}
+\def\@confidentialFalse{*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\rpd#1{\gdef\@rpd{#1}}
+\def\sid#1{\gdef\@sid{#1}}
+
+\def\@rpd{}
+\def\@sid{}
+
+
+% Confirmation by Pannal of Examiners
+\def\authorGender#1{\gdef\@authorGender{#1}}
+\def\authorID#1{\gdef\@authorID{#1}}
+\def\vivaDate#1{\gdef\@vivaDate{#1}}
+
+\def\@authorGender{*}
+\def\@authorID{*}
+\def\@vivaDate{*}
+
+%Chair Man
+\def\chairName#1{\gdef\@chairName{#1}}
+\def\chairPosition#1{\gdef\@chairPosition{#1}}
+\def\chairDept#1{\gdef\@chairDept{#1}}
+\def\chairUniv#1{\gdef\@chairUniv{#1}}
+\def\chairMan#1{\gdef\@chairMan{#1}}
+
+\def\@chairName{*}
+\def\@chairPosition{*}
+\def\@chairDept{*}
+\def\@chairUniv{*}
+\def\@chairMan{*}
+
+%Exaninar A
+\def\examinerAName#1{\gdef\@examinerAName{#1}}
+\def\examinerAPosition#1{\gdef\@examinerAPosition{#1}}
+\def\examinerADept#1{\gdef\@examinerADept{#1}}
+\def\examinerAUniv#1{\gdef\@examinerAUniv{#1}}
+\def\examinerA#1{\gdef\@examinerA{#1}}
+
+\def\@examinerAName{*}
+\def\@examinerAPosition{*}
+\def\@examinerADept{*}
+\def\@examinerAUniv{*}
+\def\@examinerA{*}
+
+%Exaninar B
+\def\examinerBName#1{\gdef\@examinerBName{#1}}
+\def\examinerBPosition#1{\gdef\@examinerBPosition{#1}}
+\def\examinerBDept#1{\gdef\@examinerBDept{#1}}
+\def\examinerBUniv#1{\gdef\@examinerBUniv{#1}}
+\def\examinerB#1{\gdef\@examinerB{#1}}
+
+\def\@examinerBName{*}
+\def\@examinerBPosition{*}
+\def\@examinerBDept{*}
+\def\@examinerBUniv{*}
+\def\@examinerB{*}
+
+%Exaninar C
+\def\examinerCName#1{\gdef\@examinerCName{#1}}
+\def\examinerCPosition#1{\gdef\@examinerCPosition{#1}}
+\def\examinerCDept#1{\gdef\@examinerCDept{#1}}
+\def\examinerCUniv#1{\gdef\@examinerCUniv{#1}}
+\def\examinerC#1{\gdef\@examinerC{#1}}
+
+%Exaninar C
+\def\@examinerCName{*}
+\def\@examinerCPosition{*}
+\def\@examinerCDept{*}
+\def\@examinerCUniv{*}
+\def\@examinerC{*}
+
+
+%CGS
+\def\CGSdeanName#1{\gdef\@CGSdeanName{#1}}
+\def\deanPosition#1{\gdef\@deanPosition{#1}}
+\def\deanCGS#1{\gdef\@deanCGS{#1}}
+\def\CGS#1{\gdef\@CGS{#1}}
+
+\def\@CGSdeanName{*}
+\def\@deanPosition{*}
+\def\@deanCGS{*}
+\def\@CGS{*}
+
+
+%Stanford says that Fall quarter theses should have the next year as the
+% copyright year
+
+\def\@copyrightyear{\number\the\year}
+\newif\ifcopyright \newif\iffigurespage \newif\iftablespage
+\newif\ifthesiscopyright
+
+
+\copyrighttrue
+\thesiscopyrighttrue
+
+\figurespagetrue \tablespagetrue
+
+
+\def\@standardsub{
+    \uppercase\expandafter{\@degree}\\
+    \uppercase\expandafter{\@dept} 
+    \if*\@facu \else \\ \uppercase\expandafter{\@facu} \fi 
+    }
+\let\@whichsub=\@standardsub
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%front page
+\def\thesisfrontpage{%
+    \begin{minipage}{5.0in}
+        \begin{center}
+            \vspace*{30pt}
+            % 	\begin{figure}[!ht]
+            \centering
+            \includegraphics[scale=0.22]{./logos/logo.pdf}
+            \label{image:logo}
+            % 	\end{figure} 
+            \\
+            \bigskip\bigskip\medskip
+            \uppercase\expandafter{\@title}\\
+
+            \bigskip\bigskip\medskip
+            {\large \textbf{\textcolor{blue}{\@rpd}}}\\
+            {\@degree} \\
+            \bigskip\bigskip\medskip
+            {\large \textbf{\@author}} \\
+            {\large \@sid} \\
+            {\large January 2022} \\
+
+            \bigskip\bigskip\medskip
+            {\large Supervisor} \\
+            % \vspace{\baselineskip}
+            {\large \textbf{\@mainsupervisor}} \\
+            \vspace{\baselineskip}
+            {\large Co-Supervisor} \\
+            {\large \textbf{\@cosupervisora}} \\
+
+            \bigskip\bigskip\medskip
+            \uppercase\expandafter{\@dept} \\
+            \uppercase\expandafter{Universiti Teknologi PETRONAS} \\
+            \uppercase\expandafter{Seri Iskandar, 32610, Perak Darul Ridzuan, Malaysia} \\
+        \end{center}
+    \end{minipage}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%
+%%%%%   THESES TITLEPAGE
+%%%%%
+
+\def\titlepage{%
+
+    \thispagestyle{empty}%
+    %\doublespace
+    \null\vskip0.7in%
+    \begin{center}
+        \uppercase\expandafter{\@title}
+
+        \vskip 0.25in
+        \normalfont by
+        \vskip 0.25in
+        \uppercase\expandafter{\@author}\\
+        \vskip1in
+
+    \end{center}
+    \begin{center}
+        A Thesis\\
+        Submitted to the Postgraduate Studies Programme\\
+        as a Requirement for the Degree of\\
+        \vskip1in
+        \uppercase\expandafter{\@whichsub}\\
+        UNIVERSITI TEKNOLOGI PETRONAS\\
+        BANDAR SERI ISKANDAR\\
+        PERAK\\
+
+    \end{center}
+    \vfill
+    \begin{center}
+        %\rm \@author\\
+        \@submitdate\\
+    \end{center}\vskip.5in\newpage}
+%\newpage
+%\thispagestyle{empty}
+%\mbox{}
+
+
+
+%%%%%
+%%%%%   STATUS OF THESES 
+%%%%%
+
+%\topmargin 0in
+
+\def\statuspage{%
+    %\vspace*{-0.1 in} %Added by Taj
+    \setlength{\parindent}{0pt}
+
+    \thispagestyle{empty}%
+    %\doublespace
+    \begin{center}
+        STATUS OF THESIS
+    \end{center}
+    \begin{flushleft}
+        \raisebox{0.5\parskip}{Title of thesis} \hspace{0.5cm}\framebox[11.5cm]{\parbox[c]{11cm}{%
+                \uppercase\expandafter{\@title}}} \par
+        I \rlap{\rule[-0.5mm]{0.98\textwidth}{.4pt}\hss} \hspace{0.1in}\uppercase\expandafter{\@author}
+        \vskip 0.02in
+
+            {\setlength{\baselineskip}%
+                {0.7\baselineskip}
+                hereby allow my thesis to be placed at the Information Resource Center (IRC) of Universiti Teknologi PETRONAS (UTP) with the following conditions: \par}
+            {\setlength{\baselineskip}%
+                {0.3\baselineskip}
+                \begin{enumerate}%[topsep=0pt,itemsep=2pt,parsep=0pt]
+                    \item The thesis becomes the property of UTP.
+                    \item The IRC of UTP may make copies of the thesis for academic purposes only.
+                    \item This thesis is classified as
+                          % 	\begin{description}
+                          % 		\item \framebox[1cm]{\raisebox{0.35cm}{}} Confidential
+                          % 		\item \framebox[1cm]{\raisebox{0.35cm}{}} Non-confidential
+                          % 	\end{description}
+						  \begin{flushleft}
+						      \begin{tabular}{@{}cl@{}}
+						          \framebox(25,15){\if*\@confidentialTrue \else
+						              \@confidentialTrue \fi}
+						           & Confidential \\[0.2cm]
+						          \framebox(25,15){\if*\@confidentialFalse \else
+						              \@confidentialFalse \fi}
+						           & Non-confidential \\
+						      \end{tabular}
+						  \end{flushleft}
+                \end{enumerate} \par}
+                   \vskip -0.2in
+            %\hskip1cm \framebox[1cm]{\raisebox{0.5cm}{}} Confidential \\
+            %        \vskip 0.05in
+            %\hskip1cm \framebox[1cm]{\raisebox{0.5cm}{}} Non-confidential \\
+            %        \vskip 0.15in
+            {\setlength{\baselineskip}%
+                {0.5\baselineskip}
+                If this thesis is confidential, please state the reason: \\
+                \hrulefill \\
+                \hrulefill \\
+                \hrulefill
+
+                The contents of the thesis will remain confidential for
+                \rlap{\rule[-0.5mm]{2cm}{.4pt}\hss} \hskip2.1cm years. \\
+                \vskip0.2in
+                Remarks on disclosure: \\
+                \hrulefill \\
+                \hrulefill \\
+                \hrulefill \\ \par}
+
+        \vskip0.4cm
+        \begin{tabular}{@{}ll@{}}
+            \hfill                           & Endorsed by:                           \\
+            \authorsignature                 & \raisebox{0.7cm}{\supervisorsignature} \\
+            Date: \underline{\makebox[2.1in][c]{\today}} & Date: \underline{\makebox[2.1in][c]{}}
+        \end{tabular}\\
+        \setlength{\parindent}{\myparagraphindent}
+        \vfill
+    \end{flushleft} 
+    \newpage
+}
+%%%%%
+
+
+
+%%%%%   THESES APPROVAL PAGE
+%%%%%
+
+\def\approvalpage{%
+    \thispagestyle{empty}%
+    %\doublespace
+    \null\vskip0.2in%
+    \begin{center}
+        UNIVERSITI TEKNOLOGI PETRONAS\\
+        \vskip 0.3in
+        \uppercase\expandafter{\@title}
+
+        \vskip 0.002in
+        \normalfont by
+        \vskip 0.02in
+        \uppercase\expandafter{\@author}\\
+        \vskip0.20in
+
+    \end{center}
+    \begin{center}
+        \begin{justify}
+            The undersigned certify that they have read, and recommend to the Postgraduate Studies Programme for acceptance of this thesis for the fulfilment of the requirements for the degree stated.
+        \end{justify}
+
+        \vskip0.2in
+
+        \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}l@{}}
+            %Signature: & \rule[-0.5mm]{4in}{.4pt} \includegraphics[height=1.5cm]{sign1}\\
+            Signature: &  \rule[-0.5mm]{4in}{.4pt}\\
+            Main Supervisor: & \rlap{\rule[-0.5mm]{4in}{.4pt}}\@mainsupervisor \vspace{0.5cm}\\
+            \if*\@cosupervisora \else
+            Signature: & \rule[-0.5mm]{4in}{.4pt} \\
+            Co-Supervisor: & \rlap{\rule[-0.5mm]{4in}{.4pt}}\@cosupervisora \vspace{0.5cm}\\
+            \fi
+            \if*\@cosupervisorb \else
+            Signature: & \rule[-0.5mm]{4in}{.4pt} \\
+            Co-Supervisor: & \rlap{\rule[-0.5mm]{4in}{.4pt}}\@cosupervisorb \vspace{0.5cm}\\
+            \fi
+            Signature: & \rule[-0.5mm]{4in}{.4pt} \\
+            Head of Department: & \rlap{\rule[-0.5mm]{4in}{.4pt}}\@hod \vspace{0.5cm}\\
+            Date: & \rule[-0.5mm]{4in}{.4pt} \\
+            %\if*\@cosupervisorc \else
+            %Signature: \hfill  {\rule[-0.5mm]{0.7\textwidth}{.4pt}\hss} \\
+            %External Co-Supervisor: \rlap{\rule[-0.5mm]{0.7\textwidth}{.4pt}\hss}
+            %	\hfill\hskip1cm \uppercase\expandafter{\@cosupervisorb}
+            %\fi
+        \end{tabular*}
+    \end{center}
+    \vfill
+    \newpage
+}
+
+%%%%%
+%%%%%  DECLARATION OF THESIS
+%%%%%
+
+\def\declarationpage{%
+    \vspace*{0.5 in} %Added by Taj
+    \begin{center}
+        DECLARATION OF THESIS
+    \end{center}
+    \vspace{0.5cm}
+    \begin{flushleft}
+        \raisebox{0.5\parskip}{Title of thesis} \hspace{0.5cm}\framebox[11.5cm]{\parbox[c]{11cm}{%
+                \uppercase\expandafter{\@title}}} \par
+        \vspace{1cm}
+        % I \rlap{\rule[-0.5mm]{0.98\textwidth}{.4pt}\hss} \hspace{1in}\uppercase\expandafter{\@author}\end{flushleft}
+        I \rlap{\rule[-0.5mm]{0.98\textwidth}{.4pt}} \hspace{0.1in}\uppercase\expandafter{\@author}\end{flushleft}
+        % I \rlap{\rule[-0.5mm]{0.98\textwidth}{.4pt}\hss} \hspace{0.1in}\uppercase\expandafter{\@author}
+
+    \vskip 0.15in
+
+        {\setlength{\baselineskip}%
+            {0.8\baselineskip}
+            hereby declare that the thesis is based on my original work except for quotations and citations which have been duly acknowledged. I also declare that it has not been previously or concurrently submitted for any other degree at UTP or other institutions.  \par}
+
+    \vskip1cm
+    \begin{tabular}{@{}ll@{}}
+        \hfill                           & Witnessed by                           \\
+        \authorsignature                 & \raisebox{0.7cm}{\supervisorsignature} \\
+        Date: \underline{\makebox[2.1in][c]{\today}}
+    \end{tabular}
+    \vfill
+    \newpage
+}
+
+
+
+%%%%% %Added by Alawi Alqushaibi (alawi.alqushaibi@gmail.com)
+%%%%%  CONFIRMATION BY PANEL OF EXAMINERS 
+%%%%% confirmationbypanelofexaminrs
+%\addcontentsline{toc}{chapter}{CONFIRMATION BY PANEL OF EXAMINERS}
+\def\confirmationbypanelofexaminrs{%
+\vspace*{0.5 in}
+\begin{center}
+    CONFIRMATION BY PANEL OF EXAMINERS
+\end{center}
+\vspace{0.7cm}
+
+{\setlength{\baselineskip}% 
+{0.8\baselineskip}
+I certify that a panel of examiners has met on~\if*\@vivaDate\else\textbf{\@vivaDate}\fi ~to conduct the final examination of~\textbf{\@author}, Matric number:~{\if*\@authorID \else \textbf{\@authorID} \fi }~on~{\if*\@authorGender \else \@authorGender \fi }~thesis entitled:
+
+\begin{center}
+\textbf{\MakeUppercase{\@title}}.     
+\end{center}
+
+The panel of examiners recommends that the student be awarded the~\textbf{{\@degree}}. The members of the panel of examiners were as follows:
+
+% I certify that a panel of examiners have met on~\rlap{\makebox[1.1in][c]{\if*\@vivaDate \else \@vivaDate \fi }}{\rule[-1.5mm]{1.1in}{.4pt}}~ to conduct the final examination of {\@author}~{\if*\@authorID \else \@authorID \fi }~on ~{\if*\@authorGender \else \@authorGender \fi }~thesis entitled:~\begin{center} \uppercase\expandafter{\@title}\end{center} The panel of examiners recommends that the student be awarded the~\expandafter{\@degree}. The members of the panel of examiners were as follows:
+
+\par}
+
+\vskip 0.5cm
+    {\setlength{\baselineskip}% 
+        {0.7\baselineskip}
+
+        \if*\@chairName \else
+        \@chairName\\
+        \fi
+        \if*\@chairPosition \else
+        \@chairPosition\\
+        \fi
+        \if*\@chairDept \else
+        \@chairDept\\
+        \fi
+        \if*\@chairUniv \else
+        \@chairUniv\\
+        \fi
+        \if*\@chairMan \else
+        \@chairMan\\\\
+        \fi
+        % 			\vskip 0.05cm
+        \if*\@examinerAName \else
+        \@examinerAName\\
+        \fi
+        \if*\@examinerADept \else
+        \@examinerADept\\
+        \fi
+        \if*\@examinerAUniv \else
+        \@examinerAUniv\\
+        \fi
+        \if*\@examinerA \else
+        \@examinerA\\\\
+        \fi
+        % 			\vskip 0.05cm
+        \if*\@examinerBName \else
+        \@examinerBName\\
+        \fi
+        \if*\@examinerBDept \else
+        \@examinerBDept\\
+        \fi
+        \if*\@examinerBUniv \else
+        \@examinerBUniv\\
+        \fi
+        \if*\@examinerB \else
+        \@examinerB\\\\
+        \fi
+        % 			\vskip 0.05cm
+        \if*\@examinerCName \else
+        \@examinerCName\\
+        \fi
+        \if*\@examinerCDept \else
+        \@examinerCDept\\
+        \fi
+        \if*\@examinerCUniv \else
+        \@examinerCUniv\\
+        \fi
+        \if*\@examinerC \else
+        \@examinerC\\\\
+        \fi
+        % 			\vskip -0.05cm	
+        \vspace*{0.1 in}
+
+        \hspace*{6.8cm}%
+        \begin{minipage}{3.5in}
+            % \vspace*{0.5cm}%
+            \rule[-0.5mm]{2.8 in}{.4pt}
+            {\setlength{\baselineskip}% 
+            {0.7\baselineskip}\\
+            {\if*\@CGSdeanName \else \@CGSdeanName \fi}\\
+            % {\if*\@deanPosition \else \@deanPosition \fi}\\ commented by SAF1
+            {\if*\@deanCGS \else \@deanCGS \fi}\\
+            {\if*\@CGS \else \@CGS \fi}\\
+            Universiti Teknologi PETRONAS\\
+            Date: \rule[-0.5mm]{1.5 in}{.4pt}
+            \par}
+        \end{minipage}
+        \par}
+\vfill
+\newpage
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\def\authorsignature{%
+    \begin{minipage}{2.75in}
+        % \includegraphics[trim={0.01cm 1.3cm 0.001cm 0.01cm},clip,scale=0.10]{figures/signiture.png} 
+        % \hspace{1cm}\includegraphics[scale=0.07]{icons/alwi-signiture.png}
+        \vskip-0.85in
+        \vspace{\signaturespace}
+        \shortstack[l]{\rule[-0.5mm]{2.5in}{.4pt}\\
+            Signature of Author} \\
+        Permanent Address: \\
+        \begin{tabular*}{2.5in}[b]{@{}p{2.5in}@{}}
+            \@authoraddress
+        \end{tabular*}\\
+    \end{minipage}
+}
+
+
+\long\def\supervisorsignature{%
+    %\begin{flushright}
+    \begin{minipage}{2.75in}
+        \vspace{\signaturespace}
+        \shortstack[l]{\rule[-0.5mm]{2.5in}{.4pt}\\
+            Signature of Supervisor} \\
+        \vspace{-3mm}\\
+        \shortstack[l]{Name of Supervisor: \vspace{1mm}\\
+            \rlap{\rule[-0.9mm]{2.5in}{.4pt}\hss} \@mainsupervisor}\\
+
+    \end{minipage}
+}
+%\end{flushright}}
+
+
+%%%%%
+%%%%%   THESES COPYRIGHT PAGE
+%%%%%
+
+\def\thesiscopyrightpage{%
+    \begin{minipage}{1\textwidth}
+        \parindent=18pt
+        \vskip1in
+        {\setlength{\baselineskip}{0.7\baselineskip}
+            \indent In compliance with  the terms of the Copyright Act 1987 and the IP Policy of the
+            University, the copyright of this thesis has been reassigned by  the author  to the legal
+            entity of the university,
+
+            \vskip 0.5cm
+            \begin{center}
+                Institute of Technology PETRONAS Sdn Bhd.
+            \end{center}
+            \vskip 0.5cm
+            \indent Due acknowledgment shall always be made of the use of any material contained
+            in, or derived from, this thesis.
+            \par}
+    \end{minipage}
+    \vskip1cm
+
+    {\flushright
+        \begin{minipage}{0.65\textwidth}
+            {\setlength{\baselineskip}{0.7\baselineskip}
+                \copyright \@author, \@copyrightyear \\
+                Institute of Technology PETRONAS Sdn Bhd  \\
+                All rights reserved.\par}
+        \end{minipage}\par}
+
+    \vfill\newpage
+    \setlength{\parindent}{\myparagraphindent}}
+
+
+
+\newlength{\signaturespace}
+\setlength{\signaturespace}{.5in}
+
+
+\long\def\signature#1{%
+    \begin{flushright}
+        \begin{minipage}{5in}
+
+            \vspace{\signaturespace}
+            \hbox to 5in{\hfil\begin{tabular}{@{}l@{}}\vrule width 3in height
+                        0.4pt depth 0pt \\ #1\end{tabular}}
+        \end{minipage}
+    \end{flushright}}
+
+\long\def\ucgssignature{%
+    \begin{flushright}
+        \begin{minipage}{5in}
+            \parindent=0pt
+            \hfill Approved for the University Committee on Graduate Studies
+            \par
+            \vspace{\signaturespace}
+            \hbox to 5in{\hfil\begin{tabular}{@{}l@{}}\vrule width 3in height
+                        0.4pt depth 0pt\end{tabular}}
+        \end{minipage}
+    \end{flushright}
+    \setlength{\parindent}{\myparagraphindent}}
+
+
+\def\signaturepage{% 
+    \parindent=0pt
+    I certify that I have read this dissertation and that, in my opinion,
+    it is fully adequate in scope and quality as a dissertation for the degree
+    of \@degree.
+    \par
+    \signature{(\@mainsupervisor)\\ Main \advis@r}
+    \vfill
+    % if second principal advisor
+    \if*\@cosupervisora \else
+    \signature{(\@cosupervisora)\\ Co-\advis@r}
+    \vfill\fi
+    \if*\@cosupervisorb \else
+    \signature{(\@cosupervisorb)\\ Co-\advis@r}
+    \vfill\fi
+    \ucgssignature
+    \vfill\newpage
+    \parindent=
+    \setlength{\parindent}{\myparagraphindent}}
+
+
+
+%%%%%
+%%%%%   ACTUAL PAGE WRITING HERE
+%%%%%
+
+\let\origdoublepage\cleardoublepage
+\newcommand{\clearemptydoublepage}{%
+    \clearpage
+    {\pagestyle{empty}\origdoublepage}%
+}
+
+\def\beforepreface{
+    \clearpage
+    \pagenumbering{roman}
+    \pagestyle{plain}
+    %\pagestyle{headings}
+    %\addcontentsline{toc}{chapter}{Status of Thesis}
+    \statuspage %PAGE 1
+    %\addcontentsline{toc}{chapter}{Approval Page}
+    \approvalpage %PAGE 2
+    \titlepage %PAGE 3
+    %\addcontentsline{toc}{chapter}{Declaration Page}
+    \declarationpage %PAGE 4
+    % 	\confirmationbypanelofexaminrs %PAGE 4
+}
+%%%%%
+%%%%%   Table of Contents
+%%%%%
+
+
+\def\prefacesection#1{%
+    \chapter*{\centering\normalsize\normalfont\uppercase{#1}} %defining page header of preface part        	
+}
+% \renewcommand{\cftchapleader}{\bfseries\cftdotfill{\cftdotsep}} %the dots are in bold font
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} %Added by Taj to fill chapter entries with dots
+\renewcommand{\cftchapfont}{\normalsize\bfseries} %Added by Taj
+
+\renewcommand{\cftchappagefont}{\normalsize\MakeUppercase\bfseries} %Added by Taj to convert chapter to UPPERCASE
+\setlength{\cftbeforechapskip}{0ex}
+\setlength{\cftbeforesecskip}{0ex}
+\setlength{\cftbeforechapskip}{0ex}
+\def\afterpreface{\newpage
+    %\ifx \@currenvir appendices %\if@pptocpage \@pptocpagetrue %\ifx \@resets@pp %\defined %\@currenvir appendix
+    \renewcommand{\cftchappresnum}{\bfseries CHAPTER }
+    \renewcommand{\cftchapnumwidth}{25mm} %Added by Taj to include the word Chapter before any chapter entry in TOC
+    \renewcommand{\cftchappagefont}{\normalfont\bfseries} % page numbers in bold
+    %\else 
+    %    \renewcommand{\cftchappresnum}{}\renewcommand{\cftchapnumwidth}{1.5em} %Added by Taj to include
+    %\fi
+    \renewcommand\contentsname{\normalsize\normalfont\centering \vspace*{-0.5in}TABLE OF CONTENTS} %\vspace*{-0.5in} Added by Taj to make TOC at 1.5in topmargin
+    \begingroup
+    \hypersetup{linkcolor=black}
+    \tableofcontents
+    \endgroup
+    \addcontentsline{toc}{section}{\hspace*{-\cftsecindent}TABLE OF CONTENTS}
+    \label{chap:TABLEOFCONTENTS}
+    \pdfbookmark[1]{TABLE OF CONTENTS}{chap:TABLEOFCONTENTS}
+
+    
+    
+
+    %	\iftablespage
+    %	\renewcommand\listtablename{\normalsize\normalfont\centering\vspace*{-0.5in} ABSTRACT}
+    %	\clearpage
+    %	\phantomsection
+    %	\addcontentsline{toc}{chapter}{ABSTRACT}
+
+    %	\iftablespage
+    %	\renewcommand\listtablename{\normalsize\normalfont\centering\vspace*{-0.5in} ABSTRAK}
+    %	\clearpage
+    %	\phantomsection
+    %	\addcontentsline{toc}{chapter}{ABSTRAK}
+
+    %\prefacesection
+    %\fi
+    %%%%%
+    %%%%%   List of Tables 
+    %%%%% 
+    \iftablespage
+        \renewcommand\listtablename{\normalsize\normalfont\centering\vspace*{-0.5in} LIST OF TABLES}
+        % \renewcommand{\cftchappresnum}{CHAPTER }\renewcommand{\cftchapnumwidth}{25mm}
+        \clearpage
+        \addcontentsline{toc}{section}{\hspace*{-\cftsecindent}LIST OF TABLES}
+        \phantomsection
+        \label{chap:LISTOFTABLES}
+        \pdfbookmark[1]{LIST OF TABLES}{chap:LISTOFTABLES}
+        \begingroup
+        \hypersetup{linkcolor=black}
+        \listoftables
+        \endgroup
+    \fi
+    %%%%%
+    %%%%%   List of Figures
+    %%%%%
+    \iffigurespage
+        \renewcommand\listfigurename{\normalsize\normalfont\centering\vspace*{-0.5in} LIST OF FIGURES}
+        \clearpage
+        \phantomsection
+        \addcontentsline{toc}{section}{\hspace*{-\cftsecindent}LIST OF FIGURES}
+        \label{chap:LISTOFFIGURES}
+        \pdfbookmark[1]{LIST OF FIGURES}{chap:LISTOFFIGURES}
+        \begingroup
+        \hypersetup{linkcolor=black}
+        \listoffigures
+        \endgroup
+    \fi
+    %%%%%
+    %%%%%   List of Abbreviations Page
+    %%%%%
+    %Here is where we call the abbreviation file
+    \newcommand{\NomenAndAbbr}{\input{./NomenclatureAbbreviations.tex}}
+    \NomenAndAbbr
+    %\printglossary[type=\acronymtype,title=Abbreviations]
+    %\addcontentsline{toc}{chapter}{Abbreviations}
+    %The following is added by Taj To include abbreviations
+    \renewcommand{\subheading}{\chapter*{\vspace*{-0.5in}\subheadingname}}
+    \renewcommand\subheadingname{\normalsize\normalfont\centering LIST OF ABBREVIATIONS}
+    \clearpage
+    \phantomsection
+    \addcontentsline{toc}{section}{\hspace*{-\cftsecindent}LIST OF ABBREVIATIONS}
+    \label{chap:ABBREVIATIONS}
+    \pdfbookmark[1]{LIST OF ABBREVIATIONS}{chap:ABBREVIATIONS}
+    \listofsubscripts
+    %\listofsymbolss
+
+    %%%%%
+    %%%%%   Nomenclature Page
+    %%%%%
+    %The following is added by Taj To include Nomenclature
+    % \newcommand{\NomenAndAbbrr}{\input{./NomenclatureAbbreviations.tex}}
+    % \NomenAndAbbrr
+    %%%%%%Please uncomment this section if you have nomenclature, if not leave it as it is
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \renewcommand{\symheading}{\chapter*{\vspace*{-0.5in}\symheadingname}}              %%%%%
+    \renewcommand\symheadingname{\normalsize\normalfont\centering LIST OF NOMENCLATURE}         %%%%%
+    \clearpage                                                                          %%%%%
+    \phantomsection                                                                     %%%%%
+    \addcontentsline{toc}{section}{\hspace*{-\cftsecindent}LIST OF NOMENCLATURE}  
+    \label{chap:NOMENCLATURE}
+    \pdfbookmark[1]{NOMENCLATURE}{chap:NOMENCLATURE}                                    %%%%%
+    \listofsymbols                                                                      %%%%%
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %\let
+    \clearpage%\clearemptydoublepage
+    \pagenumbering{arabic}
+    \pagestyle{plain}}
+\clearpage
+
+%%%%%
+%%%%%   Reference Page
+%%%%%
+\let\@ldthebibliography\thebibliography
+\renewcommand{\thebibliography}[1]{\newpage
+    \@ldthebibliography{#1}%
+    \addcontentsline{toc}{section}{REFERENCES}} %Edited by Taj
+\renewcommand{\bibname}{\normalsize \normalfont \vspace{-0.5in}\centering {REFERENCES}} %Adjusted by Taj
+
+
+
+%%%%%
+%%%%%   Appendices Page
+%%%%%
+\usepackage[page,titletoc]{appendix}
+%\usepackage[toc,page,titletoc]{appendix}
+\renewcommand{\appendixtocname}{APPENDICES}
+\appendixpageoff %<-- uncomment this to hide Appendices page
+\renewcommand{\appendixpagename}{APPENDICES}
+\renewcommand{\appendixtocname}{APPENDICES}
+%\renewcommand{\appendixname}{\normalsize \normalfont \vspace{-0.5in}APPENDIX}
+
+\renewcommand{\appendixname}{APPENDIX}
+\appendixtocoff
+\appendixheaderoff
+\appendixtitletocoff
+% Start out normal
+\pagestyle{plain}

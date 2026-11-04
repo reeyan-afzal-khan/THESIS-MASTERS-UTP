@@ -1,0 +1,108 @@
+# =========================
+# macOS / Windows
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+Thumbs.db
+desktop.ini
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments (.venv-torch = the Jetson's Python 3.10 PyTorch env)
+.venv/
+.venv-*/
+venv/
+env/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# IDEs (shared VS Code settings are tracked)
+# =========================
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# =========================
+# Dataset (~47 GB, third-party) - see Dataset/README.md
+# =========================
+Dataset/*
+!Dataset/README.md
+
+# =========================
+# Large result arrays (~53 GB): feature matrices, shards, cached tensors.
+# Tables (.csv/.json/.parquet) and figures (.png) in Results/ are tracked.
+# =========================
+*.npy
+*.npz
+*.pt
+*.pth
+# ...except the feature-selection outputs (~27 KB per dataset): they define the
+# frozen consensus subset that notebooks 06-09 load (mask_consensus.npy).
+!Results/*/05_selection*/*.npy
+!Results/*/05_selection*/*.npz
+
+# =========================
+# Thesis build artefacts (Thesis/ is compiled in place - scripts/build_thesis.ps1)
+# =========================
+Thesis/main.pdf
+Thesis/**/*.aux
+Thesis/*.bbl
+Thesis/*.bcf
+Thesis/*.blg
+Thesis/*.fdb_latexmk
+Thesis/*.fls
+Thesis/*.lof
+Thesis/*.lot
+Thesis/*.out
+Thesis/*.run.xml
+Thesis/*.sub
+Thesis/*.suc
+Thesis/*.syc
+Thesis/*.sym
+Thesis/*.synctex.gz
+Thesis/*.toc
+
+# Original Overleaf export of the thesis, the starting point of Thesis/
+Reeyan-Thesis.zip
+
+# Superseded material kept locally for reference (see archive/README.md)
+archive/
+
+# draw.io backup files
+*.bak
+*.bkp
+.$*
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp

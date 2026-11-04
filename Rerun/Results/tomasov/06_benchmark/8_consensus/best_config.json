@@ -1,0 +1,18 @@
+{
+  "dataset": "tomasov",
+  "feature_set": "consensus",
+  "n_features": 61,
+  "best_model": "XGBoost",
+  "best_strategy": "smote",
+  "val_f1_macro": 0.7477276349315385,
+  "test_accuracy": 0.7725427916004941,
+  "test_balanced_accuracy": 0.7294325401140456,
+  "test_f1_macro": 0.7370096570524284,
+  "cv_f1_macro_mean": 0.6622126292847498,
+  "cv_f1_ci95": [
+    0.6027832289247844,
+    0.7216420296447151
+  ],
+  "train_seconds": 213.68701959983446,
+  "inference_ms_per_sample": 0.012574925006700715
+}

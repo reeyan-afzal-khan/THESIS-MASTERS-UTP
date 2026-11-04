@@ -1,0 +1,13 @@
+dataset,model,A_blocked,B_random,protocol_inflation_pp
+cao,DASViT1D,83.583,82.955,-0.63
+cao,DAStatFormer,97.671,98.574,0.9
+cao,GAT,96.284,98.315,2.03
+cao,GCN,97.948,91.704,-6.24
+cao,Ours (1002 features),99.057,,
+cao,S2-DyGNN,84.138,82.178,-1.96
+tomasov,DASViT1D,57.147,63.626,6.48
+tomasov,DAStatFormer,78.834,89.383,10.55
+tomasov,GAT,77.325,95.703,18.38
+tomasov,GCN,69.605,80.227,10.62
+tomasov,Ours (1002 features),90.709,,
+tomasov,S2-DyGNN,77.59,90.601,13.01

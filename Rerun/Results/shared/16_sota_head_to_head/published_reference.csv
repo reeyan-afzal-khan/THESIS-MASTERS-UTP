@@ -1,0 +1,7 @@
+model,dataset,accuracy,f1_macro,openclose_f1,their_protocol
+S2-DyGNN,tomasov,94.0,86.6,55.7,"chronological 80/10/10, 5-window margin (sample-disjoint)"
+DASViT1D,tomasov,93.5,91.29,,80/10/10 over pre-segmented overlapping windows
+DAStatFormer,tomasov,99.93,99.96,,random 10% validation split
+DAStatFormer,cao,99.48,,,released 8:2 split (423/441 sessions straddle it)
+GAT,tomasov,81.2,67.3,28.6,"chronological 80/10/10, 5-window margin (sample-disjoint)"
+GCN,tomasov,85.3,75.5,37.2,"chronological 80/10/10, 5-window margin (sample-disjoint)"

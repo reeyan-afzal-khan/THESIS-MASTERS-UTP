@@ -1,0 +1,4 @@
+model,published_openclose_f1,A_blocked,B_random
+GAT,28.6,27.82,97.651
+GCN,37.2,43.312,80.28
+S2-DyGNN,55.7,62.541,95.085

@@ -1,0 +1,32 @@
+{
+    // Thesis: LaTeX Workshop builds Thesis/main.tex in place with the same
+    // steps as scripts/build_thesis.ps1 (latexmk would need Perl).
+    "latex-workshop.latex.tools": [
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "%DOC%"]
+        },
+        {
+            "name": "biber",
+            "command": "biber",
+            "args": ["%DOCFILE%"]
+        }
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "pdflatex -> biber -> pdflatex x2",
+            "tools": ["pdflatex", "biber", "pdflatex", "pdflatex"]
+        }
+    ],
+    "latex-workshop.latex.outDir": "%DIR%",
+    "latex-workshop.latex.autoBuild.run": "onSave",
+    "latex-workshop.view.pdf.viewer": "tab",
+
+    // Notebooks run from their own folder (Experiment/), where dasfe lives.
+    "jupyter.notebookFileRoot": "${fileDirname}",
+    "python.terminal.activateEnvironment": true,
+
+    // The repo stores LF (.gitattributes); keep new files consistent.
+    "files.eol": "\n"
+}

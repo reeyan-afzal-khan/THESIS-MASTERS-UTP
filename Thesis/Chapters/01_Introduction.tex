@@ -1,0 +1,170 @@
+\section{Overview}%
+\label{sec:chap1Overview}
+\autoBookmark{sec}{Overview}
+Distributed Acoustic Sensing (DAS) turns an ordinary optical fibre into thousands of virtual vibration sensors. By analysing light scattered back from the glass, a single interrogator can listen along tens of kilometres of cable in real time, which makes the technology attractive for pipeline surveillance, railway monitoring, structural health monitoring, and perimeter security. A fibre that only reports that \emph{something} happened is of limited use, however. Its operational value depends on recognising \emph{what} happened, whether a vehicle, a person at a fence, or an excavator near a buried cable, and on showing that this recognition holds under conditions a real deployment would face. This thesis addresses both requirements.
+
+The work began as the design of an interpretable, feature-driven classifier for the nine-class perimeter-security dataset of Tomasov \etal~\cite{tomasov2025dataset}, which serves as the primary dataset throughout. To test whether the design generalises beyond one installation, the complete pipeline was then applied, without modification, to a second and unrelated public dataset, the six-class $\Phi$-OTDR release of Cao \etal~\cite{caoxin2023opendataset}. Specifying the evaluation for the second dataset raised a question that the first design cycle had not asked: what counts as an independent sample in DAS data? The answer showed that the evaluation protocols used with both datasets let information pass from training to test data. The thesis therefore treats the evaluation protocol as part of the artefact, and every result it reports is obtained on partitions whose train--test separation has been verified in code. That decision is the source of its main novelty (\refss{sec:ThesisNovelty}).
+
+The chapter proceeds as follows. \refs{sec:ResearchBackground} describes how DAS works and why event classification is difficult, and \refs{sec:ResearchProblemStatement} states the problem the thesis addresses. \refs{sec:ResearchQuestions} and \refs{sec:ResearchObjectives} give the research questions and objectives, \refs{sec:SignificanceOfTheStudy} and \refs{sec:ResearchScope} the significance and scope of the study, and \refs{sec:ThesisContribution} its contributions and what is new in them. The chapter closes with an overview of the research methodology (\refs{sec:MethodologyOverview}) and of the remaining chapters (\refs{sec:ThesisStructure}).
+
+\section{Research Background}
+\label{sec:ResearchBackground}
+\autoBookmark{sec}{Research Background}
+An interrogator launches coherent laser pulses into the fibre and analyses the Rayleigh backscatter produced by refractive-index inhomogeneities along the glass, a technique known as phase-sensitive optical time-domain reflectometry ($\Phi$-OTDR)~\cite{he2021review,liu2025advances}. Acoustic and seismic disturbances near the fibre strain the glass and modulate the phase of the returning light, so a vibration can be both located and measured anywhere along the cable~\cite{hartog2017introduction}. Because one interrogator covers tens of kilometres at metre-scale spatial resolution, DAS has become a major research frontier in acoustic sensing~\cite{shang2022das}.
+
+Deployments now span pipeline surveillance, railway protection, road-traffic monitoring, and campus or border intrusion detection~\cite{wu2024pipeline,yurekli2025railway,deng2025roadtraffic,juarez2005intrusion}. In perimeter security the task is classification rather than detection: an operator needs to know whether a disturbance is a passing car, a person climbing a fence, an excavator working near the cable, or routine background activity~\cite{tomasov2025perimeter}. That label decides whether an alarm is raised, so classification accuracy largely determines what an installation is worth.
+
+DAS measurements are usually represented as distance--time maps or time--frequency matrices from which descriptors are derived~\cite{kandamali2022ml}. Early systems used handcrafted signal processing, in which band-pass filtering and energy, spectral, and time--frequency features fed classical models such as support vector machines and random forests~\cite{bublin2021event,breiman2001randomforests}. Recent work has moved to supervised deep learning. Convolutional neural networks (CNNs) dominate, and recurrent, transformer, graph, and semi-supervised architectures have been proposed to capture long-range spatio-temporal structure or to reduce labelling effort~\cite{tomasov2023enhancing,li2020convlstm,dione2025intrusion,jeong2026s2dygnn,kang2024semisupervised}.
+
+Accuracy alone does not make a system deployable. Late or wrong predictions slow the response to genuine events, false alarms cost operator time and erode trust, and missed detections let intrusion, tampering, or nearby construction pass unnoticed~\cite{han2024intrusion}. A practical classifier must therefore also be robust, fast enough for the interrogator's data rate, interpretable to the people who act on its alerts, and reliable on every class, not only on average~\cite{deng2025roadtraffic,yurekli2025railway}.
+
+\section{Research Problem Statement}
+\label{sec:ResearchProblemStatement}
+\autoBookmark{sec}{Research Problem Statement}
+The first difficulty lies in the signal. Each DAS channel produces a long, high-rate time series contaminated by ambient noise, coherent fading, and environmental interference, which complicates feature extraction and raises the cost of real-time processing~\cite{huang2024noise}. The same event can also look very different depending on its distance from the fibre and on how well the fibre is coupled to the ground. A useful representation must capture what is characteristic of the event, not of the conditions under which it happened to be recorded.
+
+The second difficulty is a trade-off between two modelling routes. Engineered feature sets are cheap to evaluate and interpretable, but they are often large and redundant, and in the small, imbalanced datasets typical of DAS they invite overfitting unless the dimensionality is reduced in a principled way~\cite{wani2025dimensionality,guyon2003variable}. Deep networks reach the highest reported accuracies, but they usually need graphics processing units, carry many parameters, offer little insight into their decisions, and remain exposed to dataset shift~\cite{shahabudin2025review,shi2025benchmarking}. Neither profile fits easily with the resource-constrained, audit-sensitive setting of an edge-deployed monitoring system~\cite{deng2025roadtraffic}.
+
+The third difficulty has received the least attention: the evaluation protocols used in this field may let information pass between training and test data. Two properties of DAS data make naive partitioning unsafe. Event datasets are built by sliding an analysis window along a continuous stream, so when the hop is shorter than the window, neighbouring samples share raw measurements and a randomly chosen test window can be three-quarters identical to a training window. In addition, a recording session fixes the fibre state, coupling, interrogator settings, weather, and often the operator, so samples from one session are repeated observations of a single physical situation rather than independent draws. A sufficiently flexible model can then score highly by recognising the session instead of the event.
+
+Both properties are present in the datasets studied here. As Chapter~\ref{chap:ResultsAndDiscussion} shows, a random split of the Tomasov data places every test window next to a training window that shares its raw samples, and 423 of the 441 recording sessions in the Cao release contribute records to both of its published folders. Accuracy measured under such conditions is an upper bound whose relation to deployment performance is unknown, and it mixes the merit of the method with the leniency of the protocol in a way that the published figure alone cannot untangle.
+
+These difficulties have so far been studied in isolation. Feature engineering, multi-domain representations, and deep architectures have each received attention, but few studies evaluate multi-domain extraction, explicit feature selection, class balancing, and lightweight classification together, under a verified protocol, on more than one sensing system, and against contemporary deep and graph models trained on identical partitions. The problem addressed by this thesis is therefore twofold: how to build a DAS event classifier that is accurate, interpretable, and cheap enough to run beside the interrogator, and how to evaluate it so that its reported performance reflects what it would achieve on recordings it has never seen.
+
+\section{Research Questions}
+\label{sec:ResearchQuestions}
+\autoBookmark{sec}{Research Questions}
+The research questions follow the design cycle: RQ1 builds the artefact and its evaluation, RQ2 examines its components, and RQ3 tests it against alternatives. They address the three research gaps identified in \refs{sec:chap2ResearchGap}:
+\begin{enumerate}[label=\textbf{RQ\arabic*.}, leftmargin=*, itemsep=4pt]
+	\item How can an interpretable multi-domain feature pipeline for DAS event classification be designed and evaluated without train--test leakage?
+	\item How do multi-domain fusion, consensus feature selection, and class balancing affect classification performance?
+	\item How does the pipeline compare with published deep-learning baselines on identical partitions in classification performance, computational cost, and generalisation?
+\end{enumerate}
+
+\section{Research Objectives}
+\label{sec:ResearchObjectives}
+\autoBookmark{sec}{Research Objectives}
+Each research question has a matching research objective (RO). Table~\ref{tab:dsrm_mapping} maps the objectives to the DSRM activities, and Chapter~\ref{chap:Conclusion} judges whether each was met:
+\begin{enumerate}[label=\textbf{RO\arabic*.}, leftmargin=*, itemsep=4pt]
+	\item To develop an interpretable multi-domain feature pipeline under a verified leakage-controlled protocol, using Tomasov as the primary dataset and Cao for validation.
+	\item To measure the effect of multi-domain fusion, consensus feature selection, and class balancing on classification performance.
+	\item To benchmark the pipeline against published deep-learning baselines on identical partitions for classification performance, computational cost, and generalisation.
+\end{enumerate}
+
+\section{Significance of the Study}
+\label{sec:SignificanceOfTheStudy}
+\autoBookmark{sec}{Significance of the Study}
+The study matters in two ways. It contributes evidence and methods that bear on how DAS event representations should be built and how classifiers built on them should be evaluated, and it delivers an auditable classifier and a verified evaluation resource that other researchers and practitioners can use directly.
+
+\subsection{Theoretical Advancements}
+\label{sec:TheoreticalAdvancements}
+\autoBookmark{subsec}{Theoretical Advancements}
+The study shows, on two independent sensing systems, that time, frequency, time--frequency, and spatial descriptors of DAS events carry complementary rather than redundant information. It introduces a consensus feature-selection procedure in which filter, wrapper, embedded, and attribution-based selectors must all agree, so that no single criterion decides what is retained. Its main methodological contribution is a leakage-controlled benchmarking procedure for DAS. The procedure comprises partitions whose train--test disjointness is verified in code; a recording-identity probe that measures how much of a feature domain's contribution is nuisance structure; a protocol-attribution design that isolates the effect of the partition by changing nothing else; statistics replicated over independent acquisitions rather than over resamplings of one split; and a label mapping that allows two unrelated taxonomies to be compared on the events they share. Because every retained feature is named, the work also gives interpretable evidence about which physical and signal characteristics separate DAS events.
+
+\subsection{Practical Applications}
+\label{sec:PracticalApplications}
+\autoBookmark{subsec}{Practical Applications}
+The classifier runs in well under a millisecond per window on embedded hardware, and the study reports the cost of every other stage as well, which shows system integrators that feature extraction rather than inference sets the real-time budget. Decisions rest on a compact set of named descriptors and can be audited, which matters for operator trust in automated perimeter alerting. The failure analysis identifies the classes prone to missed detections and false alarms and the case, unauthorised manhole access, in which a model that keeps the channel axis is needed. Finally, the released partition manifests and verification code allow other researchers to evaluate their own models on these two public benchmarks without the contamination present in the released protocols.
+
+\section{Research Scope}
+\label{sec:ResearchScope}
+\autoBookmark{sec}{Research Scope}
+The study uses two public DAS datasets with clearly separated roles. The primary dataset is the nine-class perimeter-security corpus of Tomasov \etal~\cite{tomasov2025dataset}, recorded on a university campus with a phase-sensitive OptaSense ODH-F interrogator; the pipeline was designed on it, and it carries the main results. The evaluation dataset is the six-class intensity-based $\Phi$-OTDR release of Cao \etal~\cite{caoxin2023opendataset}. It passes through the identical process, from sample manifests and leakage audit to partitioning, preprocessing, feature extraction, selection, balancing, classification, and diagnostics, with the same settings and no per-dataset tuning. The two acquisitions share no hardware, sensing principle, channel geometry, or event taxonomy, so a conclusion that holds on both can be attributed to the method rather than to one site. Four event types nevertheless occur in both taxonomies, which allows a direct test of whether a model trained on one system transfers to the other.
+
+Methodologically, the study covers handcrafted multi-domain feature extraction, ensemble feature selection, class balancing, lightweight classical and ensemble classifiers, and the design and verification of a leakage-controlled evaluation protocol. The CNN published with each dataset and five architectures published from 2024 onwards (S2-DyGNN, DASViT1D, DAStatFormer, and graph attention and graph convolutional baselines) are reimplemented from their source descriptions and trained on identical partitions as comparators. Developing or exhaustively tuning new deep architectures is outside the scope. Embedded inference is the target deployment setting, and all runtimes are measured on an NVIDIA Jetson AGX Orin.
+
+Robustness to weather and seasonal variation, deployment on further interrogator systems, scaling to the full channel count of an interrogator, and integration with alarm-management software are left to future work. Generalisation across recordings, acquisition campaigns, and sensing systems is examined within the limits of the available data, and negative outcomes are reported as measured.
+
+\section{Thesis Contribution}
+\label{sec:ThesisContribution}
+\autoBookmark{sec}{Thesis Contribution}
+The thesis makes six contributions to DAS event classification and its evaluation. Chapter~\ref{chap:methodology} describes the methods behind each, and Chapter~\ref{chap:ResultsAndDiscussion} reports what they show:
+\begin{enumerate}[label=\textbf{C\arabic*.}, leftmargin=*, itemsep=4pt]
+	\item A synthesis of DAS event-classification studies that records, next to each reported accuracy, the feature domains used and the evaluation protocol that produced the figure (Chapter~\ref{chap:LR}).
+	\item An auditable procedure for detecting window- and recording-level dependence in the Tomasov and Cao protocols, and guard-banded and session-grouped partitions whose train--test disjointness is verified in code before any model is trained (RO1; \refss{sec:chap3Phase1}; \refs{sec:resLeakage}).
+	\item An end-to-end, feature-driven classification pipeline that combines stateless preprocessing, $1{,}002$ descriptors from the time, frequency, time--frequency, and spatial domains, and lightweight classifiers, developed on Tomasov and applied unchanged to Cao (RO1; Chapter~\ref{chap:methodology}; \refs{sec:resFinal}).
+	\item A consensus feature-selection and class-balancing workflow in which every data-dependent step is fitted on training rows only, together with measurements of what each step contributes (RO2; \refss{sec:chap3Phase3}; \refs{sec:resSelection} and \refs{sec:resBalancing}).
+	\item A controlled benchmark of the pipeline against the CNN published with each dataset and five recent graph and transformer architectures on identical leakage-controlled partitions, reporting classification performance and per-window computational cost (RO3; \refs{sec:resFinal}, \refs{sec:resEfficiency}, and \refs{sec:resDiscussion}).
+	\item Diagnostic analyses that attribute performance differences to the evaluation protocol, probe recording identity in each feature domain, measure generalisation to unseen recordings and acquisition campaigns, and map the Cao and Tomasov taxonomies onto shared event types to test cross-system transfer (RO3; \refs{sec:resConfound}, \refs{sec:resGeneralisationAll}, \refs{sec:resMapping}, and \refs{sec:resDiscussion}).
+\end{enumerate}
+
+\subsection{Novelty of the Work}
+\label{sec:ThesisNovelty}
+\autoBookmark{subsec}{Novelty of the Work}
+Seen from information technology and computer science, the novelty of this work is not a new learning algorithm: its classifiers, transforms, and resampling methods are established. What it adds is a way of building and measuring a DAS classifier in which the validity of the evaluation is a tested property of the software. A claim such as ``no test window shares a raw sample with training'' is implemented as an assertion that can fail and halt the run rather than stated in prose, and each claim about a model is tied to a controlled experiment that changes one factor. Table~\ref{tab:novelty} sets seven elements of the thesis against the usual practice in the DAS studies reviewed in Chapter~\ref{chap:LR}, and Chapter~\ref{chap:Conclusion} returns to them with the measured evidence for each.
+
+\begin{table}[!htbp]
+	\centering
+	\caption{What this thesis introduces, set against the usual practice in the reviewed DAS studies.}
+	\label{tab:novelty}
+	\footnotesize
+	\setlength{\tabcolsep}{4pt}
+	\renewcommand{\arraystretch}{1.2}
+	\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+		\toprule
+		\textbf{Element} & \textbf{Usual practice} & \textbf{Introduced here}\\
+		\midrule
+		Evaluation as executable code & The protocol is described in prose; none of the twelve reviewed studies verifies disjointness at the level of raw measurements & Provenance manifests built from metadata; raw-sample footprints and split groups asserted in code, and the pipeline halts if a check fails\\
+		\addlinespace[3pt]
+		Partitioning of continuous streams & Random or chronological splits of overlapping windows & Equal-mass blocked segments with seeded offsets and guard bands derived from read footprints (Algorithm~\ref{alg:blocked}), keeping every class in every split\\
+		\addlinespace[3pt]
+		Protocol attribution & Accuracies compared across studies whose protocols differ & Controlled experimental arms that change only the partition, applied to a CNN, five architectures, and the pipeline itself\\
+		\addlinespace[3pt]
+		Recording-identity probe & Acquisition confound assumed absent or left unmeasured & A diagnostic that holds the class fixed and asks each feature domain to identify the recording\\
+		\addlinespace[3pt]
+		Four-domain representation with consensus selection & At most three domains in any reviewed study; dimensionality reduced by one method, if at all & $1{,}002$ named descriptors, reduced by eight selectors from the filter, wrapper, embedded, and attribution families, all fitted on training rows only\\
+		\addlinespace[3pt]
+		Whole-pipeline cost on embedded hardware & Few studies report cost beyond the classifier's inference time & Per-stage extraction and inference cost on a Jetson AGX Orin against the window-arrival interval, so the real-time budget is derived rather than asserted\\
+		\addlinespace[3pt]
+		Cross-system transfer & No reviewed study tests a fitted model on a second sensing system & Mechanism-based mapping of two independent taxonomies onto four shared events, with transfer measured in both directions\\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+\section{Overview of the Research Methodology}
+\label{sec:MethodologyOverview}
+\autoBookmark{sec}{Overview of the Research Methodology}
+The research follows the Design Science Research Methodology (DSRM) of Peffers et al.~\cite{peffers2007dsrm}, whose six activities frame the whole thesis (\reff{fig:dsrm_overview}). Problem identification and the definition of solution objectives (Activities 1 and 2) take place in this chapter and in the literature review, which establish the shortcomings of current DAS classifiers and of the protocols used to evaluate them. Design and development (Activity 3) is the subject of Chapter~\ref{chap:methodology}, which builds the leakage-controlled partitions, the preprocessing chain, the multi-domain extractor, the selection and balancing components, the classifiers, and the baselines. Demonstration and evaluation (Activities 4 and 5) are specified at the end of Chapter~\ref{chap:methodology} and carried out in Chapter~\ref{chap:ResultsAndDiscussion} on both datasets and on embedded hardware. Communication (Activity 6) is served by this thesis, the associated publications, and the public release of code and partition manifests, and is consolidated in Chapter~\ref{chap:Conclusion}. \reff{fig:dsrm_flow} gives the full activity flow with its inputs, outputs, and iterations, and Table~\ref{tab:dsrm_mapping} maps the research questions and objectives to the activities.
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+	font=\footnotesize,
+	node distance=2.5mm,
+	act/.style={draw, thick, rounded corners=2pt, fill=gray!15, text width=2.05cm, minimum height=1.35cm, align=center, inner sep=3pt},
+	chap/.style={draw, dashed, text width=2.05cm, align=center, inner sep=3pt, font=\scriptsize},
+	arr/.style={-{Latex[length=2mm]}, thick},
+]
+\node[act] (a1) {\textbf{1}\\Problem identification};
+\node[act, right=of a1] (a2) {\textbf{2}\\Solution objectives};
+\node[act, right=of a2] (a3) {\textbf{3}\\Design and development};
+\node[act, right=of a3] (a4) {\textbf{4}\\Demonstration};
+\node[act, right=of a4] (a5) {\textbf{5}\\Evaluation};
+\node[act, right=of a5] (a6) {\textbf{6}\\Communi-\\cation};
+\foreach \i/\j in {1/2,2/3,3/4,4/5,5/6} {\draw[arr] (a\i) -- (a\j);}
+\node[chap, below=of a1] (c1) {Chapters~\ref{chap:Introduction}, \ref{chap:LR}};
+\node[chap, below=of a2] (c2) {Chapters~\ref{chap:Introduction}, \ref{chap:methodology}};
+\node[chap, below=of a3] (c3) {Chapter~\ref{chap:methodology}};
+\node[chap, below=of a4] (c4) {Chapters~\ref{chap:methodology}, \ref{chap:ResultsAndDiscussion}};
+\node[chap, below=of a5] (c5) {Chapter~\ref{chap:ResultsAndDiscussion}};
+\node[chap, below=of a6] (c6) {Chapter~\ref{chap:Conclusion}; publications; code release};
+\draw[arr, dashed] (a5.north) -- ++(0,0.35) -| (a3.north);
+\end{tikzpicture}}
+\caption{The six DSRM activities and the chapters in which each is carried out. The dashed return path marks refinement of the design in response to evaluation evidence.}
+\label{fig:dsrm_overview}
+\end{figure}
+
+\section{Thesis Structure}
+\label{sec:ThesisStructure}
+\autoBookmark{sec}{Thesis Structure}
+The remaining four chapters follow the DSRM activity flow of \reff{fig:dsrm_overview}, from the review of prior work through the design and evaluation of the artefact to the consolidation of its findings. Each chapter opens with an overview of its structure and closes with a summary that relates its content to the research questions.
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+	\item \textbf{Chapter~\ref{chap:LR} (Literature Review)} covers the machine-learning foundations of the work; the principles of DAS and $\Phi$-OTDR signal processing; feature extraction and selection; class-imbalance handling; classical, deep, and graph-based approaches to DAS event classification; deployment constraints; and evaluation protocols, including the leakage controls on which this study relies. It tabulates prior studies with the protocol each used and identifies the three research gaps behind RQ1 to RQ3.
+
+	\item \textbf{Chapter~\ref{chap:methodology} (Methodology)} justifies the DSRM, maps the research questions and objectives to its activities, and details the artefact: the primary and evaluation datasets and their sample manifests, the leakage found in their released protocols, the group-aware partitions that replace them, the preprocessing chain, four-domain feature extraction and fusion, model-ready data, consensus feature selection, class balancing, classifier configuration, the baseline models, and the demonstration, evaluation, and statistical procedures.
+
+	\item \textbf{Chapter~\ref{chap:ResultsAndDiscussion} (Results and Discussion)} reports the findings in the order of the artefact's workflow. The leakage audit and verified partitions establish the evaluation basis; feature fusion, selection, and balancing answer RQ2; and the classifier comparison, per-class analysis, generalisation tests, the mapping between the Cao and Tomasov event taxonomies, computational efficiency, and the comparison with published and recent baselines answer RQ1 and RQ3.
+
+	\item \textbf{Chapter~\ref{chap:Conclusion} (Conclusions and Future Directions)} revisits each research objective, states the novelty of the work and its contributions to knowledge with the evidence for each, sets out the limitations, and traces each limitation to a direction for future work.
+\end{itemize}

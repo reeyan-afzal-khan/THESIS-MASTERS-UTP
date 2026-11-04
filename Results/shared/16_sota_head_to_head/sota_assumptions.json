@@ -1,0 +1,184 @@
+{
+  "s2dygnn": {
+    "read_from_paper": {
+      "stft_win": 1024,
+      "stft_hop": 256,
+      "freq_bins": 513,
+      "cnn_channels": [
+        16,
+        32,
+        64
+      ],
+      "kernel": [
+        3,
+        5
+      ],
+      "stride": [
+        1,
+        2
+      ],
+      "norm": "BatchNorm + ReLU after each convolution",
+      "freq_pool": "adaptive average pool to 1, temporal axis preserved",
+      "hidden_dim": 64,
+      "attention_heads": 2,
+      "attention": "ReLU then softmax over the node axis, heads averaged",
+      "alpha_static": 0.15,
+      "gcn_layers": 2,
+      "gcn_block": "Dropout(ReLU(BN(A H W))) + H",
+      "n_nodes": 17,
+      "optimiser": "AdamW",
+      "lr": 0.0002,
+      "batch_size": 128,
+      "epochs": 30,
+      "loss": "cross-entropy (unweighted)",
+      "lr_schedule": "halve after 3-epoch accuracy stagnation",
+      "early_stopping": "patience 10 on validation loss",
+      "their_split": "chronological 80/10/10 with a 5-window safety margin"
+    },
+    "inferred": {
+      "static_matrix": "INFERRED: exponential decay in hop count along the fibre, row-normalised. The paper says only that it maps physical sensor separation.",
+      "readout": "INFERRED: centre node, mean-pooled over time frames. The label belongs to the centre locus, and the paper does not state the pooling.",
+      "dropout": "INFERRED: 0.2 in the GCN blocks (value not stated).",
+      "node_count_note": "The paper says 'seventeen adjacent sensor channels' and also 'one central node and four neighbours on each side' (= 9). We follow the stated 17."
+    },
+    "published": {
+      "accuracy": 94.0,
+      "f1_macro": 86.6,
+      "openclose_f1": 55.7
+    }
+  },
+  "dasvit1d": {
+    "read_from_paper": {
+      "features": "MFCC + RDFT + DWT concatenated",
+      "rdft_redundancy": 3,
+      "rdft_trim": 2580,
+      "dwt_wavelet": "db4",
+      "dwt_level": 3,
+      "mfcc": {
+        "n_mfcc": 20,
+        "dct_type": 2,
+        "n_fft": 1024,
+        "hop": 128,
+        "win": 512,
+        "window": "hann",
+        "power": 2,
+        "n_mels": 128,
+        "f_min": 0,
+        "f_max": 500
+      },
+      "input_dim": 8192,
+      "patch": 512,
+      "embed_dim": 128,
+      "heads": 8,
+      "depth": 8,
+      "n_classes": 9,
+      "epochs": 200,
+      "batch_size": 256,
+      "lr": 0.0001,
+      "optimiser": "Adam",
+      "scaler": "StandardScaler fitted on train only",
+      "their_split": "80/10/10 over pre-segmented windows, stored in advance"
+    },
+    "inferred": {
+      "mlp_ratio": "INFERRED: 4x embedding dimension (standard ViT).",
+      "dropout": "INFERRED: 0.1.",
+      "mfcc_f_max": "INFERRED: the paper lists f_max = 500 Hz alongside a sampling frequency of 756 Hz, but the Tomasov release is 20 kHz. Taken as the Nyquist limit unless overridden; at 500 Hz almost every mel filter is empty.",
+      "concat_length": "INFERRED: the three transforms do not sum to 8192, so the concatenation is trimmed or zero-padded to the stated input dimension of 8192."
+    },
+    "published": {
+      "accuracy": 93.5,
+      "precision": 91.93,
+      "recall": 90.8,
+      "f1_macro": 91.29
+    }
+  },
+  "dastatformer": {
+    "read_from_paper": {
+      "branches": 3,
+      "attributes_per_channel": 24,
+      "encoders_per_path": 8,
+      "d_model": 256,
+      "d_ffn": 128,
+      "heads": 8,
+      "dropout": 0.2,
+      "positional_encoding": true,
+      "paths": "step-wise (channels as sequence) and channel-wise (attributes as sequence), fused by a two-unit softmax gate",
+      "classifier": "linear then softmax over concatenated branch outputs",
+      "optimiser": "Adam",
+      "lr": 0.0001,
+      "batch_size": 32,
+      "epochs": 100,
+      "grad_clip": 1.0,
+      "loss": "cross-entropy",
+      "seed": 30,
+      "their_split": "10% random validation split"
+    },
+    "inferred": {
+      "attribute_grouping": "Table 1 of the paper lists 7 time, 6 waveform and 11 spectral attributes; we follow that grouping exactly.",
+      "sequence_length": "L is the channel count. We use the same spatial neighbourhood as S2-DyGNN so all three models see identical spatial context."
+    },
+    "published": {
+      "cao_accuracy": 99.48,
+      "tomasov_accuracy": 99.93,
+      "tomasov_f1_macro": 99.96
+    }
+  },
+  "comparators": {
+    "source": "Jeong et al., Sensors 26(14):4417, Section 6.3 and Table 3",
+    "read_from_paper": {
+      "models": [
+        "baseline CNN",
+        "CNN-LSTM",
+        "GCN",
+        "GAT"
+      ],
+      "standardisation": "the paper states that input formats and training hyperparameters were standardised across all models to match S2-DyGNN, which is what we do",
+      "published": {
+        "CNN": {
+          "accuracy": 84.3,
+          "f1_macro": 64.1,
+          "openclose_f1": 18.8
+        },
+        "CNN-LSTM": {
+          "accuracy": 86.0,
+          "f1_macro": 71.4,
+          "openclose_f1": 31.2
+        },
+        "GAT": {
+          "accuracy": 81.2,
+          "f1_macro": 67.3,
+          "openclose_f1": 28.6
+        },
+        "GCN": {
+          "accuracy": 85.3,
+          "f1_macro": 75.5,
+          "openclose_f1": 37.2
+        },
+        "S2-DyGNN": {
+          "accuracy": 94.0,
+          "f1_macro": 86.6,
+          "openclose_f1": 55.7
+        }
+      }
+    },
+    "inferred": {
+      "shared_front_end": "INFERRED: all three reuse S2-DyGNN's asymmetric frequency-time CNN, so aggregation is the only variable. The paper does not print their front ends.",
+      "gcn_topology": "INFERRED: chain graph over adjacent channels with self loops, symmetrically normalised (Kipf and Welling).",
+      "gat_heads": "INFERRED: 2, matching S2-DyGNN's attention head count.",
+      "cnn_lstm_readout": "INFERRED: LSTM per node, node representations mean-pooled. Mean pooling adds no relational term, which matches their statement that inter-node relationships remain unmodelled.",
+      "baseline_cnn": "The baseline CNN of their Table 3 processes each node as an independent 1D signal, which is the Tomasov CNN already reconstructed in dasfe.baselines; it is not duplicated here."
+    }
+  },
+  "this_notebook": {
+    "preprocessing": "demean, 20-2000 Hz band-pass, per-channel z-score applied to every architecture",
+    "training_budget": "30 epochs, early stopping patience 10, identical for every architecture",
+    "per_class_cap": null,
+    "nodes": {
+      "tomasov": 17,
+      "cao": 12
+    },
+    "arm_A_split": "inherited from split_manifest.parquet, audited in section 1",
+    "ours_not_retrained": "our pipeline's figures are read from 07_final/full_1002/model_card.json so the table quotes exactly what the manuscript reports",
+    "cnn_lstm_dropped": "the 1D CNN of Tomasov et al. is carried from notebook 11 and covers the convolutional baseline"
+  }
+}

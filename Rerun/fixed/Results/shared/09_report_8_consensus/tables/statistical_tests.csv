@@ -1,0 +1,3 @@
+dataset,friedman_chi2,friedman_p,iman_davenport_F,critical_difference,best_model,best_avg_rank
+cao,32.143,1.532020720826604e-05,41.667,3.677,LightGBM,1.167
+tomasov,33.0,1.0485833186894444e-05,55.0,3.677,XGBoost,1.667

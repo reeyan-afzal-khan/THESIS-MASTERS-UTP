@@ -1,0 +1,12 @@
+arm,model,openclose_f1,accuracy,f1_macro
+A_blocked,DAStatFormer,28.391,78.366,75.316
+A_blocked,GAT,22.321,75.922,72.312
+A_blocked,GCN,19.328,65.114,65.794
+A_blocked,DASViT1D,14.953,60.852,57.66
+A_blocked,Ours (1002 features),4.405,90.851,82.01
+A_blocked,S2-DyGNN,0.0,70.425,67.789
+B_random,GAT,97.747,97.582,97.45
+B_random,DAStatFormer,94.728,89.255,89.43
+B_random,S2-DyGNN,92.583,94.955,94.272
+B_random,GCN,78.962,71.622,72.836
+B_random,DASViT1D,53.971,61.191,61.12

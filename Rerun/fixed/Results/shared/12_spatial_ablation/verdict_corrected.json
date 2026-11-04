@@ -1,0 +1,51 @@
+{
+  "tomasov": {
+    "f1_full_1002": 76.91,
+    "f1_no_spatial_941": 62.07,
+    "spatial_removal_cost_pp": 14.84,
+    "spatial_only_f1": 70.96,
+    "n_usable_probes": 1,
+    "usable_probes": [
+      "fence"
+    ],
+    "dropped_probes": [
+      "car",
+      "walk"
+    ],
+    "spatial_above_chance_pp": 34.74,
+    "best_other_above_chance_pp": 16.9,
+    "spatial_differential_pp": 17.84,
+    "all_domains_confounded": true,
+    "verdict": "DATASET-WIDE CONFOUND - every domain identifies the acquisition group, so this is not a spatial-domain problem; report the grouped and leave-one-campaign-out numbers side by side"
+  },
+  "cao": {
+    "f1_full_1002": 98.24,
+    "f1_no_spatial_941": 93.56,
+    "spatial_removal_cost_pp": 4.68,
+    "spatial_only_f1": 90.75,
+    "n_usable_probes": 5,
+    "usable_probes": [
+      "background",
+      "dig",
+      "knock",
+      "walk",
+      "water"
+    ],
+    "dropped_probes": [
+      "shake"
+    ],
+    "spatial_above_chance_pp": 32.35,
+    "best_other_above_chance_pp": 31.62,
+    "spatial_differential_pp": 0.73,
+    "all_domains_confounded": true,
+    "verdict": "DATASET-WIDE CONFOUND - every domain identifies the acquisition group, so this is not a spatial-domain problem; report the grouped and leave-one-campaign-out numbers side by side"
+  },
+  "loro": {
+    "mean_delta_pp_dropping_spatial": -6.48,
+    "per_recording_delta_range": [
+      -37.21,
+      56.75
+    ],
+    "reading": "negative = spatial HELPS cross-recording generalisation, so it carries transferable information as well as recording nuisance; the wide per-recording spread is the signature of a mixture"
+  }
+}

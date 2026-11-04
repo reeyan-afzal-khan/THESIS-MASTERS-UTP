@@ -1,0 +1,23 @@
+{
+  "dataset": "tomasov",
+  "arm": "A_blocked",
+  "model": "S2-DyGNN",
+  "n_params": 56329,
+  "size_mb": 0.225,
+  "n_train": 148229,
+  "n_test": 11334,
+  "epochs_run": 11,
+  "best_epoch": 1,
+  "val_f1_macro": 67.239,
+  "accuracy": 65.67,
+  "balanced_accuracy": 60.527,
+  "f1_macro": 61.016,
+  "train_seconds": 16943.2,
+  "infer_ms_per_sample": 3.3744,
+  "online_ms_per_window": 3.3744,
+  "seed": 43,
+  "source": "seed run",
+  "openclose_f1": 2.0,
+  "finished": "2026-11-02T15:00:02",
+  "peak_gpu_mb": 4258
+}

@@ -1,0 +1,6 @@
+{
+  "best_f1_our_protocol": 28.391,
+  "best_f1_random_protocol": 97.747,
+  "s2dygnn_published": 55.7,
+  "verdict": "DATASET CONFOUND - openclose is only recoverable when the partition lets near-duplicate windows straddle it. Our claim stands but must be restated as protocol-conditional rather than absolute."
+}

@@ -1,0 +1,17 @@
+{
+  "tomasov": {
+    "spatial_removal_cost_pp": 19.99,
+    "spatial_only_f1": 75.44,
+    "spatial_recording_id_above_chance_pp": 12.94,
+    "headline_f1_if_confounded": 62.02,
+    "verdict": "GENUINE - spatial is load-bearing but does not identify the recording; report it as a substantive finding"
+  },
+  "cao": {
+    "spatial_removal_cost_pp": 5.37,
+    "spatial_only_f1": 96.0,
+    "spatial_recording_id_above_chance_pp": 37.44,
+    "headline_f1_if_confounded": 93.29,
+    "verdict": "CONFOUNDED - spatial is load-bearing AND identifies the recording; report the non-spatial number as the headline"
+  },
+  "loro_delta_pp_dropping_spatial": -18.505454545454544
+}

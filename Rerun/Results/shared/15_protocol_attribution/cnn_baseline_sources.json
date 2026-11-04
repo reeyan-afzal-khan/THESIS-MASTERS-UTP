@@ -1,0 +1,46 @@
+[
+  {
+    "dataset": "cao",
+    "config": "Cao 2D CNN (published arch.)",
+    "source": "notebook 10",
+    "table": [
+      {
+        "metric": "accuracy",
+        "released 8:2 (%)": 92.02,
+        "session-grouped (%)": 92.18,
+        "drop (pp)": -0.16
+      },
+      {
+        "metric": "balanced_accuracy",
+        "released 8:2 (%)": 91.63,
+        "session-grouped (%)": 91.9,
+        "drop (pp)": -0.28
+      },
+      {
+        "metric": "f1_macro",
+        "released 8:2 (%)": 91.73,
+        "session-grouped (%)": 91.77,
+        "drop (pp)": -0.04
+      }
+    ]
+  },
+  {
+    "dataset": "tomasov",
+    "config": "Tomasov CNN (reconstructed)",
+    "source": "notebook 13",
+    "table": {
+      "transform": "rdft",
+      "dense_units": 1024,
+      "published_accuracy": 85.47,
+      "published_f1_macro": 84.84,
+      "arm_A_blocked": 68.33421563437444,
+      "arm_B_random_2048": 70.05102632494491,
+      "arm_C_random_256": 95.04290352504638,
+      "total_gap_pp": 17.14,
+      "protocol_pp": 26.71,
+      "residual_pp": -9.57,
+      "protocol_share_pct": 155.9,
+      "verdict": "FAITHFUL - protocol explains the gap"
+    }
+  }
+]

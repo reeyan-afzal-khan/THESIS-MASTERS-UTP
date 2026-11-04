@@ -1,0 +1,7 @@
+dataset,condition,n_repeats,mean,sd,min,max,range
+tomasov,LightGBM / class_weight,5,73.037,3.218,68.359,77.247,8.888
+tomasov,LogisticRegression / class_weight,5,69.391,3.358,65.768,73.472,7.705
+tomasov,RandomForest / class_weight,5,67.575,2.524,65.343,71.466,6.123
+cao,LightGBM / class_weight,5,98.633,0.726,97.605,99.477,1.872
+cao,LogisticRegression / class_weight,5,97.19,0.693,96.181,97.88,1.698
+cao,RandomForest / class_weight,5,96.331,1.904,93.48,98.343,4.862

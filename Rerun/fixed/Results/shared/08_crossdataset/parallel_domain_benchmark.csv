@@ -1,0 +1,11 @@
+dataset,domain,n_features,best_model,best_strategy,test_accuracy,test_f1_macro
+cao,time,112,LightGBM,none,92.12423738214088,90.4139210220236
+cao,freq,90,LightGBM,class_weight,81.03161397670549,78.19795985347672
+cao,tf,739,LightGBM,class_weight,94.17637271214643,92.34397058235326
+cao,spatial,61,LightGBM,none,91.18136439267886,89.99810691978229
+cao,multi,1002,LightGBM,none,98.50249584026622,98.18089021288864
+tomasov,time,112,LightGBM,class_weight,54.437974236809595,54.49728333286233
+tomasov,freq,90,LightGBM,class_weight,57.63190400564673,55.70104165777092
+tomasov,tf,739,LightGBM,class_weight,59.24651491088759,59.05214452059349
+tomasov,spatial,61,LightGBM,none,76.92782777483677,70.25363107555978
+tomasov,multi,1002,XGBoost,class_weight,81.13640374095642,76.47584702530395

@@ -1,0 +1,317 @@
+\documentclass[a4paper,12pt,twoside]{report}
+\usepackage{utpthesis-2e}
+
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{wasysym}
+\setcounter{tocdepth}{6}%
+\brokenpenalty=10000%
+\widowpenalty=10000% never leave the last line of a paragraph alone at the top of a page
+\clubpenalty=10000% never leave the first line of a paragraph alone at the bottom of a page
+\tolerance=1%
+\emergencystretch=\maxdimen%
+\hyphenpenalty=10000%
+\hbadness=10000%
+
+\usepackage[utf8]{inputenc}
+\usepackage[
+	backend=biber,
+	style=numeric-comp,
+	sorting=none,
+	giveninits= false,
+]{biblatex}
+\addbibresource{ref.bib}
+
+\usepackage{forest}
+\usepackage{dsfont}
+\usepackage{amsfonts,amsmath,amssymb,amsthm}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{matrix,calc}
+\usetikzlibrary{trees,positioning}
+\usetikzlibrary{arrows.meta,fit,backgrounds}
+\usepackage{circuitikz}
+\usetikzlibrary{circuits.logic.US}
+\usepackage[braket,qm]{qcircuit}
+\usepackage{colortbl}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\renewcommand{\arraystretch}{1.5}
+\usepackage{float}
+\usepackage{array}
+\usepackage{academicons}
+\usepackage{ragged2e}
+\usepackage{pdflscape}
+\usepackage{tabularx}
+\usepackage{multirow, makecell}
+\usepackage{booktabs}
+\usepackage{rotating}
+\usepackage{enumitem}
+\usepackage{tocloft}
+\usepackage{blindtext}
+\usepackage[explicit]{titlesec}
+\usepackage{etoolbox}
+\usepackage{xpatch}
+\usepackage{csquotes}
+\usepackage[english]{babel}
+\usepackage{mathtools}
+\usepackage{color,soul}
+\usepackage{pythonhighlightEdited}
+\usepackage{lstlistingEdited}
+
+
+\renewcommand{\cfttabfont}{Table } % Do not change,
+\renewcommand{\cftfigfont}{Figure } % Do not change
+
+
+\addto{\captionsenglish}{%
+	\renewcommand{\bibname}{References}
+}
+
+\RequirePackage{silence}
+\hbadness=10000 \vbadness=10000 \vfuzz=30pt \hfuzz=30pt
+
+\DeclareGraphicsExtensions{.pdf,.jpg,.png}
+
+\graphicspath{{./Figures/}{./figures/}{./equations/}{./icons/}{./logos/}}
+
+\addto{\captionsenglish}{
+	\renewcommand{\bibname}{\normalsize \normalfont \vspace{-0.5in}\centering {REFERENCES}}
+}
+
+\newcommand{\thesisTitle}{MULTI-DOMAIN FEATURE ENGINEERING FOR DISTRIBUTED ACOUSTIC SENSING EVENT CLASSIFICATION WITH LEAKAGE-CONTROLLED EVALUATION}
+
+\newcommand{\thesisAuthor}{REEYAN AFZAL KHAN}
+
+\usepackage[
+	pdftitle={\thesisTitle},pdfauthor={\thesisAuthor},colorlinks=false,pdfpagemode={UseOutlines},bookmarks=true,bookmarksopen=false,bookmarkstype=toc,bookmarksopenlevel=3,bookmarksnumbered=false,hypertexnames=false,colorlinks,linkcolor={black},citecolor={black},urlcolor={black},pdfstartview={FitV},unicode,breaklinks=true]{hyperref}
+\usepackage{bookmark}
+
+\input{macros}
+
+\hyphenation{op-tical net-works}
+%%%================End pdf bookmarks===========
+
+
+\begin{document}
+\raggedbottom%
+\title{\thesisTitle}
+\author{\thesisAuthor}
+\dept{Department of Computing}
+\hod{Assoc.~Prof.~Ts~Dr~Ahmad Sobri B Hashim}
+\degree{Master of Science in Information Technology}
+\facu{Faculty of Science, Management \& Computing}
+\mainsupervisor{Dr~Shuhaida Bt M Shuhidan}
+\cosupervisora{Assoc.~Prof.~Ts~Dr~Izzatdin B A Aziz}
+
+%-------------For Confidentiality---------------------------------
+% Uncomment the following line For Confidential  work
+% \confidentialTrue{$\checkmark$}
+% Uncomment the following line For Non-confidential work
+\confidentialFalse{$\checkmark$}
+
+\submitdate{\ifcase\the\month\or%
+		JANUARY\or%
+		FEBRUARY\or%
+		MARCH\or%
+		APRIL\or%
+		MAY\or%
+		JUNE\or%
+		JULY\or%
+		AUGUST\or%
+		SEPTEMBER\or%
+		OCTOBER\or%
+		NOVEMBER\or%
+		DECEMBER\fi
+	\space \number\the\year} % or \submitdate{Month 20xx}
+\copyrightyear{\number\the\year} % or \copyrightyear{20xx}
+\authoraddress{House No. T-29,\\\hline Kohat, 26000,\\\hline Khyber Pakhtunkhwa (KPK),\\Pakistan\\\hline}
+
+
+\beforepreface
+
+%%%%% -------------- CONFIRMATION BY PANEL OF EXAMINERS %%%%%--------------
+\authorGender{his} % his/her
+\authorID{(24007271)} % Candidate ID
+\vivaDate{10\textsuperscript{th}~June 2025} %Date of VIVA
+% Chairman 
+\chairName{Place Holder}
+\chairPosition{Associate Professor}
+\chairDept{Department of Computing}
+\chairUniv{Universiti Teknologi PETRONAS (UTP)}
+\chairMan{(Chairman VIVA VOCE)}
+% Internal Examiner A
+\examinerAName{Place Holder}
+\examinerAPosition{Place Holder}
+\examinerADept{Department of Computing}
+\examinerAUniv{Universiti Teknologi PETRONAS (UTP)}
+\examinerA{(Internal Examiner)}
+% External Examiner A
+\examinerCName{Place Holder}
+\examinerCPosition{Place Holder}
+\examinerCDept{Place Holder}
+\examinerCUniv{Place Holder}
+\examinerC{(External Examiner)}
+%CGS Dean
+\CGSdeanName{Place Holder}
+\deanPosition{Professor}
+\deanCGS{Dean}
+\CGS{Postgraduate \& Research}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%<===============Confirmation by panel of examiner ===============>
+\confirmationbypanelofexaminrs%
+
+
+\clearpage
+\prefacesection{Dedication}
+\renewcommand\listtablename{\normalsize\normalfont\centering\vspace*{-0.5in} DEDICATION}
+\input{Chapters/Dedication.tex}
+\iftablespage
+\phantomsection
+\addcontentsline{toc}{section}{\hspace*{-\cftsecindent}DEDICATION}
+\fi
+
+\prefacesection{Acknowledgments}
+\renewcommand\listtablename{\normalsize\normalfont\centering\vspace*{-0.5in} ACKNOWLEDGMENTS}
+\input{Chapters/Acknowledgments.tex}
+\iftablespage
+\phantomsection
+\addcontentsline{toc}{section}{\hspace*{-\cftsecindent}ACKNOWLEDGMENTS}
+\fi
+
+\prefacesection{Abstract} 
+\renewcommand\listtablename{\normalsize\normalfont\centering\vspace*{-0.5in} ABSTRACT}
+\iftablespage
+\phantomsection
+\addcontentsline{toc}{section}{\hspace*{-\cftsecindent}ABSTRACT}
+\fi
+\label{chap:ABSTRACT}
+\input{Chapters/Abstract.tex}
+
+\prefacesection{Abstrak}
+\renewcommand\listtablename{\normalsize\normalfont\centering\vspace*{-0.5in} ABSTRAK}
+\iftablespage
+\phantomsection
+\addcontentsline{toc}{section}{\hspace*{-\cftsecindent}ABSTRAK}
+\fi
+\label{chap:ABSTRAK}
+\input{Chapters/Abstrak.tex}
+\clearpage
+
+
+
+\newpage
+\thesiscopyrightpage %PLACING COPYRIGHT PAGE AFTER ABSTRAK (According to Aug 2012)
+
+
+\afterpreface  %don't change this
+%%%----------------------------------
+
+% Chapter 1
+\pagestyle{plain}\cleardoublepage%To Add an empty page and start on an odd number (SOFTBOUND)%%
+\chapter{INTRODUCTION}\label{chap:Introduction}
+\autoBookmark{chap}{INTRODUCTION}
+\input{Chapters/01_Introduction}
+
+%Chapter 2
+\pagestyle{plain}\cleardoublepage %To add an empty page and start on an odd number (SOFTBOUND)%%
+\chapter{LITERATURE REVIEW}\label{chap:LR}
+\autoBookmark{chap}{LITERATURE REVIEW}
+\input{Chapters/02_literatureReview}
+
+%Chapter 3
+\pagestyle{plain}\cleardoublepage %To add an empty page and start on an odd number (SOFTBOUND)%%
+\chapter{METHODOLOGY}\label{chap:methodology}
+\autoBookmark{chap}{METHODOLOGY}
+\input{Chapters/03_Methodology}
+
+%Chapter 4
+\pagestyle{plain}\cleardoublepage%To add an empty page and start on an odd number (SOFTBOUND)%%
+\chapter{RESULTS AND DISCUSSION}\label{chap:ResultsAndDiscussion}
+\autoBookmark{chap}{RESULTS AND DISCUSSION}
+\input{Chapters/04_Results}
+
+%Chapter 5
+\pagestyle{plain}\cleardoublepage%To Add an empty page and start on an odd number (SOFTBOUND)%%
+\chapter{CONCLUSIONS AND FUTURE DIRECTIONS}\label{chap:Conclusion}
+\autoBookmark{chap}{CONCLUSIONS AND FUTURE DIRECTIONS}
+\input{Chapters/05_Conclusion}
+
+
+\clearpage
+%6. Bibliography
+\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+\addcontentsline{toc}{section}{\hspace*{-\cftsecindent}REFERENCES}
+\label{chap:REFERENCES}
+\pdfbookmark[1]{REFERENCES}{chap:REFERENCES} 
+
+
+\begin{singlespace}
+% \setstretch{0.8}
+\setlength\bibitemsep{8pt}   % length between two different entries: original is 8pt edited by SAF1
+	% \scriptsize
+	% \raggedright
+	% \bibliographystyle{unsrt}
+	% \bibliography{refs}
+	\printbibliography[title={\normalsize\normalfont\centering{REFERENCES}}]%<options>]
+\end{singlespace}
+\clearpage
+
+
+%Grant
+\phantomsection%
+\addcontentsline{toc}{chapter}{\hspace*{-\cftsecindent}LIST OF RESEARCH GRANTS}
+\chapter*{ \normalsize \centerline{LIST OF RESEARCH GRANTS}}
+\label{chap:RESEARCHGRANT}
+\pdfbookmark[1]{LIST OF RESEARCH GRANT}{chap:RESEARCHGRANT} 
+\input{Chapters/researchGrant} % Uncomment This line
+
+
+%Publications
+\phantomsection%
+\addcontentsline{toc}{chapter}{\hspace*{-\cftsecindent}LIST OF PUBLICATIONS}
+\chapter*{ \normalsize \centerline{LIST OF PUBLICATIONS}}
+\label{chap:listOfPublications}
+\pdfbookmark[1]{LIST OF PUBLICATIONS}{chap:listOfPublications} 
+\input{Chapters/listOfPuplication}
+
+
+% % Appendices
+% \pagestyle{plain}\cleardoublepage %To add an empty page and start on an odd number (SOFTBOUND)%%
+% \appendix
+% % The following 2 lines add the word appendices to the toc and prevent appendix chapters from appearing
+% \addtocontents{toc}{\protect\setcounter{tocdepth}{-1}} \addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
+% \addcontentsline{toc}{section}{\hspace*{-\cftsecindent}APPENDICES} \addtocontents{toc}{\protect\setcounter{tocdepth}{-1}}
+% \label{chap:app}
+% \pdfbookmark[1]{APPENDICES}{chap:app} 
+
+% % \pagestyle{plain}\cleardoublepage %To Add an empty page and start on an odd number (SOFTBOUND)%%
+\appendix
+\renewcommand{\thesection}{\Roman{section}}
+% Add the appendices heading to the table of contents.
+\phantomsection%
+\addcontentsline{toc}{chapter}{\hspace*{-\cftsecindent}APPENDICES}
+\label{chap:app}%
+
+% \renewcommand{\chapter}{Appendix}
+% \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+% \addcontentsline{toc}{section}{\hspace*{-\cftsecindent}APPENDIX A: SUPPLEMENTARY RESULTS}
+% \chapter{SUPPLEMENTARY RESULTS: GENERALIZATION ACROSS DATASETS}
+% \label{app:results}
+% \pdfbookmark[2]{APPENDIX A}{app:results} 
+% \input{Chapters/appResults}
+
+% \addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+% \addcontentsline{toc}{section}{\hspace*{-\cftsecindent}APPENDIX B: IMPLEMENTATION}
+\chapter{CODE AND DATA AVAILABILITY}
+\label{app:implementation}
+\pdfbookmark[2]{APPENDIX B}{app:implementation} 
+\input{Chapters/appCode}
+
+
+\end{document}

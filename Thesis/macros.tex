@@ -1,0 +1,270 @@
+% This file provides examples of some useful macros for typesetting
+% dissertations.  None of the macros defined here are necessary beyond
+% for the template documentation, so feel free to change, remove, and add
+% your own definitions.
+%
+% We recommend that you define macros to separate the semantics
+% of the things you write from how they are presented.  For example,
+% you'll see definitions below for a macro \file{}: by using
+% \file{} consistently in the text, we can change how filenames
+% are typeset simply by changing the definition of \file{} in
+% this file.
+%
+%% The following is a directive for TeXShop to indicate the main file
+%%!TEX root = main.tex
+
+\newcommand{\NA}{\textsc{n/a}}  % for "not applicable"
+\newcommand{\eg}{e.g.,\ }   % proper form of examples (\eg a, b, c)
+\newcommand{\ie}{i.e.,\ }   % proper form for that is (\ie a, b, c)
+\newcommand{\etal}{\emph{et al}}
+
+% Some useful macros for typesetting terms.
+\newcommand{\file}[1]{\texttt{#1}}
+\newcommand{\class}[1]{\texttt{#1}}
+\newcommand{\latexpackage}[1]{\href{http://www.ctan.org/macros/latex/contrib/#1}{\texttt{#1}}}
+\newcommand{\latexmiscpackage}[1]{\href{http://www.ctan.org/macros/latex/contrib/misc/#1.sty}{\texttt{#1}}}
+\newcommand{\env}[1]{\texttt{#1}}
+\newcommand{\BibTeX}{Bib\TeX}
+
+% Define a command \doi{} to typeset a digital object identifier (DOI).
+% Note: if the following definition raises an error, then you likely
+% have an ancient version of url.sty.  Either find a more recent version
+% (3.1 or later works fine) and simply copy it into this directory,  or
+% comment out the following two lines and uncomment the third.
+\DeclareUrlCommand\DOI{}
+\newcommand{\doi}[1]{\href{http://dx.doi.org/#1}{\DOI{doi:#1}}}
+%\newcommand{\doi}[1]{\href{http://dx.doi.org/#1}{doi:#1}}
+
+% Useful macro to reference an online document with a hyperlink
+% as well with the URL explicitly listed in a footnote
+% #1: the URL
+% #2: the anchoring text
+\newcommand{\webref}[2]{\href{#1}{#2}\footnote{\url{#1}}}
+
+% epigraph is a nice environment for typesetting quotations
+\makeatletter
+\newenvironment{epigraph}{%
+    \begin{flushright}
+    \begin{minipage}{\columnwidth-0.75in}
+    \begin{flushright}
+    \@ifundefined{singlespacing}{}{\singlespacing}%
+    }{
+    \end{flushright}
+    \end{minipage}
+    \end{flushright}}
+\makeatother
+
+% \FIXME{} is a useful macro for noting things needing to be changed.
+% The following definition will also output a warning to the console
+\newcommand{\FIXME}[1]{\typeout{**FIXME** #1}\textbf{[FIXME: #1]}}
+
+% END
+
+
+\newcommand{\SimPEG}{\textsc{SimPEG}\xspace}
+\newcommand{\simpegEM}{\textsc{simpegEM}\xspace}
+
+\newcommand{\Mesh}{\texttt{Mesh}\xspace}
+\newcommand{\Survey}{\texttt{Survey}\xspace}
+\newcommand{\DCSurvey}{\texttt{DCSurvey}\xspace}
+\newcommand{\Problem}{\texttt{Problem}\xspace}
+\newcommand{\DCProblem}{\texttt{DCProblem}\xspace}
+\newcommand{\EMProblem}{\texttt{EMProblem}\xspace}
+\newcommand{\Regularization}{\texttt{Regularization}\xspace}
+\newcommand{\DataMisfit}{\texttt{DataMisfit}\xspace}
+\newcommand{\Optimization}{\texttt{Optimization}\xspace}
+\newcommand{\InvProblem}{\texttt{InvProblem}\xspace}
+\newcommand{\Inversion}{\texttt{Inversion}\xspace}
+
+\newcommand{\Mapping}{\texttt{Mapping}\xspace}
+\newcommand{\ExpMap}{\texttt{ExpMap}\xspace}
+\newcommand{\PropMap}{\texttt{PropMap}\xspace}
+\newcommand{\Sources}{\texttt{Sources}\xspace}
+\newcommand{\Receivers}{\texttt{Receivers}\xspace}
+\newcommand{\Fields}{\texttt{Fields}\xspace}
+
+\newcommand{\TDEM}{\texttt{TDEM}\xspace}
+\newcommand{\FDEM}{\texttt{FDEM}\xspace}
+\newcommand{\NSEM}{\texttt{NSEM}\xspace}
+\newcommand{\BaseEM}{\texttt{BaseEM}\xspace}
+
+\newcommand{\Exp}{\texttt{Exp}\xspace}
+\newcommand{\InjectActiveCells}{\texttt{InjectActiveCells}\xspace}
+
+\newcommand{\dobs}{\mathbf{d}_\text{obs}}
+\newcommand{\m}{\mathbf{m}}
+\newcommand{\du}{\mathbf{u}}
+\newcommand{\mref}{\mathbf{m}_\text{ref}}
+\newcommand{\dpred}{\mathbf{d}_\text{pred}}
+\newcommand{\meshI}{\emph{mesh}$_I$\xspace}
+\newcommand{\meshF}{\emph{mesh}$_F$\xspace}
+\newcommand{\Wd}{\mathbf{W}_\text{d}}
+\newcommand{\Wm}{\mathbf{W}_\text{m}}
+\newcommand{\sm}{\mathbf{s}_m}
+\newcommand{\se}{\mathbf{s}_e}
+
+\newcommand{\deriv}[2]{\frac{\partial #1}{\partial #2}}
+
+\newcommand{\minimize}[1]{\mathop{\hbox{minimize}}_{#1}}
+
+\renewcommand{\div}{\nabla\cdot\,}
+% \newcommand{\grad}{\vec \nabla}
+% \newcommand{\curl}{{\vec \nabla}\times\,}
+\newcommand {\J}{{\vec J}}
+\renewcommand{\H}{{\vec H}}
+\newcommand {\E}{{\vec E}}
+\renewcommand {\S}{{\vec{S}}}
+\newcommand{\dcurl}{{\mathbf C}}
+\newcommand{\dgrad}{{\mathbf G}}
+\newcommand{\Acf}{{\mathbf A_c^f}}
+\newcommand{\Ace}{{\mathbf A_c^e}}
+\newcommand{\St}{{\mathbf \Sigma_\tau}}
+\newcommand{\T}{{\mathbf T}}
+\newcommand{\Tt}{{\mathbf T_\tau}}
+\newcommand{\diag}[1]{\,{\sf diag}\left( #1 \right)}
+
+\newcommand{\M}{{\mathbf M}}
+\newcommand{\MfMui}{{\M^f_{\boldsymbol{\mu^{-1}}}}}
+\newcommand{\MfRho}{{\M^f_{\boldsymbol{\rho}}}}
+\newcommand{\MeSigma}{{\M^e_{\boldsymbol{\sigma}}}}
+\newcommand{\MeMu}{{\M^e_{\boldsymbol{\mu}}}}
+\newcommand{\mui}{\mu^{-1}}
+
+\newcommand{\MeSigInf}{{\M^e_{\sigma_\infty}}}
+\newcommand{\MeSigO}{{\M^e_{\sigma_0}}}
+\newcommand{\Me}{{\M^e}}
+\newcommand{\Mes}[1]{{\M^e_{#1}}}
+\newcommand{\Mee}{{\M^e_e}}
+\newcommand{\Mej}{{\M^e_j}}
+\newcommand{\BigO}[1]{\mathcal{O}\bigl(#1\bigr)}
+\newcommand{\bE}{\mathbf{E}}
+\newcommand{\bH}{\mathbf{H}}
+\newcommand{\B}{\vec{B}}
+\newcommand{\D}{\vec{D}}
+\renewcommand{\H}{\vec{H}}
+\newcommand{\s}{\vec{s}}
+\newcommand{\bfJ}{\bf{J}}
+\newcommand{\vecm}{\vec m}
+\renewcommand{\Re}{\mathsf{Re}}
+\renewcommand{\Im}{\mathsf{Im}}
+\renewcommand {\j}  { {\vec j} }
+\newcommand {\h}  { {\vec h} }
+\renewcommand {\b}  { {\vec b} }
+\newcommand {\e}  { {\vec e} }
+\newcommand {\db}  { {\mathbf {b}} }
+\newcommand {\de}  { {\mathbf {e}} }
+\renewcommand {\d}  { {\vec d} }
+\renewcommand {\u}  { {\mathbf u} }
+\newcommand{\I}{\vec{I}}
+
+%================================Added by me
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{J}[1]{>{\arraybackslash\justifying}p{#1}}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+\newcommand{\hide}[1]{}
+\newcommand{\replace}[2]{#2}
+\newcommand{\replacewithnospace}[2]{\unskip#2}
+\newenvironment{nitemize}{%
+	\begin{itemize}[topsep=0pt,itemsep=2pt,parsep=0pt]%
+	}{%
+	\end{itemize}%
+}
+
+\newcommand*{\rom}[1]{\expandafter\romannumeral#1}
+\newcommand{\comment}[1]{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\citet}[1]{
+	% \citeauthor*{#1} \cite{#1}, \citeyear{#1} % IEEE Access
+     \citeauthor{#1} \cite{#1}
+}
+\newcommand{\citex}[1]{
+	% \citeauthor*{#1} \cite{#1}, \citeyear{#1} % IEEE Access
+     \citeauthor{#1}, \citeyear{#1}, \cite{#1} %  Elsevier
+}
+%\newcommand{\GramaCheck}{}
+
+\newcommand{\CheckRmv}[1]{#1}
+% \newcommand{\figref}[1]{\hyperref[#1]{Figure~\ref{#1}}}%
+% \newcommand{\tabref}[1]{\hyperref[#1]{Tabel~\ref{#1}}}%
+\newcommand{\chapref}[1]{\hyperref[#1]{Chapter~\ref{#1}}}
+% \newcommand{\secref}[1]{\hyperref[#1]{Section~\ref{#1}}}
+% \renewcommand{\eqref}[1]{\hyperref[#1]{Equation~(\ref{#1})}}
+
+\newcommand{\old}[1]{{\textcolor{purple}{old #1}}}
+\newcommand{\red}[1]{{\textcolor{red}{#1}}}
+% \newcommand{\cmm}[1]{{\textcolor{blue}{#1}}}
+\newcommand{\gsh}[1]{{\textcolor{black}{#1}}} %
+\newcommand{\kai}[1]{{\textcolor{awesome}{#1}}}
+\newcommand{\ymh}[1]{{\textcolor{cyan}{#1}}}
+\newcommand{\zxy}[1]{{\textcolor{green}{#1}}}
+\newcommand{\myPara}[1]{\subsubsection{#1}}
+\newcommand{\ourM}{{Res2Net}}
+\newcommand{\sArt}{{state-of-the-art~}}
+\newcommand{\tabSpace}{\vspace{6pt}}
+
+\def\vs{\emph{vs.}}
+\def\ie{\emph{i.e.,~}}
+\def\eg{\emph{e.g.,~}}
+\def\etc{\emph{etc}}
+\def\etal{{\em et al.}}
+
+
+\def\etal{{\em et al.}}
+\newcommand{\tabFormat}{\centering \renewcommand{\arraystretch}{1.05}}
+\usepackage[normalem]{ulem}
+
+\DeclareGraphicsExtensions{.pdf,.jpg,.png}
+
+\renewcommand{\tablename}{Table }
+
+\newcommand{\figref}[1]{Figure.~\ref{#1}}
+\newcommand{\tabref}[1]{Table.~\ref{#1}}
+\newcommand{\equref}[1]{Equation.~(\ref{#1})}
+\newcommand{\secref}[1]{Section.~\ref{#1}}
+\newcommand{\reviewer}[1]{{\textcolor{black}{#1}}}
+\newcommand{\mcols}[1]{\multicolumn{2}{c}{#1}}
+\newcommand{\Cols}[1]{\multicolumn{2}{c|}{#1}}
+\newcommand{\Rows}[1]{\multirow{2}{*}{#1}}
+\newcommand{\colInf}{T50 & T100}
+\newcommand{\ColInf}{\small{Flickr} & \small{Our} & \small{SHoG}}
+\newcommand{\para}[1]{\noindent\textbf{#1.}}
+\newcommand{\cmm}[1]{{\textcolor{blue}{#1}}}
+
+
+\newcommand{\TSpace}{\vspace{-.05in}}
+\newcommand{\BSpace}{\vspace{-.05in}}
+
+\def\ie{\emph{i.e.~}}
+\def\eg{\emph{e.g.~}}
+\def\etal{{\em et al.~}}
+\def\etc{{\em etc.~}}
+
+\newcommand{\PutOverDes}{\small \put(13,0){Gau} \put(29,0){FT}\put(42,0){SEG}\put(56,0){\GRAB}\put(75,0){CB}\put(88,0){Ours}}
+
+% ============================ By Saf1 ==========================================
+\pdfminorversion=7 % To avoid the warning (PDF inclusion: found PDF version <1.7>, but at most version <1.5>)
+
+%To create a hyperref for tables, figures, and equations
+\newcommand{\reft}[1]{\hyperref[#1]{Table~\ref{#1}}}
+\newcommand{\reff}[1]{\hyperref[#1]{Figure~\ref{#1}}}
+\newcommand{\refe}[1]{\hyperref[#1]{Equation~(\ref{#1})}}
+\newcommand{\refm}[1]{\hyperref[#1]{Matrix~(\ref{#1})}}
+\newcommand{\refa}[1]{\hyperref[#1]{Algorithm~\ref{#1}}}
+\newcommand{\refc}[1]{\hyperref[#1]{Chapter~\ref{#1}}}
+\newcommand{\refs}[1]{\hyperref[#1]{Section~\ref{#1}}}
+\newcommand{\refss}[1]{\hyperref[#1]{Subsection~\ref{#1}}}
+\newcommand{\refap}[1]{\hyperref[#1]{Appendix~\ref{#1}}}
+\newcommand{\refx}[2]{\hyperref[#1]{#1~\ref{#2}}} %for sections, pages..etc
+
+\definecolor{richelectricblue}{rgb}{0.03, 0.57, 0.82}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=richelectricblue,
+    urlcolor=richelectricblue,
+    citecolor=richelectricblue,
+    filecolor=richelectricblue
+}

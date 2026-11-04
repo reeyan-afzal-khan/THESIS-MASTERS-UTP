@@ -1,0 +1,22 @@
+# Store text with LF and check it out with LF everywhere, so files copied
+# straight to the Jetson (scp/rsync) match the repository - a CRLF shell
+# script fails on Linux.  Windows-only scripts keep CRLF.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# The thesis source is stored exactly as provided in Reeyan-Thesis.zip
+# (some chapters use CRLF): no line-ending conversion at all.
+Thesis/** -text
+
+# Binary artefacts: never diff or convert
+*.png binary
+*.jpg binary
+*.pdf binary
+*.parquet binary
+*.npy binary
+*.npz binary
+*.mat binary
+*.h5 binary
+*.zip binary
