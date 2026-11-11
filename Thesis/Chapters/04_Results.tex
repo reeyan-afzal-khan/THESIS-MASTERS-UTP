@@ -3,7 +3,7 @@
 \autoBookmark{sec}{Overview}
 This chapter reports what the demonstration and evaluation activities, Activities~4 and~5 in \reff{fig:dsrm_flow}, found. The results follow the workflow of \reff{fig:methodology_framework}, so each stage of the pipeline is evaluated where it acts on the data, and each result is given for the primary Tomasov dataset first and for the Cao evaluation dataset second.
 
-The chapter answers the three research questions in turn. For RQ1, \refs{sec:resLeakage} reports the leakage audit of the released protocols and the verified partitions that replace them, and \refs{sec:resFinal} shows the pipeline, developed on Tomasov, running unchanged on Cao; the protocol-attribution experiments of \refs{sec:resDiscussion} then measure how much the partition alone changes a model's score. For RQ2, \refs{sec:resDomains} evaluates multi-domain fusion, \refs{sec:resSelection} consensus feature selection, and \refs{sec:resBalancing} class balancing. For RQ3, \refs{sec:resFinal} to \refs{sec:resStats} compare the seven classifiers, examine per-class behaviour, and test whether the differences exceed the variation expected from the data. \refs{sec:resConfound}, \refs{sec:resGeneralisationAll}, and \refs{sec:resMapping} ask how far performance carries beyond the recordings and the system the pipeline was trained on, the last through a mapping between the two event taxonomies. \refs{sec:resEfficiency} reports the computational cost, and \refs{sec:resDiscussion} compares the pipeline with each dataset's published CNN and five recent architectures on identical partitions.
+The chapter answers the three research questions. \refs{sec:resLeakage} first reports the leakage audit of the released protocols and the verified partitions that replace them, which are the evaluation basis for everything that follows. For RQ2, the development of the pipeline, \refs{sec:resDomains} evaluates multi-domain fusion, \refs{sec:resSelection} consensus feature selection and what it does to the footprint, \refs{sec:resBalancing} class balancing, and \refs{sec:resFinal} the choice of classifier, with the pipeline developed on Tomasov running unchanged on Cao. For RQ1, the lightweight footprint, \refs{sec:resEfficiency} measures the model size, latency, and training cost of the pipeline and of every baseline on the same embedded platform. For RQ3, the evaluation, \refs{sec:resPerformance} and \refs{sec:resStats} examine per-class behaviour and test whether the differences exceed the variation expected from the data. \refs{sec:resConfound}, \refs{sec:resGeneralisationAll}, and \refs{sec:resMapping} ask how far performance carries beyond the recordings and the system the pipeline was trained on, the last through a mapping between the two event taxonomies. \refs{sec:resDiscussion} compares the pipeline with each dataset's published CNN and five recent architectures on identical partitions, measures how much the partition alone changes a model's score, and contrasts the white-box character of the pipeline with the black-box character of the deep baselines.
 
 \section{Datasets and Leakage Assessment}
 \label{sec:resLeakage}
@@ -44,7 +44,7 @@ Of the 441 recording sessions recovered from the Cao filenames, 423 ($95.9\%$) c
 \autoBookmark{subsec}{Class-Balance Decimation and Group-Aware Split}
 The group-aware split and the class-balance decimation of \reff{fig:methodology_framework} together fix the populations on which every later result is computed. For Tomasov, the two test populations quoted in this thesis, $31{,}028$ in \refs{sec:resLeakageTomasov} and $11{,}334$ in Table~\ref{tab:split_summary}, are two stages of one partition, not two partitions. The audit is performed immediately after blocked assignment and guard-band removal, because that is the stage at which sample disjointness is established. Class decimation, which caps the three most populous classes so that none dominates training, follows and removes a further $19{,}694$ test windows ($63.5\%$), leaving the $11{,}334$ on which every reported result is computed. Decimation deletes whole windows and can only shrink the raw-sample footprint of the test set; the verification was nonetheless repeated on the final test set, and none of its $11{,}334$ windows shares a raw sample with any training window. For Cao, the session-grouped split places each of the 441 sessions in exactly one split, so no session contributes to both training and test (Table~\ref{tab:leakage_audit}).
 
-These measurements explain why several results in this chapter are lower than previously published values for the same benchmarks. A lower score here does not by itself indicate a weaker method; it reflects the same class of method measured under a protocol that is free of contamination. The verified partitions are the evaluation basis for RQ1, RQ2, and RQ3, and the protocol-attribution experiments of \refs{sec:resDiscussion} quantify what leakage does to reported accuracy.
+These measurements explain why several results in this chapter are lower than previously published values for the same benchmarks. A lower score here does not by itself indicate a weaker method; it reflects the same class of method measured under a protocol that is free of contamination. The verified partitions are the evaluation basis for every accuracy reported under RQ2 and RQ3 and for the training times of RQ1, and the protocol-attribution experiments of \refs{sec:resDiscussion} quantify what leakage does to reported accuracy.
 
 \section{Multi-Domain Feature Extraction and Fusion}
 \label{sec:resDomains}
@@ -134,6 +134,46 @@ Compactness has a price. \reff{fig:reduction} traces validation performance agai
 \label{fig:reduction}
 \end{figure}
 
+\subsection{Lightweight Effect of Feature Selection}
+\label{sec:resSelectionLightweight}
+\autoBookmark{subsec}{Lightweight Effect of Feature Selection}
+\refss{sec:chap3LightweightSelection} named four places where selection can lighten the pipeline. Table~\ref{tab:selection_footprint} measures each for the validation-selected LightGBM configuration on the full and the consensus feature sets. Model size follows the convention of \refss{sec:chap3Efficiency}: stored parameters at 32 bits each.
+
+\begin{table}[!htbp]
+	\centering
+	\caption{Footprint of the selected LightGBM configuration with the full $1{,}002$-feature vector and with the unanimous consensus subset, on the Jetson AGX Orin. Training and inference run on the CPU. Each configuration uses its own validation-selected balancing strategy, so the training times include different resamplers.}
+	\label{tab:selection_footprint}
+	\footnotesize
+	\setlength{\tabcolsep}{3.5pt}
+	\begin{tabular}{@{}lrrrr@{}}
+		\toprule
+		& \multicolumn{2}{c}{\textbf{Tomasov}} & \multicolumn{2}{c}{\textbf{Cao}}\\
+		\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+		\textbf{Measure} & \textbf{Full} & \textbf{Consensus} & \textbf{Full} & \textbf{Consensus}\\
+		\midrule
+		Descriptors per window      & 1{,}002 & 52 & 1{,}002 & 53\\
+		Feature vector (bytes)      & 4{,}008 & 208 & 4{,}008 & 212\\
+		Fused feature matrix (MB)   & 691.2 & 35.9 & 61.8 & 3.3\\
+		Balancing strategy          & Borderline-SMOTE & SMOTE & Undersampling & Borderline-SMOTE\\
+		Training time (s)           & 1{,}357.4 & \textbf{63.0} & 41.4 & \textbf{7.9}\\
+		Inference (ms per window)   & 0.172 & \textbf{0.145} & \textbf{0.062} & 0.070\\
+		Trees                       & 4{,}500 & 4{,}500 & 3{,}000 & 3{,}000\\
+		Leaves                      & 288{,}000 & 288{,}000 & 71{,}526 & 121{,}130\\
+		Stored parameters           & 855{,}000 & 855{,}000 & 208{,}578 & 357{,}390\\
+		Model size, 32-bit (MB)            & 3.42 & 3.42 & \textbf{0.83} & 1.43\\
+		Test macro-$F_1$                   & \textbf{81.98} & 73.59 & \textbf{98.90} & 93.08\\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+Selection lightens the data and training side of the pipeline substantially. Each window is described by about $95\%$ fewer descriptors, so a stored feature vector shrinks from $4{,}008$ to about 210 bytes and the Tomasov feature store from $691$\,MB to $36$\,MB. Training the selected model is $21.5$ times faster on Tomasov ($1{,}357$ to $63$\,s) and $5.3$ times faster on Cao ($41$ to $8$\,s), so a consensus model can be retrained on the embedded board's CPU in about a minute when a site or its event mix changes.
+
+It does not make the fitted model smaller or faster to query, and the reason lies in how a boosted ensemble's size is set. LightGBM grows one tree per class in each of 500 rounds, with at most 64 leaves per tree, whatever the number of input features. On Tomasov every one of the $4{,}500$ trees reaches 64 leaves with either feature set, so both models hold $855{,}000$ parameters ($3.42$\,MB), and inference changes only from $0.172$ to $0.145$\,ms. On Cao the consensus model is the larger one ($1.43$ against $0.83$\,MB), because its trees grow more leaves ($121{,}130$ against $71{,}526$), which is consistent with its being trained on an oversampled rather than an undersampled training set. A smaller model would come from fewer rounds or leaves, not from fewer features.
+
+Nor does selection yet shorten feature extraction, the largest online cost. The extractor computes every domain in full, and the consensus subsets still draw on all four domains (Table~\ref{tab:consensus}), so the reported extraction time of \refs{sec:resEfficiency} applies to both configurations. Computing only the 52 or 53 retained descriptors is the step that would turn the dimensionality saving into a latency saving (\refss{sec:chap5FutureCost}).
+
+Selection has a one-time offline cost of its own, $1{,}580$\,s on Tomasov and $1{,}260$\,s on Cao for all eight methods, most of it spent in Boruta, and a recurring cost in accuracy of $8.39$ and $5.81$ macro-$F_1$ points. The unanimous subset is therefore the lightweight operating point for storage, transmission, and retraining, the full vector is the operating point for accuracy, and the reduction curve of \reff{fig:reduction} gives the intermediate points between them.
+
 \subsection{Fold-Wise Feature Selection}
 \label{sec:resSelectionBias}
 \autoBookmark{subsec}{Fold-Wise Feature Selection}
@@ -160,7 +200,7 @@ Each of the six balancing strategies is applied to the training set alone, after
 \label{fig:heatmaps}
 \end{figure}
 
-These results do not support a consistent advantage for cost-sensitive class weighting. When the strategies are compared over independent held-out acquisitions (\refs{sec:resStats}), two pairs separate on Tomasov, by a margin that reflects recall on single-class recordings rather than general classification quality, and no pair separates on Cao. Computational cost is therefore the more useful criterion. Class weighting and the no-balancing baseline both avoid the synthetic-sample generation and training-set inflation of the SMOTE family, which on Tomasov roughly doubles fitting time ($1{,}756$\,s for Borderline-SMOTE against $798$\,s for class weighting) without a reliable gain. This answers the class-balancing part of \textbf{RQ2} and, with \refs{sec:resDomains} and \refs{sec:resSelection}, completes its answer.
+These results do not support a consistent advantage for cost-sensitive class weighting. When the strategies are compared over independent held-out acquisitions (\refs{sec:resStats}), two pairs separate on Tomasov, by a margin that reflects recall on single-class recordings rather than general classification quality, and no pair separates on Cao. Computational cost is therefore the more useful criterion. Class weighting and the no-balancing baseline both avoid the synthetic-sample generation and training-set inflation of the SMOTE family, which on Tomasov roughly doubles fitting time ($1{,}756$\,s for Borderline-SMOTE against $798$\,s for class weighting) without a reliable gain. This answers the class-balancing part of \textbf{RQ2}; with \refs{sec:resDomains} and \refs{sec:resSelection} it settles the representation and training components, and \refs{sec:resFinal} adds the choice of classifier.
 
 \section{Modelling}
 \label{sec:resFinal}
@@ -204,16 +244,16 @@ Table~\ref{tab:all_models} reports the seven classifiers on both datasets, and t
 	\end{tabular}}
 \end{table}
 
-The validation rule selects LightGBM in all four combinations of dataset and feature set, but the test ordering within the boosting tier does not always agree with it. On the full Tomasov representation, histogram-based gradient boosting reaches a test macro-$F_1$ of $82.12$ against $81.98$ for LightGBM, and on the Tomasov consensus subset XGBoost reaches $73.68$ against $73.59$. These reversals of $0.14$ and $0.09$ points are a small fraction of the $\pm 4.42$-point partition standard deviation on Tomasov (\refs{sec:resStats}), so the three boosted learners cannot be separated on these data. The defensible conclusion for \textbf{RQ3} is therefore that the pipeline performs best with a gradient-boosting learner, with LightGBM as the member chosen by the validation rule rather than a member shown to outperform the other two.
+The validation rule selects LightGBM in all four combinations of dataset and feature set, but the test ordering within the boosting tier does not always agree with it. On the full Tomasov representation, histogram-based gradient boosting reaches a test macro-$F_1$ of $82.12$ against $81.98$ for LightGBM, and on the Tomasov consensus subset XGBoost reaches $73.68$ against $73.59$. These reversals of $0.14$ and $0.09$ points are a small fraction of the $\pm 4.42$-point partition standard deviation on Tomasov (\refs{sec:resStats}), so the three boosted learners cannot be separated on these data. The defensible conclusion for the development of the pipeline (\textbf{RQ2}) is therefore that it performs best with a gradient-boosting learner, with LightGBM as the member chosen by the validation rule rather than a member shown to outperform the other two.
 
 Logistic regression does better than its linear form might suggest. On Cao it trails LightGBM by $1.06$ points while training in $8.6$\,s, which indicates that the fused descriptors make the six Cao classes close to linearly separable. It is, however, the learner that depends most on the full representation: the consensus subsets cost it $10.83$ points on Tomasov and $9.75$ on Cao, against $8.39$ and $5.81$ for LightGBM, consistent with a linear model that combines many weakly informative features that the unanimity rule discards. The bagged ensembles show the opposite pattern. On the full Tomasov representation, extremely randomised trees fall below the single decision tree in macro-$F_1$ ($67.80$ against $71.69$) despite a higher one-vs-rest AUC ($93.31$ against $87.49$), so their probability rankings separate the classes better than their decisions do. On the 52-feature consensus subset the same model loses only $0.88$ points and random forest only $3.54$, against $8.39$ for LightGBM. Both observations point to dilution by uninformative columns. The bagged ensembles consider only 31 randomly drawn features at each split, the square root of $1{,}002$, so on the full representation many candidate splits involve no informative feature, whereas the boosted learners search at least $80\%$ of the features at every split and are largely unaffected. The weaker learners are also more sensitive to the balancing strategy: across the six strategies, test macro-$F_1$ varies by $6.66$ points for extremely randomised trees on Tomasov but by only $0.63$ for LightGBM.
 
-Within the top tier, cost separates the classifiers more sharply than effectiveness does. On Tomasov, XGBoost takes $4{,}286$\,s to train against $1{,}393$\,s for LightGBM but predicts a window in $0.046$\,ms against $0.183$\,ms, and histogram-based gradient boosting is the slowest of the three at prediction. Every classifier predicts a window in well under a millisecond on the Jetson AGX Orin, between two and five orders of magnitude inside the window-arrival intervals of $102.4$\,ms (Tomasov) and $204.8$\,ms (Cao). Inference cost therefore does not discriminate between the learners in deployment; training cost does, and, as \refs{sec:resEfficiency} shows, so does feature extraction.
+Within the top tier, cost separates the classifiers more sharply than effectiveness does. On Tomasov, XGBoost takes $4{,}286$\,s to train against $1{,}393$\,s for LightGBM but predicts a window in $0.046$\,ms against $0.183$\,ms, and histogram-based gradient boosting is the slowest of the three at prediction. Every classifier predicts a window in well under a millisecond on the CPU of the Jetson AGX Orin, between two and five orders of magnitude inside the window-arrival intervals of $102.4$\,ms (Tomasov) and $204.8$\,ms (Cao). Inference cost therefore does not discriminate between the learners in deployment; training cost does, and, as \refs{sec:resEfficiency} shows, so does feature extraction.
 
 \subsection{Selection on the Validation Set}
 \label{sec:resSelected}
 \autoBookmark{subsec}{Selection on the Validation Set}
-Table~\ref{tab:main_results} reports the configuration selected on validation for each dataset and feature set. LightGBM is chosen in all four cases, subject to the qualification above, and this selected configuration is the one compared with the published and recent baselines in the Discussion (\refs{sec:resDiscussion}). With the full feature set it reaches $90.71\%$ accuracy and $81.98$ macro-$F_1$ on nine-class Tomasov and $99.06\%$ accuracy and $98.90$ macro-$F_1$ on six-class Cao, with inference below $0.2$\,ms per window. The pipeline designed on the primary dataset thus runs unchanged on the evaluation dataset, with the same settings and no per-dataset tuning, which completes the demonstration required by \textbf{RQ1}.
+Table~\ref{tab:main_results} reports the configuration selected on validation for each dataset and feature set. LightGBM is chosen in all four cases, subject to the qualification above, and this selected configuration is the one compared with the published and recent baselines in the Discussion (\refs{sec:resDiscussion}). With the full feature set it reaches $90.71\%$ accuracy and $81.98$ macro-$F_1$ on nine-class Tomasov and $99.06\%$ accuracy and $98.90$ macro-$F_1$ on six-class Cao, with inference below $0.2$\,ms per window. The pipeline designed on the primary dataset thus runs unchanged on the evaluation dataset, with the same settings and no per-dataset tuning, which completes the development required by \textbf{RQ2}.
 
 \begin{table}[!htbp]
 	\centering
@@ -340,7 +380,7 @@ The second dominant confusion is \emph{regular} to \emph{fence}, and it too appe
 \autoBookmark{sec}{Statistical Testing}
 Statistical testing follows the performance evaluation in \reff{fig:methodology_framework}, because a difference between configurations is meaningful only when it exceeds the variation expected from the data themselves. An earlier version of this analysis applied the Friedman test with the six balancing strategies as blocks and the seven classifiers as treatments, and obtained $\chi^2_F = 35.43$ against an attainable maximum of $36$. As \refss{sec:chap3Statistics} explains, those blocks are not independent replicates, and the near-maximal statistic reflects their dependence rather than a strong effect. That analysis is withdrawn and replaced by the three tests below, whose units of replication are independent.
 
-\paragraph{Partition variance.}
+\paragraph[Partition Variance]{Partition Variance.}
 Repeating the leakage-controlled partition with five seeds over the same population gives macro-$F_1$ of $80.47 \pm 4.42$ on Tomasov (range $74.52$--$84.99$) and $99.13 \pm 0.30$ on Cao for the selected LightGBM configuration (\reff{fig:repeated_splits}). The single-partition headline values of $81.98$ and $98.90$ lie inside those ranges, but the Tomasov spread of $10.5$ points means that every headline figure on that dataset must carry its partition standard deviation. The classifier ranking is stable across all five partitions on both datasets even though the level is not: LightGBM leads random forest and logistic regression on every seed.
 
 \begin{figure}[!htbp]
@@ -350,7 +390,7 @@ Repeating the leakage-controlled partition with five seeds over the same populat
 \label{fig:repeated_splits}
 \end{figure}
 
-\paragraph{Group bootstrap intervals.}
+\paragraph[Group Bootstrap Intervals]{Group Bootstrap Intervals.}
 Bootstrapping the reported test set over whole acquisitions rather than individual windows widens the $95\%$ interval by an order of magnitude on Tomasov: accuracy goes from $\pm 0.53$ at window level to $\pm 5.89$ by zone and $\pm 7.58$ by recording (\reff{fig:bootstrap_ci}). On Cao the interval barely moves ($\pm 0.42$ to $\pm 0.52$ by date), so Cao acquisitions are homogeneous in accuracy where Tomasov recordings are not. Window-level intervals treat overlapping windows as independent observations, so they understate the uncertainty and are quoted only for comparison. Macro-$F_1$ is not estimable at the coarser levels on Tomasov, because a resample of thirteen recordings routinely omits entire classes; accuracy is therefore reported at recording level and macro-$F_1$ at zone level.
 
 \begin{figure}[!htbp]
@@ -360,7 +400,7 @@ Bootstrapping the reported test set over whole acquisitions rather than individu
 \label{fig:bootstrap_ci}
 \end{figure}
 
-\paragraph{Paired comparison over independent acquisitions.}
+\paragraph[Paired Comparison over Independent Acquisitions]{Paired Comparison over Independent Acquisitions.}
 The six balancing strategies were compared again with each block a whole held-out acquisition, trained on all the others, and with Holm correction across the pairwise family~\cite{holm1979simple,demsar2006statistical}. On Tomasov, eleven held-out recordings separate two pairs: undersampling exceeds class weighting by $5.13$ points (corrected $p = 0.041$), and Borderline-SMOTE exceeds it by $1.44$ points (corrected $p = 0.029$). On Cao, ten held-out dates separate no pair of strategies on either metric (smallest corrected $p = 0.82$; the six strategies span $0.45$ accuracy points). The choice of strategy therefore has a modest effect on Tomasov and no detectable effect on Cao, in place of the uniform significance that the Friedman test had reported.
 
 \section{Spatial-Domain Confound Analysis}
@@ -564,12 +604,15 @@ Training on every mapped window of one system and testing on every mapped window
 \autoBookmark{subsec}{What the Mapping Shows About Generalisability}
 The mapping turns a loose question, whether the pipeline generalises across DAS systems, into a measurable one, and the answer depends on what is meant by generalisation. The pipeline as a method transfers: the same configuration, without per-dataset tuning, recognises the shared events well within each system, ranks the feature domains almost identically on both ($\rho = 0.90$), and leads the baselines on both (\refs{sec:resDiscussion}). A fitted model does not transfer: trained on one system, it scores below chance on the other. Two explanations cannot be separated with these data. The shared event types may not be physically equivalent across the two installations (construction machinery and manual digging differ greatly in energy and duration, and a fence strike reaches the cable through a different path from a knock on the ground), or the intensity-based and phase-sensitive interrogators may record the same disturbance so differently that quantile normalisation cannot align them. Either way, deploying a fitted model on a new interrogator requires labelled data from that interrogator or explicit domain adaptation; adaptation is a prerequisite rather than a refinement. The mapping also gives future work a ready-made benchmark, since any adaptation method can be scored on exactly these four classes in both directions. This negative result completes the generalisation part of \textbf{RQ3}.
 
-\section{Computational Efficiency}
+\section{Computational Efficiency and Lightweight Footprint}
 \label{sec:resEfficiency}
-\autoBookmark{sec}{Computational Efficiency}
-Computational cost decides whether the workflow can run where a DAS system is deployed. Table~\ref{tab:efficiency} separates the one-time offline cost from the per-window online cost, measured on the Jetson AGX Orin. Classifier inference is sub-millisecond on both datasets and negligible against the window-arrival interval. Feature extraction dominates, and within it the time--frequency domain at roughly $60$\,ms per window, because of the wavelet-packet decomposition over 16 sub-bands and the grey-level co-occurrence computation. For Tomasov, the $144.59$\,ms total exceeds the $102.4$\,ms window-arrival interval, so two cores are needed for real-time processing of a single channel. For Cao, the $122.54$\,ms total fits inside the $204.8$\,ms interval on one core.
+\autoBookmark{sec}{Computational Efficiency and Lightweight Footprint}
+Computational cost decides whether the workflow can run where a DAS system is deployed, and this section answers \textbf{RQ1}. \refss{sec:resRealTime} breaks the pipeline's per-window cost into its stages and sets it against the real-time budget, and \refss{sec:resFootprint} compares the full footprint of the pipeline with that of every baseline, using the four measures of \refss{sec:chap3Efficiency}.
 
-This distinction matters for how such systems are described. It is the classifier that is lightweight, not the pipeline, and real-time claims based on inference latency alone omit the principal online cost. Against the neural baselines of \refss{sec:resSOTA}, whose online cost is $0.16$--$5.67$\,ms per window, the feature pipeline is slower online by one to three orders of magnitude. Its advantages lie elsewhere: interpretability, a training cost of $1{,}357$\,s on Tomasov and $41$\,s on Cao against $1{,}184$--$37{,}704$\,s and $130$--$2{,}531$\,s for the neural models, and no need for gradient-based training on the edge device. Feature selection is a one-time offline cost; Boruta is the most expensive method at $665$\,s (Tomasov) and $745$\,s (Cao), and the filter methods finish in under five seconds. Preprocessing is negligible relative to extraction, as anticipated in \refss{sec:chap3PreprocCost}. This answers the computational-cost part of \textbf{RQ3}.
+\subsection{Per-Window Cost and the Real-Time Budget}
+\label{sec:resRealTime}
+\autoBookmark{subsec}{Per-Window Cost and the Real-Time Budget}
+Table~\ref{tab:efficiency} separates the stages of the per-window online cost, measured on the CPU of the Jetson AGX Orin. Classifier inference is sub-millisecond on both datasets and negligible against the window-arrival interval. Feature extraction dominates, and within it the time--frequency domain at roughly $60$\,ms per window, because of the wavelet-packet decomposition over 16 sub-bands and the grey-level co-occurrence computation. For Tomasov, the $144.59$\,ms total exceeds the $102.4$\,ms window-arrival interval, so two cores are needed for real-time processing of a single channel. For Cao, the $122.54$\,ms total fits inside the $204.8$\,ms interval on one core. Feature selection is a one-time offline cost; Boruta is the most expensive method at $665$\,s (Tomasov) and $745$\,s (Cao), and the filter methods finish in under five seconds. Preprocessing is negligible relative to extraction, as anticipated in \refss{sec:chap3PreprocCost}.
 
 \begin{table}[!htbp]
 	\centering
@@ -594,10 +637,57 @@ This distinction matters for how such systems are described. It is the classifie
 	\end{tabular}
 \end{table}
 
+\subsection{Lightweight Footprint of the Pipeline and the Baselines}
+\label{sec:resFootprint}
+\autoBookmark{subsec}{Lightweight Footprint of the Pipeline and the Baselines}
+Table~\ref{tab:footprint} sets the four footprint measures of the pipeline beside those of the two published CNNs and the five recent architectures, all trained on the same leakage-controlled partitions and timed on the same board. The feature pipeline runs on the board's CPU cores; every network was trained and run on its integrated GPU. The two LightGBM sizes come from counting the split thresholds, split features, and leaf values of the fitted boosters, and refitting the selected configurations under the fixed seed reproduces their reported test metrics exactly. LightGBM's own text model file, which also stores split gains and node counts, is larger: $32.8$\,MB on Tomasov and $8.5$\,MB on Cao, or $14.7$ and $3.5$\,MB compressed.
+
+\begin{table}[!htbp]
+	\centering
+	\caption[Lightweight footprint of the pipeline and every baseline]{Lightweight footprint of the feature pipeline and every baseline on the Jetson AGX Orin, on the leakage-controlled partitions. Size counts stored parameters at 32 bits each (\refss{sec:chap3Efficiency}). Latencies are per window and amortised over the test set; end-to-end latency adds the preparation of each model's input. n.r.: not recorded.}
+	\label{tab:footprint}
+	\footnotesize
+	\setlength{\tabcolsep}{3.5pt}
+	\resizebox{\textwidth}{!}{%
+	\begin{tabular}{@{}llrrrrr@{}}
+		\toprule
+		\textbf{Model} & \textbf{Processor} & \textbf{Parameters} & \textbf{Size (MB)} & \textbf{Training (s)} & \textbf{Inference (ms)} & \textbf{End-to-end (ms)}\\
+		\midrule
+		\multicolumn{7}{@{}l}{\textit{Tomasov \etal\ 2025}}\\[2pt]
+		Pipeline, $1{,}002$ feat.\ (proposed) & CPU & 855{,}000 & 3.42 & 1{,}357 & 0.17 & 144.77\\
+		Pipeline, 52 feat.\ (proposed) & CPU & 855{,}000 & 3.42 & \textbf{63} & 0.15 & 144.74$^{a}$\\
+		Tomasov CNN, dense 1024~\cite{tomasov2025perimeter} & GPU & 33{,}155{,}849 & 132.62 & 1{,}569 & n.r. & n.r.\\
+		Tomasov CNN, dense 256~\cite{tomasov2025perimeter}  & GPU & 8{,}375{,}561 & 33.50 & 1{,}103 & n.r. & n.r.\\
+		DAStatFormer~\cite{dione2026dastatformer} & GPU & 16{,}077{,}327 & 64.31 & 32{,}958 & 0.62 & $\geq 0.62^{b}$\\
+		DASViT1D~\cite{dione2025intrusion}        & GPU & 1{,}655{,}561 & 6.62 & 1{,}184 & \textbf{0.16} & $\geq 0.16^{b}$\\
+		S2-DyGNN~\cite{jeong2026s2dygnn}          & GPU & 56{,}329 & 0.23 & 25{,}530 & 5.67 & 5.67\\
+		GAT~\cite{jeong2026s2dygnn,shahabudin2024gnn} & GPU & 52{,}361 & 0.21 & 25{,}135 & 5.08 & 5.08\\
+		GCN~\cite{jeong2026s2dygnn,shahabudin2024gnn} & GPU & 48{,}137 & \textbf{0.19} & 37{,}704 & 5.16 & 5.16\\
+		\midrule
+		\multicolumn{7}{@{}l}{\textit{Cao \etal\ 2023}}\\[2pt]
+		Pipeline, $1{,}002$ feat.\ (proposed) & CPU & 208{,}578 & 0.83 & 41 & \textbf{0.06} & 122.60\\
+		Pipeline, 53 feat.\ (proposed) & CPU & 357{,}390 & 1.43 & \textbf{8} & 0.07 & 122.61$^{a}$\\
+		Cao CNN~\cite{caoxin2023opendataset} & GPU & 7{,}421 & \textbf{0.03} & 628 & n.r. & n.r.\\
+		DAStatFormer~\cite{dione2026dastatformer} & GPU & 15{,}985{,}164 & 63.94 & 1{,}775 & 0.76 & $\geq 0.76^{b}$\\
+		DASViT1D~\cite{dione2025intrusion}        & GPU & 1{,}655{,}174 & 6.62 & 130 & 0.19 & $\geq 0.19^{b}$\\
+		S2-DyGNN~\cite{jeong2026s2dygnn}          & GPU & 56{,}134 & 0.22 & 1{,}392 & 3.75 & 3.75\\
+		GAT~\cite{jeong2026s2dygnn,shahabudin2024gnn} & GPU & 52{,}166 & 0.21 & 2{,}063 & 3.10 & 3.10\\
+		GCN~\cite{jeong2026s2dygnn,shahabudin2024gnn} & GPU & 47{,}942 & 0.19 & 2{,}531 & 3.03 & 3.03\\
+		\bottomrule
+	\end{tabular}}
+	\par\smallskip
+	\begin{minipage}{\textwidth}\scriptsize
+	Pipeline: LightGBM on the full or the consensus feature set. $^{a}$\,The extractor computes every domain in full, so the consensus configuration pays the full extraction cost. $^{b}$\,Excludes computing the model's input features (MFCC, RDFT, and DWT for DASViT1D; 24 statistics per channel for DAStatFormer), which were computed in advance and not timed. The graph models compute their STFT inside the timed forward pass, so their figure is end-to-end apart from the band-pass and z-score conditioning they share with the pipeline.
+	\end{minipage}
+\end{table}
+
+The four measures rank the models differently, which is why all four are needed. In \emph{model size}, the pipeline's $3.42$\,MB on Tomasov is a nineteenth of DAStatFormer ($64.31$\,MB), a tenth to a thirty-ninth of the reconstructed Tomasov CNN ($33.50$--$132.62$\,MB), and half of DASViT1D ($6.62$\,MB), but fifteen to eighteen times the three graph networks, which hold some fifty thousand weights each; on Cao the same ordering holds at $0.83$\,MB, with the $7{,}421$-weight Cao CNN the smallest model of all. In \emph{inference latency}, the pipeline's CPU classifier ($0.17$ and $0.06$\,ms) matches the fastest network on its GPU, DASViT1D, on Tomasov ($0.16$\,ms) and is three times faster on Cao ($0.19$\,ms); it is four to twelve times faster than DAStatFormer and thirty to sixty times faster than the graph networks. In \emph{training cost}, the pipeline needs $1{,}357$\,s on Tomasov and $41$\,s on Cao on CPU cores, against $1{,}103$--$37{,}704$\,s and $130$--$2{,}531$\,s of GPU time for the networks; only DASViT1D and the smaller Tomasov CNN train faster on Tomasov, and the consensus configuration trains in $63$ and $8$\,s, faster than every network on both datasets. In \emph{end-to-end latency}, the order reverses. Feature extraction makes the pipeline's online cost $122.60$--$144.77$\,ms per window, against $3.03$--$5.67$\,ms for the graph networks, and the cost of the transformers' own input features was not timed.
+
+These measurements answer RQ1. A DAS classifier is lightweight in the sense of \refs{sec:ResearchBackground} when its learning stage is small, needs no GPU, and trains in minutes, and when its whole online cost fits the window-arrival interval on a few CPU cores of the board beside the interrogator. The feature pipeline meets that definition: a model of $0.8$--$3.4$\,MB, CPU-only training in under $23$ minutes (about one minute with consensus selection), sub-millisecond CPU inference, and an online cost that fits the window interval on one core for Cao and two for Tomasov. It is not the lightest model on every measure. The graph networks are smaller and, given a GPU, cheaper per window, but each needs seven to ten and a half hours of GPU training on Tomasov, and their decisions cannot be traced to named quantities (\refss{sec:resWhiteBox}). The pipeline's lightness therefore lies in its learning stage and its hardware demands, and its heaviest component is feature extraction, which is where further savings should be sought (\refss{sec:chap5FutureCost}). Real-time claims based on inference latency alone would omit that principal online cost, which is why the end-to-end figure is reported for every model.
 \section{Discussion}
 \label{sec:resDiscussion}
 \autoBookmark{sec}{Discussion}
-This section relates the preceding results to the work on which they build. The baseline branch of \reff{fig:methodology_framework} trains the CNN published with each dataset and five recent architectures on raw windows drawn from the same partitions as the feature pipeline, and scores them with the same metrics on the same test windows, so every difference reported here is attributable to the models and the evaluation protocols rather than to the data. The aim is to establish how, and why, the findings of this study differ from the accuracies reported in the source papers. \refss{sec:resCNN} compares the pipeline with the published CNNs; \refss{sec:resCapacity} and \refss{sec:resReproGap} use those networks to measure how strongly a single architecture responds to leakage; \refss{sec:resSOTA} extends the comparison to five architectures published from 2024 onwards; and \refss{sec:resSynthesis} draws the comparisons together.
+This section relates the preceding results to the work on which they build. The baseline branch of \reff{fig:methodology_framework} trains the CNN published with each dataset and five recent architectures on raw windows, or on the input features their designs compute from them, drawn from the same partitions as the feature pipeline, and scores them with the same metrics on the same test windows, so every difference reported here is attributable to the models and the evaluation protocols rather than to the data. The aim is to establish how, and why, the findings of this study differ from the accuracies reported in the source papers. \refss{sec:resCNN} compares the pipeline with the published CNNs; \refss{sec:resCapacity} and \refss{sec:resReproGap} use those networks to measure how strongly a single architecture responds to leakage; \refss{sec:resSOTA} extends the comparison to five architectures published from 2024 onwards, with the size and latency of every model; \refss{sec:resWhiteBox} contrasts the white-box pipeline with the black-box networks; and \refss{sec:resSynthesis} draws the comparisons together.
 
 \subsection{Comparison with the Published CNN Baselines}
 \label{sec:resCNN}
@@ -606,30 +696,30 @@ Table~\ref{tab:cnn_comparison} compares the feature pipeline with each dataset's
 
 \begin{table}[!htbp]
 	\centering
-	\caption{Feature pipeline compared with the CNN baselines, and the protocol sensitivity of the reconstructed Tomasov CNN. Acc.: accuracy; feat.: features; par.: trainable parameters; $\Delta$Acc.: change from the same model on the blocked partition.}
+	\caption[Feature pipeline compared with the CNN baselines]{Feature pipeline compared with the CNN baselines, and the protocol sensitivity of the reconstructed Tomasov CNN. Parameters are trainable weights for the CNNs and stored split and leaf values for LightGBM; size counts them at 32 bits each. Latency is per window on the Jetson AGX Orin, given for the pipeline as classifier inference / end-to-end including feature extraction; the CNNs' inference time was not recorded (n.r.). Acc.: accuracy; $\Delta$Acc.: change from the same model on the blocked partition.}
 	\label{tab:cnn_comparison}
 	\footnotesize
 	\setlength{\tabcolsep}{4pt}
 	\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}llp{3.2cm}rrr@{}}
+\begin{tabular}{@{}lrrr>{\raggedright\arraybackslash}p{3.2cm}rrr@{}}
 		\toprule
-		\textbf{Method} & \textbf{Capacity} & \textbf{Partition} & \textbf{Acc. (\%)} & \textbf{Macro-$F_1$} & \textbf{$\Delta$Acc.}\\
+		\textbf{Method} & \textbf{Parameters} & \textbf{Size (MB)} & \textbf{Latency (ms)} & \textbf{Partition} & \textbf{Acc. (\%)} & \textbf{Macro-$F_1$} & \textbf{$\Delta$Acc.}\\
 		\midrule
-		\multicolumn{6}{@{}l@{}}{\emph{Tomasov 2025}}\\
-		Multi-domain features & 1{,}002 feat. & Blocked + guard bands & \textbf{90.71} & \textbf{81.98} & ---\\
-		Consensus features    & 52 feat.      & Blocked + guard bands & 77.29 & 73.59 & ---\\
-		Tomasov CNN, reconstructed, dense 1024 & 33.2\,M par. & Blocked + guard bands & 68.74 & 65.55 & ---\\
-		Tomasov CNN, reconstructed, dense 256  & 8.4\,M par.  & Blocked + guard bands & 67.28 & 64.66 & ---\\
+		\multicolumn{8}{@{}l@{}}{\emph{Tomasov 2025}}\\
+		Multi-domain features, $1{,}002$ & 855\,k & 3.42 & 0.17 / 144.77 & Blocked + guard bands & \textbf{90.71} & \textbf{81.98} & ---\\
+		Consensus features, 52           & 855\,k & 3.42 & 0.15 / 144.74 & Blocked + guard bands & 77.29 & 73.59 & ---\\
+		Tomasov CNN, reconstructed, dense 1024 & 33.2\,M & 132.62 & n.r. & Blocked + guard bands & 68.74 & 65.55 & ---\\
+		Tomasov CNN, reconstructed, dense 256  & 8.4\,M  & 33.50  & n.r. & Blocked + guard bands & 67.28 & 64.66 & ---\\
 		\midrule
-		\multicolumn{6}{@{}l@{}}{\emph{Protocol sensitivity of the reconstructed Tomasov CNN (dense 1024)}}\\
-		Random partition, same windows & 33.2\,M par. & Random 80/10/10, 2{,}048-sample stride & 69.99 & 69.90 & $+1.25$\\
-		Random partition, windows re-cut & 33.2\,M par. & Random 80/10/10, 256-sample stride & 95.01 & 94.64 & $+26.27$\\
-		Published~\cite{tomasov2025perimeter}, authors' protocol & Not stated & Random 10-fold, 256-sample stride & 85.47 & 84.84 & ---\\
+		\multicolumn{8}{@{}l@{}}{\emph{Protocol sensitivity of the reconstructed Tomasov CNN (dense 1024)}}\\
+		Random partition, same windows   & 33.2\,M & 132.62 & n.r. & Random 80/10/10, 2{,}048-sample stride & 69.99 & 69.90 & $+1.25$\\
+		Random partition, windows re-cut & 33.2\,M & 132.62 & n.r. & Random 80/10/10, 256-sample stride & 95.01 & 94.64 & $+26.27$\\
+		Published~\cite{tomasov2025perimeter}, authors' protocol & Not stated & --- & --- & Random 10-fold, 256-sample stride & 85.47 & 84.84 & ---\\
 		\midrule
-		\multicolumn{6}{@{}l@{}}{\emph{Cao 2023}}\\
-		Multi-domain features & 1{,}002 feat. & Session-grouped & \textbf{99.06} & \textbf{98.90} & ---\\
-		Consensus features    & 53 feat.      & Session-grouped & 94.40 & 93.08 & ---\\
-		Cao CNN~\cite{caoxin2023opendataset} & 7{,}421 par. & Session-grouped & 91.13 & 90.88 & ---\\
+		\multicolumn{8}{@{}l@{}}{\emph{Cao 2023}}\\
+		Multi-domain features, $1{,}002$ & 209\,k & 0.83 & 0.06 / 122.60 & Session-grouped & \textbf{99.06} & \textbf{98.90} & ---\\
+		Consensus features, 53           & 357\,k & 1.43 & 0.07 / 122.61 & Session-grouped & 94.40 & 93.08 & ---\\
+		Cao CNN~\cite{caoxin2023opendataset} & 7{,}421 & 0.03 & n.r. & Session-grouped & 91.13 & 90.88 & ---\\
 		\bottomrule
 	\end{tabular}}
 \end{table}
@@ -674,36 +764,40 @@ Two limitations remain. The re-cut partition reconstructs the published protocol
 \subsection{Comparison with Recent Architectures}
 \label{sec:resSOTA}
 \autoBookmark{subsec}{Comparison with Recent Architectures}
-Five architectures published from 2024 onwards were reimplemented and trained under the partitions, preprocessing constraints, and metrics used throughout this thesis (\refss{sec:chap3SOTA}). Table~\ref{tab:sota} reports the outcome and \reff{fig:sota} visualises it. On Tomasov the feature pipeline attains $90.71\%$ accuracy and $81.98$ macro-$F_1$, ahead of the strongest neural baseline by $11.88$ accuracy points and $3.44$ macro-$F_1$ points. On Cao it attains $99.06\%$ and $98.90$, ahead by $1.11$ and $1.32$. \refss{sec:chap5LimResidue} qualifies the Tomasov margin. The ordering from the published literature is not preserved: S2-DyGNN reports $94.0\%$ accuracy on Tomasov under its own chronological partition and reaches $77.59\%$ here, and DAStatFormer reports $99.93\%$ and reaches $78.83\%$.
+Five architectures published from 2024 onwards were reimplemented and trained under the partitions, preprocessing constraints, and metrics used throughout this thesis (\refss{sec:chap3SOTA}). Table~\ref{tab:sota} reports the outcome, with the parameter count, stored size, and per-window latency of every model, and \reff{fig:sota} visualises it. On Tomasov the feature pipeline attains $90.71\%$ accuracy and $81.98$ macro-$F_1$, ahead of the strongest neural baseline by $11.88$ accuracy points and $3.44$ macro-$F_1$ points. On Cao it attains $99.06\%$ and $98.90$, ahead by $1.11$ and $1.32$. \refss{sec:chap5LimResidue} qualifies the Tomasov margin. The ordering from the published literature is not preserved: S2-DyGNN reports $94.0\%$ accuracy on Tomasov under its own chronological partition and reaches $77.59\%$ here, and DAStatFormer reports $99.93\%$ and reaches $78.83\%$.
 
 \begin{table}[!htbp]
 	\centering
-	\caption{Recent architectures under the leakage-controlled protocol. All models use identical partitions, preprocessing constraints, and metrics. Published accuracy is each method's own reported figure under its own protocol.}
+	\caption[Recent architectures under the leakage-controlled protocol]{Recent architectures under the leakage-controlled protocol, with the size and latency of each model. All models use identical partitions, preprocessing constraints, and metrics. Size counts stored parameters at 32 bits each; latency is per window on the Jetson AGX Orin (CPU for the pipeline, GPU for the networks), given for the pipeline as classifier inference / end-to-end including feature extraction. Published accuracy is each method's own reported figure under its own protocol. Table~\ref{tab:footprint} adds training cost.}
 	\label{tab:sota}
 	\footnotesize
 	\setlength{\tabcolsep}{4pt}
 	\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}llrrrrr@{}}
+\begin{tabular}{@{}lrrrrrrrr@{}}
 		\toprule
-		\textbf{Method} & \textbf{Capacity} & \textbf{Acc. (\%)} & \textbf{Macro-$F_1$} & \textbf{Openclose $F_1$} & \textbf{Published acc.} & \textbf{$\Delta$Acc.}\\
+		\textbf{Method} & \textbf{Parameters} & \textbf{Size (MB)} & \textbf{Latency (ms)} & \textbf{Acc. (\%)} & \textbf{Macro-$F_1$} & \textbf{Openclose $F_1$} & \textbf{Published acc.} & \textbf{$\Delta$Acc.}\\
 		\midrule
-		\multicolumn{7}{@{}l@{}}{\emph{Tomasov 2025, blocked + guard bands}}\\
-		Multi-domain features (proposed) & 1{,}002 feat. & \textbf{90.71} & \textbf{81.98} & 0.044 & --- & ---\\
-		DAStatFormer~\cite{dione2026dastatformer} & 16.1\,M par. & 78.83 & 73.27 & 0.115 & 99.93 & $-21.10$\\
-		S2-DyGNN~\cite{jeong2026s2dygnn}          & 56\,k par.   & 77.59 & 78.54 & \textbf{0.625} & 94.0 & $-16.41$\\
-		GAT~\cite{jeong2026s2dygnn,shahabudin2024gnn} & 52\,k par. & 77.33 & 75.28 & 0.278 & 81.2 & $-3.88$\\
-		GCN~\cite{jeong2026s2dygnn,shahabudin2024gnn} & 48\,k par. & 69.61 & 71.03 & 0.433 & 85.3 & $-15.69$\\
-		DASViT1D~\cite{dione2025intrusion}        & 1.7\,M par.  & 57.15 & 55.38 & 0.141 & 93.5 & $-36.35$\\
+		\multicolumn{9}{@{}l@{}}{\emph{Tomasov 2025, blocked + guard bands}}\\
+		Multi-domain features (proposed) & 855\,k & 3.42 & 0.17 / 144.77 & \textbf{90.71} & \textbf{81.98} & 0.044 & --- & ---\\
+		DAStatFormer~\cite{dione2026dastatformer} & 16.1\,M & 64.31 & $0.62^{b}$ & 78.83 & 73.27 & 0.115 & 99.93 & $-21.10$\\
+		S2-DyGNN~\cite{jeong2026s2dygnn}          & 56\,k   & 0.23 & 5.67 & 77.59 & 78.54 & \textbf{0.625} & 94.0 & $-16.41$\\
+		GAT~\cite{jeong2026s2dygnn,shahabudin2024gnn} & 52\,k & 0.21 & 5.08 & 77.33 & 75.28 & 0.278 & 81.2 & $-3.88$\\
+		GCN~\cite{jeong2026s2dygnn,shahabudin2024gnn} & 48\,k & 0.19 & 5.16 & 69.61 & 71.03 & 0.433 & 85.3 & $-15.69$\\
+		DASViT1D~\cite{dione2025intrusion}        & 1.7\,M  & 6.62 & $0.16^{b}$ & 57.15 & 55.38 & 0.141 & 93.5 & $-36.35$\\
 		\midrule
-		\multicolumn{7}{@{}l@{}}{\emph{Cao 2023, session-grouped}}\\
-		Multi-domain features (proposed) & 1{,}002 feat. & \textbf{99.06} & \textbf{98.90} & --- & --- & ---\\
-		GCN~\cite{jeong2026s2dygnn,shahabudin2024gnn} & 48\,k par. & 97.95 & 97.58 & --- & --- & ---\\
-		DAStatFormer~\cite{dione2026dastatformer} & 16.0\,M par. & 97.67 & 97.30 & --- & 99.48 & $-1.81$\\
-		GAT~\cite{jeong2026s2dygnn,shahabudin2024gnn} & 52\,k par. & 96.28 & 94.72 & --- & --- & ---\\
-		S2-DyGNN~\cite{jeong2026s2dygnn}          & 56\,k par.   & 84.14 & 77.35 & --- & --- & ---\\
-		DASViT1D~\cite{dione2025intrusion}        & 1.7\,M par.  & 83.58 & 78.45 & --- & --- & ---\\
+		\multicolumn{9}{@{}l@{}}{\emph{Cao 2023, session-grouped}}\\
+		Multi-domain features (proposed) & 209\,k & 0.83 & 0.06 / 122.60 & \textbf{99.06} & \textbf{98.90} & --- & --- & ---\\
+		GCN~\cite{jeong2026s2dygnn,shahabudin2024gnn} & 48\,k & 0.19 & 3.03 & 97.95 & 97.58 & --- & --- & ---\\
+		DAStatFormer~\cite{dione2026dastatformer} & 16.0\,M & 63.94 & $0.76^{b}$ & 97.67 & 97.30 & --- & 99.48 & $-1.81$\\
+		GAT~\cite{jeong2026s2dygnn,shahabudin2024gnn} & 52\,k & 0.21 & 3.10 & 96.28 & 94.72 & --- & --- & ---\\
+		S2-DyGNN~\cite{jeong2026s2dygnn}          & 56\,k   & 0.22 & 3.75 & 84.14 & 77.35 & --- & --- & ---\\
+		DASViT1D~\cite{dione2025intrusion}        & 1.7\,M  & 6.62 & $0.19^{b}$ & 83.58 & 78.45 & --- & --- & ---\\
 		\bottomrule
 	\end{tabular}}
+	\par\smallskip
+	\begin{minipage}{\textwidth}\scriptsize
+	$^{b}$\,Inference only; the model's input features were computed in advance and not timed (Table~\ref{tab:footprint}).
+	\end{minipage}
 \end{table}
 
 \begin{figure}[!htbp]
@@ -757,7 +851,50 @@ Table~\ref{tab:sota_inflation} attributes the difference from the published figu
 
 One result qualifies the overall advantage of the feature pipeline. As \refss{sec:resOpenclose} showed, no feature-based classifier recovers \emph{openclose} under leakage control ($F_1 = 0.044$ for the selected LightGBM and at most $0.189$ for any of the seven). S2-DyGNN achieves $0.625$ on the same partition and the same 198 test windows, exceeding the $0.557$ reported under its original protocol, and GCN reaches $0.433$. Models that operate directly on the channel axis thus recover a class that pooled spatial descriptors cannot distinguish.
 
-A second qualification concerns cost. The neural baselines consume raw windows, so their online cost is their inference cost, between $0.16$ and $5.67$\,ms per window. The feature pipeline needs $144.59$\,ms of extraction on Tomasov and $122.54$\,ms on Cao before a classification that takes under $0.2$\,ms. Per window, the neural models are between twenty and nine hundred times cheaper online, and the smallest holds 48 thousand parameters. The efficiency claims of \refs{sec:resEfficiency} therefore concern interpretability and training cost, not per-window latency, and are stated in those terms.
+A second qualification concerns cost, and Table~\ref{tab:sota} now carries it beside the accuracies. The graph networks consume preprocessed raw windows and compute their spectrograms inside the network, so their online cost is their inference cost, $3.03$ to $5.67$\,ms per window on the GPU. DASViT1D and DAStatFormer read input features computed beforehand, so their $0.16$ to $0.76$\,ms is a lower bound. The feature pipeline needs $144.59$\,ms of extraction on Tomasov and $122.54$\,ms on Cao before a classification that takes under $0.2$\,ms on the CPU. Per window and end to end, the networks are therefore faster online, and the smallest of them holds 48 thousand parameters. The pipeline's lightweight advantages, set out in \refss{sec:resFootprint}, lie in a model a nineteenth the size of DAStatFormer and a tenth to a thirty-ninth that of the Tomasov CNN, sub-millisecond inference without a GPU, and training measured in minutes on CPU cores rather than hours on a GPU, and they are stated in those terms rather than as a lower latency.
+
+\subsection{White-Box and Black-Box Models}
+\label{sec:resWhiteBox}
+\autoBookmark{subsec}{White-Box and Black-Box Models}
+The comparisons so far concern what each model achieves and what it costs. This subsection asks a different question: how far a person can see why a model decides as it does. It uses the distinction between white-box and black-box models drawn in \refss{sec:chap2AIMLDL}, and Table~\ref{tab:whitebox} places every model of the study on that scale. Logistic regression and the single decision tree are white boxes in the strict sense, since a weight or a threshold on a named descriptor is the whole of the model. LightGBM, the selected learner, keeps the property that matters most for audit, named inputs, but its $4{,}500$ trees on Tomasov are too many to read one by one. Its transparency therefore lies in its inputs, in its split structure, and in attributions that can be computed exactly for tree ensembles~\cite{lundberg2020trees}, and it is best described as a transparent ensemble over white-box features. The networks are black boxes. Their weights have no assigned meaning, and their decisions can be explained only after the fact and only approximately~\cite{guidotti2018survey}. DAStatFormer comes closest to the pipeline, because its inputs are named statistics, but those statistics pass through 16 million weights of attention and gating layers before a decision is made.
+
+\begin{table}[!htbp]
+	\centering
+	\caption{Interpretability of the models compared in this study.}
+	\label{tab:whitebox}
+	\footnotesize
+	\setlength{\tabcolsep}{4pt}
+	\renewcommand{\arraystretch}{1.15}
+	\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{1.75cm}@{}}
+		\toprule
+		\textbf{Model} & \textbf{Input} & \textbf{What a parameter means} & \textbf{How a decision is explained} & \textbf{Class}\\
+		\midrule
+		Logistic regression, decision tree & $1{,}002$ named descriptors & A weight or a threshold on one named descriptor & Read directly from the weights or the decision path & White box\\
+		\addlinespace[3pt]
+		LightGBM (proposed) & $1{,}002$ or 52 named descriptors, each tagged with its domain & A threshold on one named descriptor, or a leaf value & Exact Shapley attributions per window, split-based importance, and decision paths, all over named descriptors & Transparent ensemble\\
+		\addlinespace[3pt]
+		Tomasov and Cao CNNs & RDFT spectrum or raw record & A convolution or dense weight with no assigned meaning & Post-hoc saliency, approximate & Black box\\
+		\addlinespace[3pt]
+		DASViT1D & Vector of MFCC, RDFT, and DWT coefficients & A projection or attention weight & Post-hoc attention or saliency maps, approximate & Black box\\
+		\addlinespace[3pt]
+		DAStatFormer & 24 named statistics per channel & An attention or gating weight & Post-hoc and approximate; the inputs are named but mixed by attention & Black box\\
+		\addlinespace[3pt]
+		S2-DyGNN, GAT, GCN & Preprocessed multi-channel patch & A filter, graph, or attention weight; a learned channel adjacency & Post-hoc; learned edges show which channels interact, not why & Black box\\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+The difference is not only one of principle. In this thesis, interpretability did work that a black-box model could not have done, in three places. The first is the diagnosis of the spatial confound. Because every column carries its domain prefix, the representation could be taken apart domain by domain, and the leave-one-domain-out ablation and the recording-identity probe of \refs{sec:resConfound} showed that the 61 spatial descriptors both carry $19.67$ macro-$F_1$ points and identify the source recording $11.1$ points beyond the next domain. For the networks, the same question, whether a model recognises the event or the recording, could be asked only from outside, by changing the partition (\refss{sec:resReproGap}); it could not be traced to any part of the input.
+
+The second is a check of the importance ranking against the definitions of the features. Ranked by how often the final Tomasov model splits on them (\reff{fig:feature_importance}), five of its ten leading features, the first three among them, are the Gini coefficient, maximum gradient, skewness, argmax, and kurtosis of the channel-energy profile. All five belong to the group of 29 descriptors that per-channel z-scoring makes constant in exact arithmetic (\refss{sec:chap3SpatialFeatures}). A model that leans hardest on quantities that should carry no information is visibly using something other than the event, and the invariance audit of \refss{sec:chap5LimResidue} identified what: a residue of about $10^{-14}$ left by a stabilising constant. Because each descriptor is an explicit formula, the audit could also name the 33 descriptors that respond to changes that should not reach them. A network's learned features have no definition against which such a check could be made.
+
+The third is the reading of the selected subset. The unanimous subset is a short list of named quantities, and the five features selected on both systems, the minimum, lower quartile, and range of the STFT temporal envelope, the maximum spectral flux, and the Gini coefficient of the segment energies (\refss{sec:resConsistency}), describe how unevenly an event's energy is spread over the window and how abruptly its spectrum changes. An engineer can check such statements against what is known of the events, which is not possible for a learned embedding.
+
+For perimeter security this matters beyond the laboratory. An alert raised by the pipeline can be accompanied by the descriptors that drove it, so an operator or an auditor can see, for example, whether a fence alarm rested on impulsive time-domain structure or on the spatial spread of the energy. Rudin~\cite{rudin2019stop} argues that in such high-stakes settings a model of this kind should be preferred to a black box explained after the fact, because the explanation of a black box need not reflect what the model computes. Exact attributions for tree ensembles avoid that gap, since they are computed from the model itself rather than from a surrogate of it~\cite{lundberg2020trees}.
+
+Interpretability has a price, and the benchmark shows it in two forms. Within the pipeline, the fully white-box learners are the weaker ones: on Tomasov the decision tree reaches $71.69$ and logistic regression $78.59$ macro-$F_1$, against $81.98$ for LightGBM, and on Cao $91.56$ and $97.84$ against $98.90$. The selected model therefore trades some transparency for accuracy. Against the networks, the price is information. A designed representation keeps only what its descriptors measure, and pooling over the channel axis discards the structure that lets S2-DyGNN recover \emph{openclose} at an $F_1$ of $0.625$, where no feature-based learner exceeds $0.189$ (\refss{sec:resOpenclose}). The white-box design made that failure visible and explicable, but it did not prevent it. Nor has the benefit to operators been measured: the claim rests on named descriptors and attributions, and testing it with the people who act on alerts is left to future work (\refss{sec:chap5FutureOperators}).
+
+On balance, the pipeline is more interpretable than the black-box networks in the sense that matters for audit: every input has a definition, every split refers to one of those inputs, and every attribution can be computed exactly. That same property is what allowed this thesis to find, and to report, the most serious flaw in its own results.
 
 \subsection{Overall Comparison with Published Work}
 \label{sec:resSynthesis}
@@ -766,15 +903,15 @@ Taken together, these comparisons explain why several results in this thesis are
 
 The relative standing of the methods changes too. Under their own protocols, DAStatFormer and S2-DyGNN report the highest accuracies on the Tomasov benchmark, yet under identical leakage-controlled partitions the feature pipeline exceeds them by $11.88$ and $13.12$ accuracy points, although the graph models keep their lead on \emph{openclose}. Leakage does not inflate all models equally: the low-capacity Cao CNN lost only $1.58$ accuracy points when its released partition was replaced by the session-grouped one, whereas the graph and transformer models gained between $6.48$ and $18.38$ points from a random partition of the same Tomasov windows. Rankings obtained under contaminated protocols therefore need not agree with rankings under group-aware evaluation, which is why every comparison in this thesis is made on identical partitions. These conclusions concern generalisation to unseen segments of represented recordings. As \refs{sec:resGeneralisationAll} and \refs{sec:resMapping} showed, performance falls further when whole recordings or acquisition campaigns are held out and collapses when a fitted model crosses to another sensing system, regimes that none of the studies reviewed in \refs{sec:chap2RelatedWorks} evaluates.
 
-Three of these measurements have no counterpart in the reviewed studies, and they are where the thesis adds most to the DAS literature: the attribution of a reproduction gap to the protocol by changing only the partition, the recording-identity probe that asks each feature domain how much it knows about the acquisition, and the transfer of a fitted model between two independent sensing systems over a mapped taxonomy. With these comparisons, \textbf{RQ3} is answered: the pipeline leads the published and recent baselines on identical partitions, at a known cost in latency, with known limits on how far a fitted model travels, and, on Tomasov, with a margin that depends on the numerical residue of \refss{sec:chap5LimResidue}.
+Three of these measurements have no counterpart in the reviewed studies, and they are where the thesis adds most to the DAS literature: the attribution of a reproduction gap to the protocol by changing only the partition, the recording-identity probe that asks each feature domain how much it knows about the acquisition, and the transfer of a fitted model between two independent sensing systems over a mapped taxonomy. With these comparisons, \textbf{RQ3} is answered: the pipeline leads the published and recent baselines on identical partitions while remaining lightweight in model size, training cost, and hardware, and transparent where the networks are black boxes. It does so at a known cost in end-to-end latency, with known limits on how far a fitted model travels, and, on Tomasov, with a margin that depends on the numerical residue of \refss{sec:chap5LimResidue}.
 
 \section{Summary}%
 \label{sec:chap4Summary}
 \autoBookmark{sec}{Summary}
-This chapter evaluated the artefact on the primary Tomasov dataset and the Cao evaluation dataset under a verified leakage-controlled protocol.
+This chapter evaluated the artefact on the primary Tomasov dataset and the Cao evaluation dataset under a verified leakage-controlled protocol. The audit that established that protocol found that every Tomasov test window shared raw samples with a training window under a random split and that 423 of 441 Cao sessions spanned the published partition; blocked, guard-banded and session-grouped partitions reduced both measures to zero.
 
-For \textbf{RQ1}, the audit found that every Tomasov test window shared raw samples with a training window under a random split and that 423 of 441 Cao sessions spanned the published partition; blocked, guard-banded and session-grouped partitions reduced both measures to zero. The pipeline designed on Tomasov ran unchanged on Cao. Changing only the partition moved an otherwise identical CNN by $26.27$ accuracy points, every recent architecture gained between $6.5$ and $18.4$ points under a random split, and removing the leak reduced the \emph{openclose} $F_1$ of the selected model from $0.72$ to $0.044$.
+For \textbf{RQ1}, the footprint of every model was measured on the Jetson AGX Orin. The selected LightGBM holds $855{,}000$ parameters ($3.42$\,MB) on Tomasov and $208{,}578$ ($0.83$\,MB) on Cao, trains in $1{,}357$ and $41$\,s on CPU cores, and classifies a window in $0.17$ and $0.06$\,ms without a GPU. That makes it a nineteenth the size of DAStatFormer and about a tenth that of the smaller Tomasov CNN, and its training needs no GPU, where the graph networks need seven to ten and a half hours of GPU training on Tomasov. The graph networks are smaller still and cheaper end to end, because feature extraction ($122.54$--$144.59$\,ms per window) dominates the pipeline's online cost; that cost fits the window-arrival interval on one CPU core for Cao and two for Tomasov. The pipeline is therefore lightweight in its learning stage and its hardware demands, and feature extraction is its heaviest component.
 
-For \textbf{RQ2}, fusion outperformed every individual domain by $6.26$ macro-$F_1$ points on Tomasov and $3.46$ on Cao; unanimous eight-method consensus reduced the feature space by about $95\%$ at a cost of $8.39$ and $5.81$ points; and the six balancing strategies separated only modestly on Tomasov and were indistinguishable on Cao.
+For \textbf{RQ2}, fusion outperformed every individual domain by $6.26$ macro-$F_1$ points on Tomasov and $3.46$ on Cao; unanimous eight-method consensus reduced the feature space by about $95\%$ and training time by $5.3$ to $21.5$ times, at a cost of $8.39$ and $5.81$ points and without shrinking the fitted model; and the six balancing strategies separated only modestly on Tomasov and were indistinguishable on Cao. The three gradient-boosting learners led all seven classifiers and lay within $0.62$ and $0.84$ macro-$F_1$ points of one another, so LightGBM, which validation selected in every configuration, is best read as the representative of that tier. The pipeline designed on Tomasov ran unchanged on Cao.
 
-For \textbf{RQ3}, the three gradient-boosting learners led all seven classifiers and lay within $0.62$ and $0.84$ macro-$F_1$ points of one another, so LightGBM, which validation selected in every configuration, is best read as the representative of that tier. The selected configuration exceeded each dataset's published CNN by $16.43$ and $8.01$ macro-$F_1$ points and exceeded five architectures published from 2024 onwards on identical partitions, with sub-millisecond inference, although feature extraction rather than inference sets the real-time budget and channel-level graph models recover \emph{openclose} where the pipeline does not. Generalisation beyond represented recordings is weaker. Spatial descriptors identified the source recording $11.1$ points above the next domain while contributing $19.67$ macro-$F_1$ points, effects this dataset cannot separate; leave-one-recording-out accuracy on Tomasov averaged $63.85\%$; holding out Cao acquisition dates reduced accuracy from $99.06\%$ to $86.81\%$; and although four event types could be mapped between the two taxonomies, a model trained on one system scored below chance on the other. Chapter~\ref{chap:Conclusion} consolidates these findings, states what is new in them, and reports a numerical residue in the normalisation that qualifies the Tomasov figures.
+For \textbf{RQ3}, the selected configuration exceeded each dataset's published CNN by $16.43$ and $8.01$ macro-$F_1$ points and exceeded five architectures published from 2024 onwards on identical partitions, although channel-level graph models recover \emph{openclose} where the pipeline does not. Changing only the partition moved an otherwise identical CNN by $26.27$ accuracy points, every recent architecture gained between $6.5$ and $18.4$ points under a random split, and removing the leak reduced the \emph{openclose} $F_1$ of the selected model from $0.72$ to $0.044$. Unlike the black-box networks, the pipeline decides through named descriptors, which is what allowed the spatial confound and the numerical residue to be traced. Generalisation beyond represented recordings is weaker. Spatial descriptors identified the source recording $11.1$ points above the next domain while contributing $19.67$ macro-$F_1$ points, effects this dataset cannot separate; leave-one-recording-out accuracy on Tomasov averaged $63.85\%$; holding out Cao acquisition dates reduced accuracy from $99.06\%$ to $86.81\%$; and although four event types could be mapped between the two taxonomies, a model trained on one system scored below chance on the other. Chapter~\ref{chap:Conclusion} consolidates these findings, states what is new in them, and reports a numerical residue in the normalisation that qualifies the Tomasov figures.

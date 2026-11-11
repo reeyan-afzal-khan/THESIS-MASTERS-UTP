@@ -1,0 +1,5 @@
+dataset,feature_set,model,balancing,n_features,n_trees,n_split_nodes,n_leaves,n_stored_params,model_file_mb,model_file_gzip_mb,accuracy,f1_macro,card_accuracy,card_f1_macro
+tomasov,8_consensus,LightGBM,smote,52,4500,283500,288000,855000,31.53,14.235,77.29,73.589,77.29,73.589
+tomasov,full_1002,LightGBM,borderline_smote,1002,4500,283500,288000,855000,32.805,14.728,90.709,81.978,90.709,81.978
+cao,8_consensus,LightGBM,borderline_smote,53,3000,118130,121130,357390,13.837,5.889,94.398,93.084,94.398,93.084
+cao,full_1002,LightGBM,undersample,1002,3000,68526,71526,208578,8.529,3.513,99.057,98.897,99.057,98.897
