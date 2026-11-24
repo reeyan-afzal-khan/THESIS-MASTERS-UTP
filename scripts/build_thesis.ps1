@@ -3,14 +3,20 @@
     Compile the thesis: Thesis\main.tex -> Thesis\main.pdf.
 
 .DESCRIPTION
-    pdfLaTeX -> biber -> pdfLaTeX -> pdfLaTeX, run inside Thesis\ - the same
+    pdfLaTeX -> bibtex8 -> pdfLaTeX -> pdfLaTeX, run inside Thesis\ - the same
     steps as the LaTeX Workshop recipe in .vscode\settings.json.
+
+    bibtex8 stands in for biber, which Windows Smart App Control blocks
+    (biber.exe is unsigned); main.tex sets biblatex's backend to match.
+    bibtex8 warnings (exit code 1, e.g. a key missing from ref.bib) are
+    reported and the build goes on; errors (exit code 2+) stop it.
 
     The build is in place on purpose: biblatex always reads a main.bbl that
     sits next to main.tex, so building into another folder would keep using
     the shipped main.bbl and silently ignore edits to ref.bib.  Every build
-    artefact is git-ignored, and while ref.bib is unchanged biber regenerates
-    main.bbl byte-for-byte, so a build leaves the tracked sources untouched.
+    artefact is git-ignored, and while ref.bib is unchanged bibtex8
+    regenerates main.bbl byte-for-byte, so a build leaves the tracked sources
+    untouched.
 
 .EXAMPLE
     .\scripts\build_thesis.ps1
@@ -26,12 +32,21 @@ if (-not (Get-Command pdflatex -ErrorAction SilentlyContinue)) {
 Push-Location (Join-Path (Split-Path -Parent $PSScriptRoot) "Thesis")
 try {
     $latexArgs = "-interaction=nonstopmode", "-halt-on-error", "-file-line-error", "-synctex=1", "main.tex"
-    foreach ($step in "pdflatex", "biber", "pdflatex", "pdflatex") {
+    foreach ($step in "pdflatex", "bibtex8", "pdflatex", "pdflatex") {
         Write-Host "==> $step"
-        if ($step -eq "biber") { biber main | Out-Null } else { pdflatex @latexArgs | Out-Null }
+        if ($step -eq "bibtex8") {
+            bibtex8 --wolfgang main | Out-Null
+            if ($LASTEXITCODE -eq 1) {           # warnings only
+                Select-String -Path main.blg -Pattern "^Warning--" | ForEach-Object { Write-Warning $_.Line }
+                continue
+            }
+        } else {
+            pdflatex @latexArgs | Out-Null
+        }
         if ($LASTEXITCODE) {
-            $log = if ($step -eq "biber") { "main.blg" } else { "main.log" }
-            Select-String -Path $log -Pattern "^!|^\S+:\d+: |ERROR" | Select-Object -First 5 | ForEach-Object { $_.Line }
+            $log = if ($step -eq "bibtex8") { "main.blg" } else { "main.log" }
+            Select-String -Path $log -Pattern "^!|^\S+:\d+: |ERROR|error message|^I was expecting|^I couldn't" |
+                Select-Object -First 5 | ForEach-Object { $_.Line }
             throw "$step failed - see Thesis\$log"
         }
     }

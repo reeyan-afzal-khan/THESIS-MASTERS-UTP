@@ -14,13 +14,27 @@
 \hbadness=10000%
 
 \usepackage[utf8]{inputenc}
+% bibtex8, not biber: Windows Smart App Control blocks the unsigned biber.exe.
+% The typeset bibliography is identical for this style and ref.bib.
 \usepackage[
-	backend=biber,
+	backend=bibtex8,
 	style=numeric-comp,
 	sorting=none,
 	giveninits= false,
 ]{biblatex}
 \addbibresource{ref.bib}
+% biblatex 3.22's bibtex backend never reloads the previous run's citation
+% list, so with sorting=none every build ends with a false "Please (re)run
+% BibTeX" and "There were undefined references".  Reload it here; this is a
+% no-op once biblatex does it itself.
+\makeatletter
+\def\thesis@lastcites#1{%
+	\ifcsundef{blx@prelim@lastcites@#1}{}{%
+		\ifcsundef{blx@lastcites@#1}
+			{\forlistcsloop{\listcsgadd{blx@lastcites@#1}}{blx@prelim@lastcites@#1}}
+			{}}}
+\appto\blx@bblend{\forlistloop\thesis@lastcites\blx@alllastrefsections}
+\makeatother
 
 \usepackage{forest}
 \usepackage{dsfont}

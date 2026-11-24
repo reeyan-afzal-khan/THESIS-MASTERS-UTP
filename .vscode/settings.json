@@ -1,6 +1,9 @@
 {
     // Thesis: LaTeX Workshop builds Thesis/main.tex in place with the same
     // steps as scripts/build_thesis.ps1 (latexmk would need Perl).
+    // bibtex8 replaces biber, which Windows Smart App Control blocks.  It exits
+    // 1 on mere warnings (e.g. a key missing from ref.bib); only exit 2+ (a real
+    // error) stops the recipe, as biber did.
     "latex-workshop.latex.tools": [
         {
             "name": "pdflatex",
@@ -8,20 +11,26 @@
             "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "%DOC%"]
         },
         {
-            "name": "biber",
-            "command": "biber",
-            "args": ["%DOCFILE%"]
+            "name": "bibtex8",
+            "command": "cmd",
+            "args": ["/d", "/c", "bibtex8 --wolfgang %DOCFILE% & if errorlevel 2 (exit 2) else exit 0"]
         }
     ],
     "latex-workshop.latex.recipes": [
         {
-            "name": "pdflatex -> biber -> pdflatex x2",
-            "tools": ["pdflatex", "biber", "pdflatex", "pdflatex"]
+            "name": "pdflatex -> bibtex8 -> pdflatex x2",
+            "tools": ["pdflatex", "bibtex8", "pdflatex", "pdflatex"]
         }
     ],
     "latex-workshop.latex.outDir": "%DIR%",
     "latex-workshop.latex.autoBuild.run": "onSave",
     "latex-workshop.view.pdf.viewer": "tab",
+    // Fixed viewer port: when VS Code restarts the extension host (e.g. after an
+    // extension auto-update), LaTeX Workshop comes back on this same port and
+    // the open PDF tab reconnects on its own.  With the default random port the
+    // tab is orphaned and stops refreshing after builds.  Outside Windows'
+    // dynamic and reserved port ranges; only one window on this repo at a time.
+    "latex-workshop.view.pdf.internal.port": 27183,
 
     // Notebooks run from their own folder (Experiment/), where dasfe lives.
     "jupyter.notebookFileRoot": "${fileDirname}",

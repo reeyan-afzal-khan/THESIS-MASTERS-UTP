@@ -1,11 +1,11 @@
 \section{Overview}%
 \label{sec:chap3Overview}
 \autoBookmark{sec}{Overview}
-This chapter describes the design, construction, demonstration, and evaluation of the DAS event-classification artefact. The artefact is a feature-driven pipeline that converts a raw DAS window into an event label through window-level conditioning, multi-domain feature engineering, ensemble feature selection, class-imbalance treatment, and lightweight classification. Every learning component runs on CPU cores, and the footprint of the complete pipeline, comprising model size, latency, and training cost, is measured on the embedded platform for which it is intended. The evaluation protocol is treated as part of the artefact rather than as neutral context: an accuracy that a deployment could not reproduce does not satisfy the design objectives, irrespective of the quality of the individual components.
+This chapter describes the design, construction, demonstration, and evaluation of the DAS event-classification artefact. The artefact is the lightweight multi-domain machine learning pipeline named in the title of the thesis: it converts a raw DAS window into an event label through window-level conditioning, multi-domain feature engineering, ensemble feature selection, class-imbalance treatment, and classification. Every learning component runs on CPU cores, and the model size, training time, and processing time per window of the complete pipeline are measured on the embedded platform for which it is intended. The evaluation protocol is treated as part of the artefact rather than as neutral context: an accuracy that a deployment could not reproduce does not satisfy the design objectives, irrespective of the quality of the individual components.
 
 The pipeline was designed on the Tomasov perimeter-security dataset, the primary dataset of the thesis, and subsequently applied without modification to the Cao dataset, which serves as an independent evaluation dataset. Both datasets are processed by every stage described in this chapter with the same settings. Where a stage must treat the two datasets differently because of differences in their structure, this is stated explicitly.
 
-The research follows the Design Science Research Methodology (DSRM) of Peffers et al.~\cite{peffers2007dsrm}. \refs{sec:chap3DSRMFramework} justifies this choice, presents the activity flow (\reff{fig:dsrm_flow}), and maps each research question and objective to a DSRM activity (Table~\ref{tab:dsrm_mapping}). \refs{sec:chap3DSRMProblem} to \refs{sec:chap3DSRMCommunication} then address the six activities in turn. Activity~3, the most extensive, contains the technical design: the datasets and the definition of their samples, the leakage identified in their released protocols, the group-aware partitions that replace them, signal preprocessing, the extraction and fusion of $1{,}002$ features, the preparation of model-ready data, consensus feature selection and class balancing, classifier configuration, and the baseline models. Activity~4 describes the demonstration setting and the realised partitions. Activity~5 defines the metrics, the diagnostics, the statistical procedures, the generalisation tests, and the efficiency and lightweight-footprint measurements, and Activity~6 states the means by which the results are communicated.
+The research follows the Design Science Research Methodology (DSRM) of Peffers et al.~\cite{peffers2007dsrm}. \refs{sec:chap3DSRMFramework} justifies this choice, presents the activity flow (\reff{fig:dsrm_flow}), and maps each research question and objective to a DSRM activity (Table~\ref{tab:dsrm_mapping}). \refs{sec:chap3DSRMProblem} to \refs{sec:chap3DSRMCommunication} then address the six activities in turn. Activity~3, the most extensive, contains the technical design: the datasets and the definition of their samples, the leakage identified in their released protocols, the group-aware partitions that replace them, signal preprocessing, the extraction and fusion of $1{,}002$ features, the preparation of model-ready data, consensus feature selection and class balancing, classifier configuration, and the baseline models. Activity~4 describes the demonstration setting and the implementation. Activity~5 defines the metrics, the diagnostics, the statistical procedures, the generalisation tests, and the measurement of model size, training time, and processing time per window, and Activity~6 states the means by which the results are communicated.
 
 \section{Research Design: The DSRM Framework}
 \label{sec:chap3DSRMFramework}
@@ -14,9 +14,9 @@ The research follows the Design Science Research Methodology (DSRM) of Peffers e
 \subsection{Rationale for Adopting DSRM}
 \label{sec:chap3DSRMRationale}
 \autoBookmark{subsec}{Rationale for Adopting DSRM}
-Design science research produces and evaluates purposeful artefacts that address identified organisational or technical problems~\cite{hevner2004design}. Peffers et al.~\cite{peffers2007dsrm} operationalise this approach as a six-activity process with four possible entry points, and Gregor and Hevner~\cite{gregor2013positioning} classify the resulting knowledge contribution by the novelty of the problem and of the solution. DSRM is appropriate for the present study for three reasons. First, the principal output of the study is a constructed artefact, a classification pipeline together with the protocol under which it is evaluated, rather than a description or explanation of a phenomenon. Second, the study is problem-centred: it begins from the operational limitations of DAS event classification (\refs{sec:ResearchProblemStatement}) and from a measurable deficiency in prevailing evaluation practice, and proceeds through design objectives and construction to assessment. Third, DSRM requires rigorous evaluation and the communication of reusable knowledge. Both requirements are central to this study, because its most durable findings concern how DAS benchmarks should be evaluated rather than which classifier performs best on one of them. In the terms of Gregor and Hevner, the evaluation protocol is an exaptation, in which known solutions are transferred to a field that had not applied them, and the pipeline with its diagnostics is an improvement, a new solution to a known problem (\refs{sec:chap5Contributions}).
+Design science research produces and evaluates purposeful artefacts that address identified organisational or technical problems~\cite{hevner2004design}. Peffers et al.~\cite{peffers2007dsrm} operationalise this approach as a six-activity process with four possible entry points, and Gregor and Hevner~\cite{gregor2013positioning} classify the resulting knowledge contribution by the novelty of the problem and of the solution. DSRM is appropriate for the present study for three reasons. First, the principal output of the study is a constructed artefact, a classification pipeline together with the protocol under which it is evaluated, rather than a description or explanation of a phenomenon. Second, the study is problem-centred: it begins from the operational limitations of DAS event classification (\refs{sec:ResearchProblemStatement}) and from a measurable deficiency in prevailing evaluation practice, and proceeds through design objectives and construction to assessment. Third, DSRM requires rigorous evaluation and the communication of reusable knowledge. Both requirements are central to this study, because a comparison between a feature pipeline and deep learning models is informative only if the evaluation that produces it can be verified and repeated. In the terms of Gregor and Hevner, the pipeline is an improvement: a new solution, assembled from established components, to the known problem of DAS event classification (\refs{sec:chap5Contributions}).
 
-DSRM has been applied to comparable machine-learning artefacts in engineering and information-systems research, where the artefact is a data pipeline or predictive system whose utility is established empirically. Its activities align with the three research questions of \refs{sec:ResearchQuestions}: RQ1 analyses the footprint that a lightweight classifier must satisfy and thereby shapes the problem and the objectives; RQ2 guides the design and development of the pipeline and its components; and RQ3 evaluates the pipeline under a verified leakage-controlled protocol, benchmarks it against alternatives, and tests the extent to which its performance generalises.
+DSRM has been applied to comparable machine-learning artefacts in engineering and information-systems research, where the artefact is a data pipeline or predictive system whose utility is established empirically. Its activities align with the three research questions of \refs{sec:ResearchQuestions}. RQ1 reviews the feature representations used in earlier work and thereby shapes the problem and the objectives; RQ2 guides the design and development of the pipeline and its components; and RQ3 evaluates the pipeline against published deep learning models under a verified leakage-controlled protocol and tests the extent to which its performance generalises.
 
 \subsection{DSRM Activity Flow}
 \label{sec:chap3DSRMFlow}
@@ -38,7 +38,7 @@ DSRM has been applied to comparable machine-learning artefacts in engineering an
 \node[io, below=of o1] (o2) {\textbf{In:} RQ1--RQ3.\\\textbf{Out:} research objectives RO1--RO3; six design criteria including evaluative validity.\\{\scriptsize\itshape \refs{sec:chap3DSRMObjectives}}};
 \node[io, below=of o2] (o3) {\textbf{In:} primary (Tomasov) and evaluation (Cao) datasets; design criteria.\\\textbf{Out:} verified group-aware partitions; stateless preprocessing chain; $1{,}002$-feature extractor; eight-method consensus selection; six balancing strategies; seven classifiers; published-CNN and recent-architecture baselines.\\{\scriptsize\itshape \refs{sec:chap3DSRMDesign}}};
 \node[io, below=of o3] (o4) {\textbf{In:} artefact; frozen partition manifests; Jetson AGX Orin.\\\textbf{Out:} trained configurations on both datasets for the full and consensus feature sets; baselines trained on identical partitions.\\{\scriptsize\itshape \refs{sec:chap3DSRMDemonstration}}};
-\node[io, below=of o4] (o5) {\textbf{In:} predictions on the held-out test partitions.\\\textbf{Out:} effectiveness and per-class behaviour; confound and protocol-attribution diagnostics; generalisation across recordings, campaigns, and systems, including the Tomasov--Cao label mapping; statistics over independent acquisitions; efficiency.\\{\scriptsize\itshape \refs{sec:chap3DSRMEvaluation}; Chapter~\ref{chap:ResultsAndDiscussion}}};
+\node[io, below=of o4] (o5) {\textbf{In:} predictions on the held-out test partitions.\\\textbf{Out:} effectiveness and per-class behaviour; confound and protocol-attribution diagnostics; generalisation across recordings, campaigns, and systems, including the Tomasov--Cao label mapping; statistics over independent acquisitions; model size, training time, and processing time per window.\\{\scriptsize\itshape \refs{sec:chap3DSRMEvaluation}; Chapter~\ref{chap:ResultsAndDiscussion}}};
 \node[io, below=of o5] (o6) {\textbf{Out:} this thesis; journal and conference publications; public code, partition manifests, predictions, and assumption files.\\{\scriptsize\itshape \refs{sec:chap3DSRMCommunication}; Chapter~\ref{chap:Conclusion}}};
 
 \node[act, left=of o1] (a1) {\textbf{Activity 1}\\Problem identification and motivation};
@@ -65,30 +65,30 @@ DSRM has been applied to comparable machine-learning artefacts in engineering an
 \subsection{Mapping of Research Questions, Objectives, and Activities}
 \label{sec:chap3DSRMMapping}
 \autoBookmark{subsec}{Mapping of Research Questions, Objectives, and Activities}
-Table~\ref{tab:dsrm_mapping} maps each research question to its objective and DSRM activities. It constitutes the reference against which Chapter~\ref{chap:Conclusion} assesses whether each objective has been achieved. RO1 is analytical: it draws on the review of Chapter~\ref{chap:LR} to establish the lightweight requirement in Activities~1 and~2, and on the footprint measurements of Activity~5 to verify it. RO2 is constructive and is achieved through the artefact built in Activity~3 and executed in Activity~4. RO3 is evaluative. It includes the design of the leakage-controlled partitions in Activity~3, since a protocol that has not been verified cannot support an evaluation.
+Table~\ref{tab:dsrm_mapping} lists the final research questions and objectives and identifies, for each pair, the DSRM activity that addresses it. It constitutes the reference against which Chapter~\ref{chap:Conclusion} assesses whether each objective has been achieved. The first pair is addressed by Activity~1: the review of feature representations in Chapter~\ref{chap:LR} defines the problem that the pipeline must solve, and the comparison of feature domains on both datasets, carried out during the evaluation, completes the analysis that RO1 requires. The second pair is addressed by Activity~3, in which the pipeline is designed and built, and its execution on both datasets in Activity~4 demonstrates that the design works as specified. The third pair is addressed by Activity~5, which evaluates the pipeline against the published deep learning models on identical, verified partitions.
 
 \begin{table}[!htbp]
 \centering
-\caption{Mapping of research questions, research objectives, and DSRM activities.}
+\caption{Mapping of the research questions and research objectives to the DSRM activities that address them.}
 \label{tab:dsrm_mapping}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.4cm}@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.3cm}@{}}
 \toprule
 \textbf{Research question} & \textbf{Research objective} & \textbf{DSRM activity}\\
 \midrule
-\textbf{RQ1.} What computational footprint do current approaches to event classification in DAS data carry, and what makes a classification pipeline lightweight? &
-\textbf{RO1.} To analyse the computational footprint of event classification in DAS data and establish what makes a classification pipeline lightweight. &
-1 (problem), 2 (objectives), 5 (evaluation)\\
+\textbf{RQ1.} What feature representations are used to classify events in DAS data? &
+\textbf{RO1.} To analyse the feature representations used for event classification in DAS data. &
+Activity~1: problem identification and motivation (Chapter~\ref{chap:LR}; \refs{sec:chap3DSRMProblem})\\
 \addlinespace
-\textbf{RQ2.} How can multi-domain fusion, consensus feature selection, and class balancing be combined into a lightweight pipeline for event classification in DAS data? &
-\textbf{RO2.} To develop a multi-domain machine learning pipeline for event classification in Distributed Acoustic Sensing data. &
-3 (design), 4 (demonstration)\\
+\textbf{RQ2.} How can multi-domain feature fusion, consensus feature selection and class balancing be combined in a lightweight machine learning pipeline for DAS event classification? &
+\textbf{RO2.} To develop a lightweight multi-domain machine learning pipeline for event classification in DAS data. &
+Activity~3: design and development (\refs{sec:chap3DSRMDesign}), demonstrated in Activity~4\\
 \addlinespace
-\textbf{RQ3.} How does the pipeline compare with published deep-learning baselines on identical leakage-controlled partitions in classification performance, computational cost, and generalisation? &
-\textbf{RO3.} To evaluate the multi-domain machine learning pipeline for event classification in Distributed Acoustic Sensing data. &
-3 (design), 4 (demonstration), 5 (evaluation)\\
+\textbf{RQ3.} How does the lightweight multi-domain machine learning pipeline perform compared with published deep learning models for DAS event classification? &
+\textbf{RO3.} To evaluate the lightweight multi-domain machine learning pipeline for event classification in DAS data. &
+Activity~5: evaluation (\refs{sec:chap3DSRMEvaluation}; Chapter~\ref{chap:ResultsAndDiscussion})\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -96,21 +96,21 @@ Table~\ref{tab:dsrm_mapping} maps each research question to its objective and DS
 \section{DSRM Activity 1: Problem Identification and Motivation}
 \label{sec:chap3DSRMProblem}
 \autoBookmark{sec}{DSRM Activity 1: Problem Identification and Motivation}
-The first activity establishes the practical problem that the artefact must solve. \refs{sec:ResearchProblemStatement} presented the established difficulties: raw DAS streams are noisy and high-dimensional, engineered feature sets are redundant and costly to compute, class imbalance is severe, and the deep models that achieve the highest accuracy are computationally expensive to run on edge hardware. These difficulties defined the initial aim of the research, namely a feature-driven pipeline that is accurate, interpretable, and sufficiently inexpensive to run alongside the interrogator. An analysis of this last requirement (RO1) showed that the literature offers no common measure of computational cost: where cost is reported, it is usually an inference time, which conveys no information about the size of the model, the hardware required to train it, or the time required to prepare its input (\refs{sec:chap2ResearchGap}). The lightweight requirement therefore had to be defined before the pipeline could be designed to satisfy it.
+The first activity establishes the practical problem that the artefact must solve. \refs{sec:ResearchProblemStatement} presented the established difficulties: raw DAS streams are noisy and high-dimensional, engineered feature sets are redundant and costly to compute, class imbalance is severe, and the deep models that achieve the highest accuracy are computationally expensive to run on edge hardware. These difficulties defined the initial aim of the research, namely a feature-based pipeline that is accurate, interpretable, and sufficiently inexpensive to run alongside the interrogator. The review of feature representations required by RO1 (Chapter~\ref{chap:LR}) made the representational part of the problem specific. Earlier studies drew their descriptors from one to three of the four signal domains, and none combined all four or reduced its descriptors by agreement among several selection criteria (Tables~\ref{tab:feature-domain-coverage} and~\ref{tab:position}). The same review showed that the cost of computing and using such descriptors is seldom reported: where cost appears, it is usually an inference time, which conveys no information about the size of the model, the hardware required to train it, or the time required to prepare its input (\refss{sec:chap2ProcessingCost}). Computing cost is therefore not the subject of RO1, but it constrains the design required by RO2, and the measures by which it is judged had to be fixed before the pipeline could be designed to satisfy them.
 
 A further problem emerged as the work progressed. The pipeline was initially evaluated on the Tomasov dataset alone, and its extension to the Cao dataset required the evaluation protocol to be specified for data with a different structure. This specification revealed that the protocols used with both datasets allow information to pass between the training and test data. The mechanism is structural. DAS event datasets are constructed by sliding a window along a continuous stream, so that neighbouring windows share raw samples whenever the hop is shorter than the window, and every window from one recording session shares the fibre state, coupling, interrogator settings, weather, and often the operator. A partition that ignores this dependence measures how well a model recognises a recording it has already encountered, which is not the quantity of interest in deployment. \refss{sec:chap3LeakageAudit} describes how the problem was identified and demonstrates that it is material: 423 of 441 Cao sessions span the released partition, and every test window of a random Tomasov split shares raw samples with a training window. Because a published accuracy obtained under such a protocol confounds the method with the protocol, verified leakage-controlled partitions became part of the artefact and the evaluation basis for all three research questions.
 
-\section{DSRM Activity 2: Objectives of a Solution}
+\section{DSRM Activity 2: Requirements and Design Criteria of the Pipeline}
 \label{sec:chap3DSRMObjectives}
-\autoBookmark{sec}{DSRM Activity 2: Objectives of a Solution}
-The second activity translates the problem into objectives. In accordance with RO1 to RO3 (\refs{sec:ResearchObjectives}), the artefact must (i) satisfy a lightweight footprint defined by measured quantities, (ii) classify DAS events interpretably through multi-domain fusion, consensus selection, and class balancing whose individual effects are reported, and (iii) withstand comparison with published baselines on identical, verified leakage-controlled partitions.
+\autoBookmark{sec}{DSRM Activity 2: Requirements and Design Criteria of the Pipeline}
+In the DSRM, the second activity defines the objectives of a solution. This section states what the pipeline must do and derives, from the research objectives, the criteria against which its design is judged. Each requirement follows from one objective. From RO1, the pipeline must describe every window with descriptors from all four signal domains, because the review found no earlier study that did so, and it must allow the contribution of each domain to be measured separately. From RO2, the pipeline must fuse those descriptors, reduce them by consensus selection, and handle class imbalance within the training data, while remaining lightweight: its classifiers must train and predict on CPU cores, and its model size, training time, and processing time per window must be measured rather than assumed. From RO3, the pipeline must be evaluated against published deep learning models on identical partitions that are free of leakage, with every model measured in the same way on the same hardware.
 
-Six design criteria follow from these objectives. \emph{Effectiveness} is measured by macro-$F_1$ and balanced accuracy on held-out data. \emph{Lightweight footprint} is measured by four quantities on embedded hardware: the stored size of the trained model, per-window inference latency, per-window end-to-end latency including feature extraction, and training time together with the hardware it requires. The target is CPU-only training and inference, a model of a few megabytes, sub-millisecond classification, and an online cost that fits within the window-arrival interval on a few CPU cores. Of the remaining criteria, \emph{interpretability} is measured by the traceability of every selected feature to a named descriptor and signal domain; \emph{robustness} by stability under class imbalance, repeated partitioning, and held-out acquisitions; and \emph{reproducibility} by fixed seeds, frozen partition manifests, and released code. The sixth criterion, \emph{evaluative validity}, is the property that a reported metric is measured under conditions that a deployment could reproduce. It is the criterion that distinguishes this design cycle from earlier work on the same benchmarks, and it is enforced by assertions in code rather than by statements in text.
+Six design criteria follow from these requirements. \emph{Effectiveness}, which follows from RO3, is measured by macro-$F_1$ and balanced accuracy on held-out data. \emph{Lightness}, which follows from RO2, is measured by four quantities on embedded hardware: the stored size of the trained model, the classification time per window, the total processing time per window including feature extraction, and the training time together with the hardware it requires. The target is CPU-only training and inference, a model of a few megabytes, classification in well under a millisecond per window, and a total processing time per window that fits within the window-arrival interval on a few CPU cores. \emph{Interpretability}, which follows from RO1 and RO2, is measured by the traceability of every selected feature to a named descriptor, a signal domain, a definition, and the code that computes it. \emph{Robustness} is measured by stability under class imbalance, repeated partitioning, and held-out acquisitions, and \emph{reproducibility} by fixed seeds, frozen partition manifests, and released code. The sixth criterion, \emph{evaluative validity}, which follows from RO3, is the property that a reported metric is measured under conditions that a deployment could reproduce. It is enforced by assertions in code rather than by statements in text.
 
 \section{DSRM Activity 3: Design and Development}
 \label{sec:chap3DSRMDesign}
 \autoBookmark{sec}{DSRM Activity 3: Design and Development}
-The artefact is an end-to-end, feature-driven pipeline constructed in six phases, each documented in its own subsection: data acquisition, leakage identification, and partitioning (\refss{sec:chap3Phase1}); signal preprocessing (\refss{sec:chap3Preprocessing}); multi-domain feature extraction and fusion (\refss{sec:chap3Phase2}); preparation of model-ready data (\refss{sec:chap3ModelReady}); feature selection and class balancing (\refss{sec:chap3Phase3}); and classifier design (\refss{sec:chap3Phase4}). The baselines against which the artefact is compared, two published CNNs and five recent architectures, are described in \refss{sec:chap3Baselines}. \reff{fig:methodology_framework} presents the complete workflow as a flowchart with standard symbols, from the two datasets through partitioning, the feature pipeline, and the baseline branch to evaluation. Every phase is executed on the primary Tomasov dataset and then, unchanged, on the Cao evaluation dataset; the few steps that must differ between the two are marked in the figure. The two decision points of the figure indicate where the workflow branches or loops: a partition that fails verification is redesigned, and models are trained both with and without feature selection, with the validation set guiding the choice of balancing strategy, classifier, and hyperparameters. The order of the workflow is itself a control: the leakage audit and the group-aware partition precede all signal processing, and every component that learns from data (feature selection, resampling, and feature scaling) is fitted on training rows only.
+The artefact is a feature-based pipeline constructed in six phases, each documented in its own subsection: data acquisition, leakage identification, and partitioning (\refss{sec:chap3Phase1}); signal preprocessing (\refss{sec:chap3Preprocessing}); multi-domain feature extraction and fusion (\refss{sec:chap3Phase2}); preparation of model-ready data (\refss{sec:chap3ModelReady}); feature selection and class balancing (\refss{sec:chap3Phase3}); and classifier design (\refss{sec:chap3Phase4}). The baselines against which the artefact is compared, two published CNNs and five recent architectures, are described in \refss{sec:chap3Baselines}. \reff{fig:methodology_framework} presents the complete workflow as a flowchart with standard symbols, from the two datasets through partitioning, the feature pipeline, and the baseline branch to evaluation. Every phase is executed on the primary Tomasov dataset and then, unchanged, on the Cao evaluation dataset; the few steps that must differ between the two are marked in the figure. The two decision points of the figure indicate where the workflow branches or loops: a partition that fails verification is redesigned, and models are trained both with and without feature selection, with the validation set guiding the choice of balancing strategy, classifier, and hyperparameters. The order of the workflow is itself a control: the leakage audit and the group-aware partition precede all signal processing, and every component that learns from data (feature selection, resampling, and feature scaling) is fitted on training rows only.
 
 \clearpage
 \begin{figure}[p]
@@ -203,7 +203,12 @@ Table~\ref{tab:dataset} records a property of the dataset that governs the entir
 \autoBookmark{subsubsec}{Construction of Sample Manifests}
 Before any signal is read, each dataset is converted into a \emph{sample manifest}: a table with one row per analysis window that records the class label of the window, its physical provenance, and the identifiers of every dependence group to which it belongs. The manifest is constructed from metadata alone (the annotation masks and the filenames) and can therefore be built, audited, and partitioned within seconds without loading the raw interrogator data. Every subsequent stage, from feature extraction to final evaluation, is joined to the manifest through a unique sample identifier, which makes the manifest the single authoritative record of the identity and origin of each sample. Table~\ref{tab:manifest} lists the fields recorded for each dataset.
 
-For Tomasov, labels are derived from the released annotation mask, a Boolean array over (time-block, locus) cells in which one block spans $H = 2{,}048$ raw samples. Each annotated cell whose block index $b$ leaves room for a complete window, $b \le n_{\mathrm{blocks}} - L/H$, becomes one manifest row, labelled with the event class of the recording in which it lies. The row stores the recording identifier, the block index, the locus, and the raw-sample interval $[bH,\, bH + L)$ that the window will read. Because this interval is recorded explicitly, the leakage audit and the guard bands can subsequently be computed exactly rather than approximately. Acquisition parameters are read from the attributes of each HDF5 file rather than assumed, and all 16 recordings were confirmed to share a 20\,kHz pulse rate and $1{,}700$ loci. Because the annotations mark many loci within each block, the manifest is dense in space as well as in time: the \emph{regular} recording alone contributes $210{,}023$ windows drawn from 738 blocks and 622 loci.
+For Tomasov, labels are derived from the released annotation mask, a Boolean array over (time-block, locus) cells in which one block spans $H = 2{,}048$ raw samples. An annotated cell becomes one manifest row when its block index $b$ leaves room for a complete window of $L = 8{,}192$ samples, and the row records the interval of raw samples $\mathcal{I}_b$ that the window will read:
+\begin{equation}
+	b \le n_{\mathrm{blocks}} - \frac{L}{H}, \qquad \mathcal{I}_b = \bigl[\, bH,\; bH + L \,\bigr),
+	\label{eq:readinterval}
+\end{equation}
+where $n_{\mathrm{blocks}}$ is the number of blocks in the recording. Each row is labelled with the event class of the recording in which it lies and stores the recording identifier, the block index, the locus, and $\mathcal{I}_b$. Because this interval is recorded explicitly, the leakage audit and the guard bands can subsequently be computed exactly rather than approximately. Acquisition parameters are read from the attributes of each HDF5 file rather than assumed, and all 16 recordings were confirmed to share a 20\,kHz pulse rate and $1{,}700$ loci. Because the annotations mark many loci within each block, the manifest is dense in space as well as in time: the \emph{regular} recording alone contributes $210{,}023$ windows drawn from 738 blocks and 622 loci.
 
 For Cao, each \texttt{.mat} record becomes one manifest row, labelled by the class folder in which it is stored. The filename is parsed into acquisition date, operator, event token, session token, and record index, and the session identifier concatenates date, operator, class, and session token, because a session token is unique only within that combination. The acquisition date is retained separately as the grouping unit for the leave-one-date-out evaluation of \refss{sec:chap3ConfoundDesign}. The released folder, training or test, is also recorded, but only so that the released protocol can be audited; it has no role in the partition used in this study. The zero-byte record noted in \refss{sec:chap3Dataset} is flagged at this stage and excluded, leaving $15{,}418$ rows.
 
@@ -236,7 +241,12 @@ For Cao, each \texttt{.mat} record becomes one manifest row, labelled by the cla
 The leakage examined in this thesis was not anticipated at the outset. In the first design cycle, the pipeline was evaluated on the Tomasov dataset alone under a stratified random $80/10/10$ partition of analysis windows, the form of protocol used by the authors of the dataset and by several subsequent studies (\refs{sec:chap2RelatedWorks}). Under that protocol the pipeline performed well across the entire taxonomy, including an $F_1$ of $0.72$ with $70\%$ recall on \emph{openclose}, the smallest class and one captured in a single recording. When the second design cycle introduced the Cao dataset to evaluate the design, the protocol had to be specified for data with a different structure, which prompted a re-examination of the assumption on which the first cycle rested, namely that individual analysis windows are independent samples. The re-examination posed one question of each dataset: what is the smallest unit of data that can be treated as statistically independent of every other unit? It answered that question from the manner in which the data were generated rather than from model behaviour. The investigation proceeded in five steps, of which only the last required a model to be trained.
 
 \paragraph[Step 1: Overlap Between Windows]{Step 1: Overlap Between Windows.}
-The first step compared the window geometry with the annotation grid of the Tomasov release. A window of $L = 8{,}192$ samples spans $L/H = 4$ annotation blocks, which means that a window advanced by one block of $H = 2{,}048$ samples shares $L - H = 6{,}144$ samples, or $75\%$, with its predecessor; at the 256-sample stride adopted by the authors of the dataset, the shared fraction rises to $96.9\%$ (\reff{fig:window_overlap}). The overlap is spatial as well as temporal. Two windows annotated at the same block and at neighbouring loci read the same time interval, their 32-channel patches share 31 channels, and the loci themselves lie 1.02\,m apart and observe the same physical disturbance. A window-level random partition distributes these near-duplicates across the training, validation, and test sets, with the result that a test window can be matched to a training window that contains most of its raw samples. The same mechanism inflates accuracy in sensor-based activity recognition~\cite{dehghani2019windows}.
+The first step compared the window geometry with the annotation grid of the Tomasov release. A window of $L = 8{,}192$ samples spans $L/H = 4$ annotation blocks. When consecutive windows are advanced by a stride of $s$ samples, the fraction of raw samples that a window shares with its predecessor is
+\begin{equation}
+	\rho_{\mathrm{ov}}(s) = \frac{L - s}{L}, \qquad \rho_{\mathrm{ov}}(2{,}048) = 0.75, \qquad \rho_{\mathrm{ov}}(256) \approx 0.969,
+	\label{eq:overlap}
+\end{equation}
+so a window advanced by one block of $H = 2{,}048$ samples shares $6{,}144$ samples with its predecessor, and at the 256-sample stride adopted by the authors of the dataset the shared fraction rises to $96.9\%$ (\reff{fig:window_overlap}). The overlap is spatial as well as temporal. Two windows annotated at the same block and at neighbouring loci read the same time interval, their 32-channel patches share 31 channels, and the loci themselves lie 1.02\,m apart and observe the same physical disturbance. A window-level random partition distributes these near-duplicates across the training, validation, and test sets, with the result that a test window can be matched to a training window that contains most of its raw samples. The same mechanism inflates accuracy in sensor-based activity recognition~\cite{dehghani2019windows}.
 
 \begin{figure}[!htbp]
 \centering
@@ -252,7 +262,7 @@ The second step tabulated the Tomasov windows by class and by recording (Table~\
 The Cao release appears at first to avoid the problem, because it is distributed as pre-segmented, non-overlapping records already divided into fixed training and test folders. Its filenames, however, follow the pattern \texttt{date\_operator\_event\_session\_data\_N}, which indicates that many records were extracted from each continuous recording session. Every record from one session shares the fibre state, coupling, background-noise realisation, and operator of that session. The session rather than the record is therefore the unit of independence, just as the subject rather than the record is the unit of independence in clinical sensor data~\cite{saeb2017usecase}. Whether the released partition respects that unit cannot be determined from the folder structure; it had to be measured.
 
 \paragraph[Step 4: Quantifying the Contamination]{Step 4: Quantifying the Contamination.}
-Two audits converted these observations into measurements, and both operate on the manifests without reading any signal data. For Tomasov, which has no released partition, the audit applies the first-cycle protocol, a stratified random $80/10/10$ partition, to all $439{,}754$ annotated windows under the fixed seed of the study. For every recording it marks each raw-sample block read by any training window and counts the test windows whose read interval intersects that training footprint. For Cao, the audit counts, for each of the 441 sessions recovered from the filenames, the records it contributes to each released folder, and flags a session as contaminated when both counts are non-zero. The Tomasov audit finds that all $43{,}976$ test windows (100\%) share raw samples with at least one training window. The Cao audit finds 423 of 441 sessions (95.9\%) to be contaminated, which places $3{,}083$ of the $3{,}084$ records in the released test folder in a session that also supplies training records. \refs{sec:resLeakage} reports both audits in full.
+Two audits converted these observations into measurements, and both operate on the manifests without reading any signal data. For Tomasov, which has no released partition, the audit applies the first-cycle protocol, a stratified random $80/10/10$ partition, to all $439{,}754$ annotated windows under the fixed seed of the study. For every recording it marks each raw-sample block read by any training window and counts the test windows whose read interval $\mathcal{I}_b$ (Equation~\eqref{eq:readinterval}) contains at least one of those blocks. For Cao, the audit counts, for each of the 441 sessions recovered from the filenames, the records it contributes to each released folder, and flags a session as contaminated when both counts are non-zero. The Tomasov audit finds that all $43{,}976$ test windows (100\%) share raw samples with at least one training window. The Cao audit finds 423 of 441 sessions (95.9\%) to be contaminated, which places $3{,}083$ of the $3{,}084$ records in the released test folder in a session that also supplies training records. \refs{sec:resLeakage} reports both audits in full.
 
 \paragraph[Step 5: Linking Contamination to Performance]{Step 5: Linking Contamination to Performance.}
 Contamination demonstrates that a protocol can be exploited, but not that the reported accuracy was in fact inflated. The final step tested that relationship directly through controlled comparisons in which a model is trained twice with every factor held constant except the partition: once under the leakage-controlled partition developed below, and once under a random partition of the same windows. Any difference between the two arms is attributable to the protocol alone. These protocol-attribution experiments, defined in \refss{sec:chap3ConfoundDesign}, are applied to the reconstructed Tomasov CNN, to every feature configuration of the pipeline, and to five recent architectures. Chapter~\ref{chap:ResultsAndDiscussion} reports their results, together with the change in per-class performance once the leakage is removed.
@@ -298,7 +308,7 @@ Two simpler alternatives were considered and rejected. Leave-one-recording-out p
 	Draw an offset $o_r$ uniformly from $\{0, \dots, S - 1\}$ using $\rho$\;
 	Tag segment $o_r$ as \textit{val}, segment $(o_r + 1) \bmod S$ as \textit{test}, and every other segment as \textit{train}\;
 	\ForEach{split $k \in \{\textit{train}, \textit{val}, \textit{test}\}$}{
-		$F_k \leftarrow \bigcup_{i \in k} \{b_i, \dots, b_i + B - 1\}$ \tcp*{footprint of $k$}
+		$F_k \leftarrow \bigcup_{i \in k} \{b_i, \dots, b_i + B - 1\}$ \tcp*{blocks read by $k$}
 		$\hat{F}_k \leftarrow \{\, b : |b - b'| \le G \text{ for some } b' \in F_k \,\}$ \tcp*{dilate by $G$}
 	}
 	\ForEach{row $i$ assigned to split $k$}{
@@ -307,7 +317,7 @@ Two simpler alternatives were considered and rejected. Leave-one-recording-out p
 \end{algorithm}
 
 \paragraph[Guard Bands]{Guard Bands.}
-The assignment of whole segments makes the split groups disjoint but not the raw samples, because a training window that begins up to three blocks before a test segment reads blocks within that segment. For each recording and split, the footprint of the split is therefore computed as the set of blocks read by any of its windows at any locus, and that footprint is dilated by a guard of $G = L/H = 4$ blocks, one full window length. Any window whose read interval intersects the dilated footprint of a different split is removed. Computing the footprint over all loci makes the guard conservative: after removal, windows in different splits share no time sample at any channel, which also eliminates the spatial near-duplicates identified in Step~1. Guard-band removal deletes $39{,}560$ windows, $9.00\%$ of the annotated set, and shifts the realised division from $79.98/9.96/10.06$ to $84.63/7.61/7.75$. The shift arises because every boundary removes a similar number of windows from each adjacent split, and this number is a much larger fraction of a single validation or test segment than of the eight-segment training block. \reff{fig:split_timeline} shows the resulting assignment along each recording, with the guard bands visible as gaps.
+The assignment of whole segments makes the split groups disjoint but not the raw samples, because a training window that begins up to three blocks before a test segment reads blocks within that segment. For each recording and split, the set of blocks read by any window of the split at any locus is therefore computed and dilated by a guard of $G = L/H = 4$ blocks, one full window length. Any window whose read interval intersects the dilated block set of a different split is removed. Computing the block sets over all loci makes the guard conservative: after removal, windows in different splits share no time sample at any channel, which also eliminates the spatial near-duplicates identified in Step~1. Guard-band removal deletes $39{,}560$ windows, $9.00\%$ of the annotated set, and shifts the realised division from $79.98/9.96/10.06$ to $84.63/7.61/7.75$. The shift arises because every boundary removes a similar number of windows from each adjacent split, and this number is a much larger fraction of a single validation or test segment than of the eight-segment training block. \reff{fig:split_timeline} shows the resulting assignment along each recording, with the guard bands visible as gaps.
 
 \begin{figure}[!htbp]
 \centering
@@ -317,13 +327,13 @@ The assignment of whole segments makes the split groups disjoint but not the raw
 \end{figure}
 
 \paragraph[Class Decimation After Partitioning]{Class Decimation After Partitioning.}
-Three classes dominate the Tomasov annotations, and \emph{regular} alone accounts for $47.8\%$ of all windows. To prevent these classes from dominating training, they are capped at $12{,}350$ (\emph{regular}), $29{,}010$ (\emph{car}), and $27{,}420$ (\emph{construction}) windows, the targets used in the first design cycle, which are retained for comparability. The first cycle applied decimation before partitioning; in the present design, decimation follows partitioning and guard-band removal, so that the split geometry cannot depend on which windows are retained. Within every (class, split) cell the same fraction of windows is drawn at random under the fixed seed, which preserves the split proportions of each class. Decimation removes a further $227{,}736$ windows and reduces the imbalance ratio from $30.9{:}1$ in the annotated set to $6.6{:}1$, leaving the $172{,}458$ windows from which features are extracted and on which every Tomasov result is computed. Because decimation only deletes whole windows, it can reduce but never enlarge the raw-sample footprint of any split and therefore cannot reintroduce overlap. Cao is balanced to $1.3{:}1$ as released and is not decimated.
+Three classes dominate the Tomasov annotations, and \emph{regular} alone accounts for $47.8\%$ of all windows. To prevent these classes from dominating training, they are capped at $12{,}350$ (\emph{regular}), $29{,}010$ (\emph{car}), and $27{,}420$ (\emph{construction}) windows, the targets used in the first design cycle, which are retained for comparability. The first cycle applied decimation before partitioning; in the present design, decimation follows partitioning and guard-band removal, so that the split geometry cannot depend on which windows are retained. Within every (class, split) cell the same fraction of windows is drawn at random under the fixed seed, which preserves the split proportions of each class. Decimation removes a further $227{,}736$ windows and reduces the imbalance ratio from $30.9{:}1$ in the annotated set to $6.6{:}1$, leaving the $172{,}458$ windows from which features are extracted and on which every Tomasov result is computed. Because decimation only deletes whole windows, it can reduce but never enlarge the set of raw samples read by any split and therefore cannot reintroduce overlap. Cao is balanced to $1.3{:}1$ as released and is not decimated.
 
 \paragraph[Cao: Session-Grouped Partitioning]{Cao: Session-Grouped Partitioning.}
 For Cao the split group is the recording session. Sessions are distributed over ten folds by stratified group $k$-fold with shuffling under the fixed seed, which places each session in exactly one fold while keeping the class distribution of each fold as close to the overall distribution as indivisible sessions allow. Eight folds are merged into the training set, and the remaining two become the validation and test sets. Each record is a separate, non-overlapping segment; consequently, no two records share raw samples and no guard band is required. Because sessions vary in size, the assignment of whole sessions cannot meet the target exactly; the realised division is $78.84/9.47/11.69$, with 351, 46, and 44 sessions in the three splits. The same operator or acquisition date may still appear in more than one split. This is intentional, since prohibiting it would leave several classes without training data, and the stricter question of generalisation to an unseen acquisition date is addressed separately by the leave-one-date-out evaluation of \refss{sec:chap3ConfoundDesign}.
 
 \paragraph[Verification]{Verification.}
-Four properties are asserted in code before any model is trained, and the pipeline halts if any of them fails: (i) no split group appears in more than one split; (ii) no sample identifier is duplicated; (iii) for Tomasov, the sets of raw-sample blocks read by the three splits are pairwise disjoint within every recording; and (iv) every class is present in every split. The fourth property is verified rather than assumed. The alignment of segments with blocks can merge neighbouring segments, and the guard bands can remove a short segment entirely, so an individual recording may contribute to fewer than three splits. In the final partition, two of the four \emph{car} recordings and one of the two \emph{longboard} recordings contribute no test windows, yet every class remains represented in every split. The complete verification is performed after guard-band removal and repeated on the decimated manifest, so that the guarantees hold on the exact windows used for training and evaluation rather than on a superset of them. \refss{sec:chap3RealisedPartitions} reports the realised sizes at each stage.
+Four properties are asserted in code before any model is trained, and the pipeline halts if any of them fails: (i) no split group appears in more than one split; (ii) no sample identifier is duplicated; (iii) for Tomasov, the sets of raw-sample blocks read by the three splits are pairwise disjoint within every recording; and (iv) every class is present in every split. The fourth property is verified rather than assumed. The alignment of segments with blocks can merge neighbouring segments, and the guard bands can remove a short segment entirely, so an individual recording may contribute to fewer than three splits. In the final partition, two of the four \emph{car} recordings and one of the two \emph{longboard} recordings contribute no test windows, yet every class remains represented in every split. The complete verification is performed after guard-band removal and repeated on the decimated manifest, so that the guarantees hold on the exact windows used for training and evaluation rather than on a superset of them. \refss{sec:resPartitions} reports the realised sizes at each stage.
 
 \subsection{Signal Preprocessing}
 \label{sec:chap3Preprocessing}
@@ -560,12 +570,17 @@ with $\epsilon$ a small constant that prevents a logarithmic singularity. Band p
 \subsubsection{Time--Frequency-Domain Features}
 \label{sec:chap3TFFeatures}
 \autoBookmark{subsubsec}{Time--Frequency-Domain Features}
-DAS event signatures are often non-stationary, so time--frequency representations are used to model temporal evolution and spectral content jointly. A hybrid set of 739 features combines STFT statistics, wavelet decompositions, texture and geometry descriptors of a quantised log-spectrogram, and DAS-specific indices (Table~\ref{tab:tffeatures}). The magnitude spectrogram $S(m,k)$ is computed with a Hann window, $N_{\mathrm{FFT}} = 512$, and a hop of 128 samples,
+DAS event signatures are often non-stationary, so time--frequency representations are used to model temporal evolution and spectral content jointly. A hybrid set of 739 features combines STFT statistics, wavelet decompositions, texture and geometry descriptors of a quantised log-spectrogram, and DAS-specific indices (Table~\ref{tab:tffeatures}). The magnitude spectrogram $S(m,k)$ is computed with a Hann window $w$, $N_{\mathrm{FFT}} = 512$, and a hop of $R = 128$ samples,
 \begin{equation}
-	S(m,k) = \left| \sum_{n=0}^{N_{\mathrm{FFT}}-1} x[n]\, w[n - mH]\, e^{-j 2\pi k n / N_{\mathrm{FFT}}} \right|,
+	S(m,k) = \left| \sum_{n=0}^{N_{\mathrm{FFT}}-1} x[n]\, w[n - mR]\, e^{-j 2\pi k n / N_{\mathrm{FFT}}} \right|,
 	\label{eq:stft}
 \end{equation}
-which gives a $257 \times 61$ spectrogram per window. A coarser $4096/2048$ setting was rejected because it yields only about five frames, which are too few for the texture descriptors that follow. From $S(m,k)$ are derived global power statistics, temporal-envelope and spectral-marginal descriptors, inter-frame dynamics (flux, divergence, coherence, novelty), a modulation spectrum over 12 critical bands, and the energy in five DAS-relevant bands. Multi-resolution transient behaviour is captured by the discrete wavelet transform (up to level 6) and the wavelet packet transform (full decomposition to level 4, 16 sub-bands), both with the Daubechies-4 wavelet. For each coefficient set $c_i$, statistical moments and the Teager--Kaiser energy
+which gives a $257 \times 61$ spectrogram per window. A coarser $4096/2048$ setting was rejected because it yields only about five frames, which are too few for the texture descriptors that follow. From $S(m,k)$ are derived global power statistics, temporal-envelope and spectral-marginal descriptors, inter-frame dynamics (flux, divergence, coherence, novelty), a modulation spectrum over 12 critical bands, and the energy in five DAS-relevant bands. Two of these quantities recur in the results. The temporal envelope sums the power of each frame over frequency, and the spectral flux measures the change in magnitude between consecutive frames:
+\begin{equation}
+	E_t(m) = \sum_{k} S(m,k)^2, \qquad F(m) = \Bigl( \sum_{k} \bigl[\, S(m,k) - S(m-1,k) \,\bigr]^2 \Bigr)^{1/2}.
+	\label{eq:envelopeflux}
+\end{equation}
+The minimum, quartiles, and range of $E_t$ describe how evenly the energy of a window is spread over its 61 frames, and the maximum of $F$ marks the most abrupt change of the spectrum within the window. Multi-resolution transient behaviour is captured by the discrete wavelet transform (up to level 6) and the wavelet packet transform (full decomposition to level 4, 16 sub-bands), both with the Daubechies-4 wavelet. For each coefficient set $c_i$, statistical moments and the Teager--Kaiser energy
 \begin{equation}
 	\Psi\bigl[c_i[n]\bigr] = c_i[n]^2 - c_i[n-1]\cdot c_i[n+1]
 	\label{eq:tkeo}
@@ -620,7 +635,34 @@ and the inequality of the channel-energy distribution is the Gini coefficient of
 	\mathrm{Gini}(E) = \frac{C + 1 - 2\left(\dfrac{\sum_{k=1}^{C}(C + 1 - k)\, E_{(k)}}{\sum_{k=1}^{C} E_k}\right)}{C}.
 	\label{eq:gini}
 \end{equation}
-Further descriptors capture spatial gradient and roughness (inter-channel differences, edge density, smoothness) and the clustering of active channels. The spatio-temporal group tracks the spatial-centroid trajectory across coarse temporal bins and reports its velocity, directionality, linearity, and variance, together with global patch statistics, the temporal activity profile, gradient and texture measures, and coarse histogram statistics.
+Further descriptors capture spatial gradient and roughness (inter-channel differences, edge density, smoothness) and the clustering of active channels. The spatio-temporal group tracks how the energy of an event moves across channels within the window. The patch is divided into $B = 32$ consecutive time bins $\mathcal{T}_1, \ldots, \mathcal{T}_B$, and the energy-weighted channel position in each bin,
+\begin{equation}
+	\mu_{sp}(b) = \frac{\sum_{c=1}^{C} c\, P_b(c)}{\sum_{c=1}^{C} P_b(c)}, \qquad P_b(c) = \sum_{t \in \mathcal{T}_b} X_{c,t}^2, \qquad b = 1, \ldots, B,
+	\label{eq:trajectory}
+\end{equation}
+traces a trajectory along the fibre. The mean and standard deviation of its velocity $\mu_{sp}(b+1) - \mu_{sp}(b)$, the slope and coefficient of determination of a straight line fitted to it, and its variance, range, and net drift form the seven motion and propagation descriptors. The group also contains global patch statistics, the temporal activity profile, gradient and texture measures, and coarse histogram statistics. Code Listing~\ref{lst:trajectory} shows the implementation of Equation~\eqref{eq:trajectory}, which was written for this study; each value appended to the output list is one named descriptor of Table~\ref{tab:spatialfeatures}, in the order of the names \texttt{st\_vel\_mean}, \texttt{st\_vel\_std}, \texttt{st\_direction}, \texttt{st\_linearity\_r2}, \texttt{st\_traj\_var}, \texttt{st\_traj\_range}, and \texttt{st\_traj\_drift}.
+
+\begin{lstlisting}[style=dasfe, firstnumber=171, caption={Motion and propagation descriptors in \texttt{dasfe/features\_spatial.py}, lines 171--189 (Equation~(\ref{eq:trajectory})).}, label={lst:trajectory}]
+    # Motion & propagation: track the spatial centroid over coarse time bins.
+    bins = min(n_time_bins, T)
+    Pb = np.array([b.sum(axis=1) for b in np.array_split(P, bins, axis=1)])  # (bins, C)
+    wb = Pb / (Pb.sum(axis=1, keepdims=True) + EPS)
+    traj = (wb * c_idx).sum(axis=1)  # (bins,)
+    vel = np.diff(traj) if traj.size > 1 else np.array([0.0])
+    tb = np.arange(traj.size)
+    if traj.size > 2 and traj.std() > EPS:
+        slope, intercept = np.polyfit(tb, traj, 1)
+        pred = slope * tb + intercept
+        ss_res = float(((traj - pred) ** 2).sum())
+        ss_tot = float(((traj - traj.mean()) ** 2).sum()) + EPS
+        r2 = 1.0 - ss_res / ss_tot
+    else:
+        slope, r2 = 0.0, 0.0
+    out += [
+        float(vel.mean()), float(vel.std()), float(slope), float(r2),
+        float(traj.var()), float(np.ptp(traj)), float(traj[-1] - traj[0]),
+    ]
+\end{lstlisting}
 
 \begin{table}[!htb]
 	\centering
@@ -699,6 +741,45 @@ where $\oplus$ denotes concatenation along the feature axis and $D = d_t + d_f +
 	Save $X_{\mathrm{multi}}$, $Y$, and $F_{\mathrm{multi}}$ to the output directory\;
 \end{algorithm}
 
+Code Listing~\ref{lst:fusion} shows the lines of the \texttt{dasfe} library that implement the prefixing and concatenation steps of Algorithm~\ref{alg:fusion}. The dictionary \texttt{PREFIX}, defined on line~22 of the same module, maps the four domains to \texttt{TIME}, \texttt{FREQ}, \texttt{TF}, and \texttt{SPAT}, so a descriptor such as the maximum spectral flux is stored as \texttt{TF:flux\_max} from this point onwards.
+
+\begin{lstlisting}[style=dasfe, firstnumber=41, caption={Domain prefixing and concatenation in \texttt{dasfe/fusion.py}, lines 41--49 (Equation~(\ref{eq:fusion})).}, label={lst:fusion}]
+    mats, names = [], []
+    for d in domains:
+        X, nm = load_domain(feat_dir, d)
+        if X.shape[0] != ids.size:
+            raise AssertionError(f"domain '{d}' has {X.shape[0]} rows, expected {ids.size}")
+        mats.append(X)
+        names += [f"{PREFIX[d]}:{n}" for n in nm]
+
+    X_multi = np.concatenate(mats, axis=1)
+\end{lstlisting}
+
+\paragraph[Traceability of Descriptor Names]{Traceability of Descriptor Names.}
+Each extractor module lists the names of its descriptors in the order in which it computes their values (function \texttt{feature\_names}) and asserts their number when the library is imported, so the position of a value in the fused vector, its stored name, and the code that computes it cannot drift apart. Table~\ref{tab:traceability} follows the descriptors that consensus selection retained on both datasets (\refs{sec:resSelection}), and one spatio-temporal descriptor retained on Tomasov, from the stored name to the definition given in this chapter and to the lines of the library that compute it. The same lookup applies to every one of the $1{,}002$ names.
+
+\begin{table}[!htbp]
+	\centering
+	\caption{Traceability from stored descriptor name to definition and code, for the descriptors selected on both datasets and one spatio-temporal descriptor selected on Tomasov.}
+	\label{tab:traceability}
+	\footnotesize
+	\setlength{\tabcolsep}{4pt}
+	\renewcommand{\arraystretch}{1.2}
+	\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.7cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}p{4.1cm}@{}}
+		\toprule
+		\textbf{Stored name} & \textbf{Definition} & \textbf{Equation} & \textbf{Code (module, lines)}\\
+		\midrule
+		\texttt{TIME:energy\_gini} & Gini coefficient of the energies of ten equal segments of the window & \eqref{eq:gini}, applied to segment energies & \texttt{features\_time.py}, 168 and 181; helper \texttt{\_gini}, 25--31\\
+		\addlinespace[3pt]
+		\texttt{TF:Et\_min}, \texttt{TF:Et\_p25}, \texttt{TF:Et\_range} & Minimum, 25th percentile, and range of the temporal envelope $E_t(m)$ & \eqref{eq:envelopeflux} & \texttt{features\_tf.py}, 182--195\\
+		\addlinespace[3pt]
+		\texttt{TF:flux\_max} & Largest spectral flux $F(m)$ over the frames of the window & \eqref{eq:envelopeflux} & \texttt{features\_tf.py}, 218--219 and 226\\
+		\addlinespace[3pt]
+		\texttt{SPAT:st\_traj\_range} & Range of the spatial-centroid trajectory $\mu_{sp}(b)$ & \eqref{eq:trajectory} & \texttt{features\_spatial.py}, 171--189 (Code Listing~\ref{lst:trajectory})\\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
 \paragraph[Single-Pass Extraction]{Single-Pass Extraction.}
 Extraction is performed in a single pass: a window is read once and all four extractors are applied to it, rather than the same window being read and preprocessed once per domain. The work is divided into chunks by recording so that each HDF5 file is opened exactly once, and completed chunks are written as shards so that an interrupted run can be resumed rather than restarted. Shards are reassembled in a recorded deterministic order, and row counts, column counts, and identifier uniqueness are asserted at assembly.
 
@@ -745,9 +826,27 @@ The validation and test matrices serve different purposes. Every (classifier, ba
 \subsubsection{Ensemble Feature Selection}
 \label{sec:chap3FeatureSelection}
 \autoBookmark{subsubsec}{Ensemble Feature Selection}
-Eight selectors spanning the filter, wrapper, embedded, and explainability families are combined by consensus voting: variance threshold, one-vs-rest Pearson correlation, mutual information, ReliefF~\cite{li2022relieff}, mRMR~\cite{peng2005mrmr}, recursive feature elimination~\cite{guyon2002rfe}, Boruta~\cite{kursa2010boruta}, and SHAP~\cite{lundberg2017shap} (Table~\ref{tab:fsmethods}). Every selector is fitted on training data only, and the computationally expensive methods (mutual information, ReliefF, mRMR, Boruta, and SHAP) use class-proportional subsamples of the training split. Each selector retains its top 50\% of features, and a strict $8/8$ unanimity rule retains only the features selected by all eight. The selectors embody different criteria (linear and non-linear filters, a redundancy-penalised filter, a tree-based wrapper, a linear-model wrapper, and model attribution); a unanimous selection thus has support that does not depend on any single assumption. Pairwise agreement between selectors is measured with the Jaccard index.
+Eight selectors spanning the filter, wrapper, embedded, and explainability families are combined by consensus voting: variance threshold, one-vs-rest Pearson correlation, mutual information, ReliefF~\cite{li2022relieff}, mRMR~\cite{peng2005mrmr}, recursive feature elimination~\cite{guyon2002rfe}, Boruta~\cite{kursa2010boruta}, and SHAP~\cite{lundberg2017shap} (Table~\ref{tab:fsmethods}). Every selector is fitted on training data only, and the computationally expensive methods (mutual information, ReliefF, mRMR, Boruta, and SHAP) use class-proportional subsamples of the training split. Each selector retains its top 50\% of features, and a strict $8/8$ unanimity rule retains only the features selected by all eight. With $s_{m,j} = 1$ when selector $m$ places feature $j$ among its top half and $s_{m,j} = 0$ otherwise, the vote of feature $j$ and the consensus subset are
+\begin{equation}
+	v_j = \sum_{m=1}^{8} s_{m,j}, \qquad \mathcal{S}_{\mathrm{cons}} = \{\, j : v_j = 8 \,\}.
+	\label{eq:consensus}
+\end{equation}
+The selectors embody different criteria (linear and non-linear filters, a redundancy-penalised filter, a tree-based wrapper, a linear-model wrapper, and model attribution); a unanimous selection thus has support that does not depend on any single assumption. Code Listing~\ref{lst:consensus} shows the implementation of the vote: each selector marks its top $k$ features, where $k$ is half the number of features, and the votes are summed across the eight masks. The consensus subset is the set of features whose vote equals the number of selectors (function \texttt{consensus\_mask}, lines 323--326 of the same module). Pairwise agreement between selectors is measured with the Jaccard index.
 
-\begin{table}[H]
+\begin{lstlisting}[style=dasfe, firstnumber=276, caption={Per-selector masks and consensus votes in \texttt{dasfe/selection.py}, lines 276--285 (Equation~(\ref{eq:consensus})).}, label={lst:consensus}]
+    selected = {}
+    for m in scores:
+        mask = np.zeros(n_all, dtype=bool)
+        mask[_order(scores, ranks, m)[:k]] = True
+        selected[m] = mask
+    if verbose and scores:
+        held = f" ({n_all - n_feat} excluded features not offered)" if n_feat < n_all else ""
+        print(f"  each method keeps {k} of {n_feat} eligible features{held}")
+
+    votes = np.sum(list(selected.values()), axis=0) if selected else np.zeros(n_all, int)
+\end{lstlisting}
+
+\begin{table}[!htbp]
 	\centering
 	\caption{Feature-selection methods used in the ensemble.}
 	\label{tab:fsmethods}
@@ -776,7 +875,7 @@ Whenever a cross-validated estimate is reported, the whole selection ensemble is
 \subsubsection{Feature Selection for a Lightweight Model}
 \label{sec:chap3LightweightSelection}
 \autoBookmark{subsubsec}{Feature Selection for a Lightweight Model}
-Feature selection is the stage of the pipeline at which the lightweight requirement of RO1 is applied to the representation. The fused vector of $1{,}002$ descriptors is chosen for coverage, so that no domain that might separate the events is omitted, and every descriptor in it incurs a cost at each subsequent stage: it must be computed for every incoming window, held in memory, searched by the learner at every split during training, and read at every prediction. Unanimous consensus is the most aggressive reduction that the design permits, and it is evaluated as a second feature configuration alongside the full vector rather than as a replacement for it, so that its effect on the footprint and its cost in accuracy are measured on the same partitions.
+Feature selection is the stage of the pipeline at which the lightweight requirement of RO2 is applied to the representation. The fused vector of $1{,}002$ descriptors is chosen for coverage, so that no domain that might separate the events is omitted, and every descriptor in it incurs a cost at each subsequent stage: it must be computed for every incoming window, held in memory, searched by the learner at every split during training, and read at every prediction. Unanimous consensus is the most aggressive reduction that the design permits, and it is evaluated as a second feature configuration alongside the full vector rather than as a replacement for it, so that its effects on input size, training time, and model size, and its cost in accuracy, are measured on the same partitions.
 
 Selection can reduce the cost of the pipeline in four respects, each of which is measured rather than assumed. The first is \emph{dimensionality}: the number of descriptors presented to the learner, and with it the memory required for a stored feature vector at four bytes per value. The second is \emph{training cost}: the time required to fit the selected classifier, measured on the same platform and training rows for both configurations. The third is \emph{inference cost and model size}: the per-window prediction time and the stored size of the fitted model, defined as in \refss{sec:chap3Efficiency}. The fourth is \emph{extraction cost}, the largest online cost, which decreases only if the extractor computes the retained descriptors alone. The extractor of \refss{sec:chap3Phase2} computes each domain in full, so this saving is not realised in the reported runtimes and is treated as future work (\refss{sec:chap5FutureCost}).
 
@@ -837,7 +936,12 @@ Two groups of baselines are trained on the same leakage-controlled partitions as
 \subsubsection{Tomasov Convolutional Network}
 \label{sec:chap3TomasovCNN}
 \autoBookmark{subsubsec}{Tomasov Convolutional Network}
-No implementation was released for the primary dataset, so the architecture is transcribed from the published description~\cite{tomasov2025perimeter}: two one-dimensional convolutions with 64 and 256 filters and kernel size 7, each followed by LeakyReLU and max pooling of size 4, then flattening, a dense layer with sigmoid activation, and a softmax output. The source states that raw time-domain input is inadequate and recommends a redundant discrete Fourier transform (RDFT) front end, which is therefore used: the window is zero-padded by a redundancy factor, transformed, converted to log-magnitude, mean-subtracted, and truncated to $2{,}048$ bins spanning $0$--$833$\,Hz. The redundancy factor is not stated and is derived from those two quantities as $20000 \times 2048 / 833 \approx 49152 = 6 \times 8192$, giving a factor of six; this inference is recorded as an assumption. Both a 256-unit dense layer, as specified, and a $1{,}024$-unit variant are evaluated, with $8{,}375{,}561$ and $33{,}155{,}849$ parameters. Training uses Adam and class-weighted cross-entropy on the same $148{,}229$ training windows as the feature pipeline, so neither method is advantaged by data volume.
+No implementation was released for the primary dataset, so the architecture is transcribed from the published description~\cite{tomasov2025perimeter}: two one-dimensional convolutions with 64 and 256 filters and kernel size 7, each followed by LeakyReLU and max pooling of size 4, then flattening, a dense layer with sigmoid activation, and a softmax output. The source states that raw time-domain input is inadequate and recommends a redundant discrete Fourier transform (RDFT) front end, which is therefore used: the window is zero-padded by a redundancy factor, transformed, converted to log-magnitude, mean-subtracted, and truncated to $2{,}048$ bins spanning $0$--$833$\,Hz. The redundancy factor is not stated. It is derived from those two quantities, since $2{,}048$ bins spanning 0--833\,Hz at a sampling rate of 20\,kHz imply a transform length of
+\begin{equation}
+	N_{\mathrm{RDFT}} = \frac{f_s\, N_{\mathrm{bins}}}{f_{\max}} = \frac{20{,}000 \times 2{,}048}{833} \approx 49{,}152 = 6 \times 8{,}192,
+	\label{eq:rdft}
+\end{equation}
+which gives a redundancy factor of six relative to the window length; this inference is recorded as an assumption. Both a 256-unit dense layer, as specified, and a $1{,}024$-unit variant are evaluated, with $8{,}375{,}561$ and $33{,}155{,}849$ parameters. Training uses Adam and class-weighted cross-entropy on the same $148{,}229$ training windows as the feature pipeline, so neither method is advantaged by data volume.
 
 \subsubsection{Cao Convolutional Network}
 \label{sec:chap3CaoCNN}
@@ -857,7 +961,7 @@ The fourth activity demonstrates the artefact in a controlled setting. The compl
 \subsection{Experimental Setup}
 \label{sec:chap3ExperimentalSetup}
 \autoBookmark{subsec}{Experimental Setup}
-The benchmark, the baselines, and every runtime measurement in this thesis were executed on an NVIDIA Jetson AGX Orin. This choice is deliberate: the platform belongs to the class of edge hardware on which a DAS monitoring system would realistically be deployed, and the runtimes in \refss{sec:chap3Efficiency} and Chapter~\ref{chap:ResultsAndDiscussion} are therefore directly meaningful rather than extrapolated from a workstation. Executing every model on the same platform, including the neural baselines, also eliminates hardware as a source of difference between the timings of different methods. Within the platform the two model families use different processors, which is itself part of what the footprint measures: feature extraction, selection, resampling, and the seven classifiers run on the CPU cores of the Orin, whereas the CNNs and the five recent architectures are trained and executed on its integrated GPU through PyTorch, as their designs assume. Table~\ref{tab:setup} summarises the environment.
+The benchmark, the baselines, and every runtime measurement in this thesis were executed on an NVIDIA Jetson AGX Orin, which was chosen for three reasons. First, the board belongs to the class of embedded hardware that can be installed beside a DAS interrogator, so the runtimes reported in \refss{sec:chap3Efficiency} and Chapter~\ref{chap:ResultsAndDiscussion} describe the target setting directly rather than being extrapolated from a workstation. Second, it provides both CPU cores and an integrated GPU, so the feature pipeline and the neural baselines can each run on the processor that their designs assume while sharing one board, which removes hardware as a source of difference between their timings. Third, its unified memory holds the complete fused Tomasov feature matrix, about 0.69\,GB in single precision (\refss{sec:chap3ModelReady}), so training and evaluation require no out-of-core processing. Within the platform the two model families use different processors, and the measurements record that difference: feature extraction, selection, resampling, and the seven classifiers run on the CPU cores of the Orin, whereas the CNNs and the five recent architectures are trained and executed on its integrated GPU through PyTorch. Table~\ref{tab:setup} summarises the environment.
 
 \begin{table}[!htbp]
 	\centering
@@ -902,64 +1006,6 @@ The benchmark, the baselines, and every runtime measurement in this thesis were 
 
 On each dataset and for each of the two feature configurations, all 42 (classifier, balancing strategy) combinations are trained under the protocol of \refss{sec:chap3ModelReady}, which gives 168 trained configurations in the main benchmark. Training and inference times are obtained from wall-clock timers placed around the fit and predict calls on the platform described above. For each dataset and feature configuration, the strategy with the highest validation macro-$F_1$ is retained for every classifier, and the retained configuration with the highest validation macro-$F_1$ overall becomes the selected model. Test metrics are reported for all seven retained configurations, so that per-class behaviour can be compared across learners, but every choice is made on validation data alone, an ordering enforced in code rather than by convention.
 
-\subsection{Realised Partitions}
-\label{sec:chap3RealisedPartitions}
-\autoBookmark{subsec}{Realised Partitions}
-Table~\ref{tab:split_summary} reports the partitions as realised. The Tomasov partition passes through three stages. Blocked segment assignment targets $80/10/10$ and realises $79.98/9.96/10.06$ over $439{,}754$ windows. Guard-band removal deletes $39{,}560$ boundary windows, $9.00\%$ of the annotated set, leaving $400{,}194$ in an $84.63/7.61/7.75$ split; this is the stage at which sample disjointness is established and at which the leakage audit of \refs{sec:resLeakage} is performed. Class decimation of the three most populous classes follows and removes a further $227{,}736$ windows, leaving $172{,}458$ in an $85.95/7.48/6.57$ split. Every reported Tomasov result is computed on the $11{,}334$ test windows of that final stage. Decimation deletes whole windows and can only reduce the raw-sample footprint of the test set, so it cannot reintroduce overlap; the verification is nonetheless repeated on the final manifest. The Cao session-grouped partition yields $78.84/9.47/11.69$ over its $15{,}418$ records.
-
-\begin{table}[!htbp]
-	\centering
-	\caption{Realised partitions under the leakage-controlled protocol.}
-	\label{tab:split_summary}
-	\small
-	\begin{tabular}{@{}llrrr@{}}
-		\toprule
-		\textbf{Dataset} & \textbf{Stage} & \textbf{Train} & \textbf{Validation} & \textbf{Test}\\
-		\midrule
-		Tomasov \etal\ 2025 & Segment assignment                   & 351{,}721 & 43{,}804 & 44{,}229\\
-		Tomasov \etal\ 2025 & After guard bands (pre-decimation)   & 338{,}692 & 30{,}474 & 31{,}028\\
-		Tomasov \etal\ 2025 & Post-decimation (final)              & 148{,}229 & 12{,}895 & 11{,}334\\
-		\midrule
-		Cao \etal\ 2023     & Session-grouped (final)              & 12{,}155  & 1{,}460  & 1{,}803\\
-		\bottomrule
-	\end{tabular}
-\end{table}
-
-Table~\ref{tab:class_split} presents the final partitions by class and shows that the realised proportions depend on the group structure of each class. On Tomasov the test share ranges from $3.4\%$ for \emph{openclose} to $9.2\%$ for \emph{walk}. Every class falls below the $10\%$ target, because the guard bands remove a fixed number of blocks at each boundary and that loss is a larger fraction of a short segment; \emph{openclose}, whose single recording spans only 128 annotated blocks, is the most affected and retains 198 test windows. On Cao the test share ranges from $4.9\%$ for \emph{shaking} to $24.6\%$ for \emph{knocking}, because sessions are indivisible and differ in size, so stratification over sessions can only approximate the class distribution of each split. Macro-averaged metrics weight every class equally irrespective of these differences, which is one reason why they are the primary metrics of this study (\refss{sec:chap3Metrics}).
-
-\begin{table}[!htbp]
-	\centering
-	\caption{Class composition of the final leakage-controlled partitions. Test share is the percentage of each class's windows assigned to the test split.}
-	\label{tab:class_split}
-	\small
-	\begin{tabular}{@{}lrrrr@{}}
-		\toprule
-		\textbf{Class} & \textbf{Train} & \textbf{Validation} & \textbf{Test} & \textbf{Test share (\%)}\\
-		\midrule
-		\multicolumn{5}{@{}l}{\textit{Tomasov \etal\ 2025, blocked with guard bands, post-decimation}}\\[2pt]
-		Regular      & 10{,}272  & 966      & 1{,}111  & 9.0\\
-		Car          & 25{,}303  & 1{,}934  & 1{,}772  & 6.1\\
-		Construction & 23{,}041  & 2{,}147  & 2{,}232  & 8.1\\
-		Fence        & 33{,}432  & 2{,}700  & 1{,}983  & 5.2\\
-		Walk         & 14{,}900  & 1{,}540  & 1{,}661  & 9.2\\
-		Manipulation & 13{,}519  & 1{,}163  & 867      & 5.6\\
-		Longboard    & 11{,}671  & 1{,}052  & 581      & 4.4\\
-		Running      & 10{,}811  & 1{,}057  & 929      & 7.3\\
-		Openclose    & 5{,}280   & 336      & 198      & 3.4\\
-		\textbf{Total} & \textbf{148{,}229} & \textbf{12{,}895} & \textbf{11{,}334} & \textbf{6.6}\\
-		\midrule
-		\multicolumn{5}{@{}l}{\textit{Cao \etal\ 2023, session-grouped}}\\[2pt]
-		Background   & 2{,}311   & 407      & 227      & 7.7\\
-		Digging      & 1{,}931   & 211      & 370      & 14.7\\
-		Knocking     & 1{,}802   & 106      & 622      & 24.6\\
-		Watering     & 1{,}734   & 301      & 218      & 9.7\\
-		Shaking      & 2{,}533   & 61       & 134      & 4.9\\
-		Walking      & 1{,}844   & 374      & 232      & 9.5\\
-		\textbf{Total} & \textbf{12{,}155} & \textbf{1{,}460} & \textbf{1{,}803} & \textbf{11.7}\\
-		\bottomrule
-	\end{tabular}
-\end{table}
-
 \subsection{Implementation and Reproducibility}
 \label{sec:chap3Implementation}
 \autoBookmark{subsec}{Implementation and Reproducibility}
@@ -994,12 +1040,14 @@ The artefact is implemented as a shared Python library, \texttt{dasfe}, of about
 	\end{tabularx}
 \end{table}
 
+The library separates what was implemented for this study from what it takes from established packages. Library routines supply the underlying transforms and estimators: the Fourier and short-time Fourier transforms (NumPy and SciPy), the wavelet decompositions (PyWavelets), grey-level co-occurrence matrices and local binary patterns (scikit-image), and the individual selectors, resamplers, and classifiers listed in Table~\ref{tab:setup}. The code written for this study comprises everything built on those routines: the manifests, partitions, and verification checks; the preprocessing chain; the definitions of all $1{,}002$ descriptors, including the DAS band ratios and indices, the histogram-of-gradient descriptor of the spectrogram, and the spatio-temporal descriptors; the fusion with domain prefixes and its alignment checks; the selection ensemble and its consensus vote; the training and evaluation loops; and the reimplementation of the baselines. Code Listings~\ref{lst:trajectory} to~\ref{lst:consensus} reproduce the principal original steps, and Table~\ref{tab:traceability} links descriptor names to their definitions and to the code.
+
 Three engineering decisions implement the validity claims of this chapter in code. First, the manifest is the single source of truth: the frozen partition is released as a manifest keyed by sample identifier that records the presence of each window before guard-band removal, after guard-band removal, and after decimation, and every experiment, including all baseline models, reads its partition from this manifest rather than re-deriving it. Second, checks fail fast: the disjointness and alignment assertions halt execution, and a violation thus cannot propagate to a results table. Third, long computations are resumable: extraction writes shards in a recorded order, so that an interrupted run on the embedded platform continues rather than restarts. Per-experiment predictions, full-precision metrics, an experiment registry, per-model assumption files, and a deterministic script that regenerates every table are stored alongside the code (Appendix~\ref{app:implementation}).
 
 \section{DSRM Activity 5: Evaluation}
 \label{sec:chap3DSRMEvaluation}
 \autoBookmark{sec}{DSRM Activity 5: Evaluation}
-The fifth activity evaluates the artefact for predictive effectiveness, robustness under imbalance, dimensionality reduction, comparative validity against the baselines, computational efficiency and lightweight footprint, generalisation beyond the recordings and the system it was trained on, and, specific to this design cycle, the extent to which measured performance depends on acquisition-specific structure. Except where a procedure explicitly constructs a stricter or alternative partition, every evaluation uses the frozen partition and the training protocol of \refss{sec:chap3ModelReady}. The procedures are defined here, and Chapter~\ref{chap:ResultsAndDiscussion} reports their outcomes.
+The fifth activity evaluates the artefact for predictive effectiveness, robustness under imbalance, dimensionality reduction, comparative validity against the baselines, model size and processing time, generalisation beyond the recordings and the system it was trained on, and, specific to this design cycle, the extent to which measured performance depends on acquisition-specific structure. Except where a procedure explicitly constructs a stricter or alternative partition, every evaluation uses the frozen partition and the training protocol of \refss{sec:chap3ModelReady}. The procedures are defined here, and Chapter~\ref{chap:ResultsAndDiscussion} reports their outcomes.
 
 \subsection{Performance Metrics}
 \label{sec:chap3Metrics}
@@ -1020,7 +1068,7 @@ where $C$ is the number of classes. Because both datasets are imbalanced, macro-
 \subsection{Confound, Attribution, and Generalisation Diagnostics}
 \label{sec:chap3ConfoundDesign}
 \autoBookmark{subsec}{Confound, Attribution, and Generalisation Diagnostics}
-Because five Tomasov classes each originate from a single recording, partitioning alone cannot establish whether the measured performance reflects event recognition or recording recognition, and a sample-disjoint partition provides no indication of the extent to which a published figure depended on its own protocol. The evaluation therefore includes five diagnostic procedures followed by generalisation protocols of increasing strictness. The first three diagnostics examine what the features encode, the fourth measures the optimism introduced by the modelling pipeline, and the fifth measures the optimism introduced by the partition. The recording-identity probe and the protocol-attribution design were developed for this study, whereas the others adapt established practice.
+Because five Tomasov classes each originate from a single recording, partitioning alone cannot establish whether the measured performance reflects event recognition or recording recognition, and a sample-disjoint partition provides no indication of the extent to which a published figure depended on its own protocol. The evaluation therefore includes five diagnostic procedures followed by generalisation protocols of increasing strictness. The first three diagnostics examine what the features encode, the fourth measures the optimism introduced by the modelling pipeline, and the fifth measures the optimism introduced by the partition. The recording-identity probe and the protocol-attribution design were constructed for the two datasets of this study; the other procedures follow established practice.
 
 \subsubsection{Leave-One-Domain-Out}
 \label{sec:chap3LODO}
@@ -1055,7 +1103,66 @@ The frozen partition measures generalisation to unseen segments of recordings th
 \subsubsection{Cross-Dataset Label Mapping and Transfer}
 \label{sec:chap3Mapping}
 \autoBookmark{subsubsec}{Cross-Dataset Label Mapping and Transfer}
-The two taxonomies were designed independently, and a model trained on one dataset therefore cannot be evaluated on the other until a correspondence between their labels has been established. The mapping was constructed from the physical mechanism by which each event excites the fibre, using the class definitions published with each dataset, and only one-to-one correspondences were accepted, so that each harmonised class contains exactly one annotated class from each dataset. Four event types satisfy this criterion: \emph{background} (Tomasov \emph{regular}, Cao \emph{background}), the ambient state of the fibre with no target event; \emph{walk} (\emph{walk}, \emph{walking}), the footfall of a pedestrian; \emph{impact} (\emph{fence}, \emph{knocking}), short impulsive strikes transmitted to the fibre through a nearby structure or the ground; and \emph{excavation} (\emph{construction}, \emph{digging}), tools or machinery working the ground near the cable. The remaining classes (\emph{car}, \emph{longboard}, \emph{running}, \emph{manipulation}, and \emph{openclose} on Tomasov; \emph{shaking} and \emph{watering} on Cao) have no unambiguous counterpart and are excluded rather than merged. \refs{sec:resMapping} tabulates the mapping and the number of samples it covers.
+The two taxonomies were designed independently, and a model trained on one dataset therefore cannot be evaluated on the other until a correspondence between their labels has been established. The mapping was constructed from the physical mechanism by which each event excites the fibre, using the class definitions published with each dataset, and only one-to-one correspondences were accepted, so that each harmonised class contains exactly one annotated class from each dataset. Four event types satisfy this criterion: \emph{background} (Tomasov \emph{regular}, Cao \emph{background}), the ambient state of the fibre with no target event; \emph{walk} (\emph{walk}, \emph{walking}), the footfall of a pedestrian; \emph{impact} (\emph{fence}, \emph{knocking}), short impulsive strikes transmitted to the fibre through a nearby structure or the ground; and \emph{excavation} (\emph{construction}, \emph{digging}), tools or machinery working the ground near the cable. The remaining classes (\emph{car}, \emph{longboard}, \emph{running}, \emph{manipulation}, and \emph{openclose} on Tomasov; \emph{shaking} and \emph{watering} on Cao) have no unambiguous counterpart and are excluded rather than merged. The taxonomies share only one label name, \emph{walk}, so the other three correspondences rest on mechanism alone; the \emph{excavation} pair in particular joins events of very different scale, construction machinery on Tomasov and manual digging on Cao. \reff{fig:label_mapping} and Table~\ref{tab:label_mapping} present the correspondence and the number of samples that each shared event covers.
+
+\begin{figure}[!htbp]
+\centering
+\setstretch{1}%
+\begin{tikzpicture}[
+	font=\small,
+	cls/.style={rounded corners=2pt, minimum width=4.1cm, minimum height=6.5mm, inner sep=2pt, align=center, thick},
+	tomC/.style={cls, draw=teal!55!black, fill=teal!10},
+	caoC/.style={cls, draw=orange!80!black, fill=orange!10},
+	harm/.style={draw=black!70, fill=black!8, thick, rounded corners=3pt, minimum width=2.7cm, minimum height=7.5mm, font=\small\bfseries},
+	off/.style={cls, thin, draw=black!35, dashed, text=black!55, fill=white},
+	link/.style={thick, black!60},
+	hdr/.style={font=\small\bfseries, align=center},
+]
+\foreach \y/\t/\h/\c [count=\i] in {0/Regular (12{,}349)/Background/Background (2{,}945), -1/Walk (18{,}101)/Walk/Walking (2{,}450), -2/Fence (38{,}115)/Impact/Knocking (2{,}530), -3/Construction (27{,}420)/Excavation/Digging (2{,}512)} {
+	\node[tomC] (t\i) at (0,\y) {\t};
+	\node[harm] (h\i) at (5,\y) {\h};
+	\node[caoC] (c\i) at (10,\y) {\c};
+	\draw[link] (t\i.east) -- (h\i.west);
+	\draw[link] (h\i.east) -- (c\i.west);
+}
+\draw[black!25, dashed] (-2.2,-3.75) -- (12.2,-3.75);
+\foreach \y/\t [count=\i] in {-4.45/Car (29{,}009), -5.2/Manipulation (15{,}549), -5.95/Longboard (13{,}304), -6.7/Running (12{,}797), -7.45/Openclose (5{,}814)} {
+	\node[off] (tu\i) at (0,\y) {\t};
+}
+\foreach \y/\t [count=\i] in {-4.45/Shaking (2{,}728), -5.2/Watering (2{,}253)} {
+	\node[off] (cu\i) at (10,\y) {\t};
+}
+\node[font=\footnotesize\itshape, text=black!55, align=center] at (5,-5.6) {not mapped:\\no counterpart in\\the other taxonomy};
+\node[hdr] at (0,1.05) {Tomasov \etal\ (2025)\\{\footnotesize\normalfont primary dataset, 9 classes}};
+\node[hdr] at (5,1.05) {Shared event};
+\node[hdr] at (10,1.05) {Cao \etal\ (2023)\\{\footnotesize\normalfont evaluation dataset, 6 classes}};
+\end{tikzpicture}
+\caption{Mapping between the Tomasov and Cao event taxonomies. Four classes on each side map one-to-one onto a shared event type; the remaining classes (dashed) have no counterpart and are excluded from the cross-system tests. Numbers in brackets are Tomasov windows in the final partition and Cao records.}
+\label{fig:label_mapping}
+\end{figure}
+
+\begin{table}[!htbp]
+	\centering
+	\caption{Shared event types of the Tomasov and Cao datasets, the physical mechanism behind each, and the samples each covers. Tomasov counts are windows in the final partition; Cao counts are records.}
+	\label{tab:label_mapping}
+	\small
+	\setlength{\tabcolsep}{4pt}
+	\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}X l r l r@{}}
+		\toprule
+		\textbf{Shared event} & \textbf{Mechanism at the fibre} & \textbf{Tomasov} & \textbf{Windows} & \textbf{Cao} & \textbf{Records}\\
+		\midrule
+		Background  & Ambient state, no target event & Regular      & 12{,}349 & Background & 2{,}945\\
+		Walk        & Pedestrian footfall & Walk         & 18{,}101 & Walking    & 2{,}450\\
+		Impact      & Impulsive strikes through a structure or the ground & Fence        & 38{,}115 & Knocking   & 2{,}530\\
+		Excavation  & Ground worked by machinery or tools & Construction & 27{,}420 & Digging    & 2{,}512\\
+		\midrule
+		Mapped      & & 4 of 9 classes & 95{,}985 & 4 of 6 classes & 10{,}437\\
+		Not mapped  & & 5 classes      & 76{,}473 & 2 classes      & 4{,}981\\
+		\bottomrule
+	\end{tabularx}
+\end{table}
+
+The mapping covers $95{,}985$ of the $172{,}458$ Tomasov windows ($55.7\%$) and $10{,}437$ of the $15{,}418$ Cao records ($67.7\%$). \emph{Car} and \emph{longboard} are vehicle events with no Cao counterpart. \emph{Running} also consists of footfall, but merging it into \emph{walk} would alter the composition of a class that already has a direct counterpart, so it was excluded rather than merged. \emph{Manipulation} and \emph{openclose} describe interference with the installation at a manhole on the route, for which the Cao setup has no equivalent, and the Cao classes \emph{shaking} and \emph{watering} have no equivalent among the Tomasov classes.
 
 Transfer uses only the 941 time, frequency, and time--frequency features. The 61 spatial descriptors are excluded because they depend on channel count and spacing, which differ between the systems (32 channels at 1.02\,m against 12 at 10\,m), so their transfer would be meaningless rather than merely difficult. Features are mapped to a normal distribution by a quantile transform fitted on the training system alone, and LightGBM with class weighting is trained on every harmonised window of one dataset and tested on every harmonised window of the other, in both directions. A within-dataset reference on the same four classes is obtained by training and testing on the frozen partition of each dataset, so that the cost of transfer between systems can be compared directly with the cost of the reduced taxonomy.
 
@@ -1079,24 +1186,44 @@ Confidence intervals on the reported test set are obtained by bootstrap resampli
 \autoBookmark{subsubsec}{Paired Comparison over Held-Out Acquisitions}
 This procedure directly replaces the withdrawn Friedman design. The six balancing strategies are compared under LightGBM using blocks that are independent by construction: each block is one held-out acquisition, eleven recordings on Tomasov and ten dates on Cao, and the model is trained on all the others, with the Tomasov population capped at $3{,}000$ windows per class for tractability. Pairwise differences between strategies are tested with the Wilcoxon signed-rank test~\cite{wilcoxon1945individual}, and the family of pairwise comparisons is corrected with the Holm procedure~\cite{holm1979simple,demsar2006statistical}.
 
-\subsection{Computational Efficiency and Lightweight Footprint}
+\subsection{Model Size, Training Time, and Processing Time per Window}
 \label{sec:chap3Efficiency}
-\autoBookmark{subsec}{Computational Efficiency and Lightweight Footprint}
-This procedure addresses RO1. Efficiency is separated into a one-time offline phase (feature extraction over the corpus, selector fitting, and model training) and an online phase (per-window extraction and inference). Training and prediction times are
+\autoBookmark{subsec}{Model Size, Training Time, and Processing Time per Window}
+This procedure tests the lightweight criterion of Activity~2 (\refs{sec:chap3DSRMObjectives}) and supplies the cost side of the comparison required by RO3. Cost is separated into a one-time offline phase (feature extraction over the corpus, selector fitting, and model training) and an online phase (per-window extraction and classification). Training and prediction times are measured with wall-clock timers placed around the fit and predict calls,
 \begin{align}
 	T_{\mathrm{train}} &= t^{\mathrm{train}}_{\mathrm{end}} - t^{\mathrm{train}}_{\mathrm{start}},\\[1ex]
 	T_{\mathrm{test}}  &= t^{\mathrm{test}}_{\mathrm{end}} - t^{\mathrm{test}}_{\mathrm{start}}.
 \end{align}
-Per-window extraction cost is measured for each domain, and inference cost per window is compared with the window-arrival interval $H / f_s$ implied by the acquisition geometry. For neural baselines that operate on raw windows, online cost is inference alone. The two phases are reported separately because they have different computational implications and because, as Chapter~\ref{chap:ResultsAndDiscussion} shows, feature extraction rather than inference sets the real-time budget of the feature pipeline.
-
-The lightweight footprint of every model, the pipeline and each baseline, is reported as the four quantities defined in \refs{sec:ResearchBackground}, all measured on the platform of Table~\ref{tab:setup}:
+Every model, the pipeline and each baseline, is described by the four quantities defined in \refs{sec:ResearchBackground}, all measured on the platform of Table~\ref{tab:setup}:
 \begin{enumerate}[label=(\roman*), leftmargin=*, itemsep=3pt]
-	\item \textbf{Model size.} The stored parameters of the fitted model and their size at 32 bits per parameter. For a network these are its trainable weights, so the size equals that of its fp32 weight file. For a gradient-boosted ensemble the parameters are one feature index and one threshold for every split node and one output value for every leaf, counted on the fitted booster. The same convention is applied to every model so that sizes can be compared directly. The native text model file of LightGBM, which also stores training statistics such as split gains and node counts, is larger and is reported alongside.
-	\item \textbf{Inference latency.} The time to classify one window, $T_{\mathrm{test}}$ divided by the number of test windows, measured on the CPU for the classifiers and on the GPU for the networks.
-	\item \textbf{End-to-end latency.} Inference latency plus the per-window cost of converting a raw window into the input of the model. For the feature pipeline this adds feature extraction; for the networks, which read raw or lightly transformed windows, it equals the inference latency.
-	\item \textbf{Training cost.} $T_{\mathrm{train}}$ on the full training split, together with the processor it requires.
+	\item \textbf{Model size.} The stored parameters of the fitted model and their size at 32 bits per parameter. For a network the parameters are its trainable weights, so the size equals that of its fp32 weight file. For a gradient-boosted ensemble they are one feature index and one threshold for every split node and one output value for every leaf, counted on the fitted booster. Because a tree with $\ell$ leaves has $\ell - 1$ split nodes, an ensemble of $n_{\mathrm{trees}}$ trees with $n_{\mathrm{leaves}}$ leaves in total stores
+	\begin{equation}
+		P = 2\,(n_{\mathrm{leaves}} - n_{\mathrm{trees}}) + n_{\mathrm{leaves}}
+		\qquad \text{parameters, of size} \qquad
+		S = \frac{4P}{10^{6}}\ \mathrm{MB}.
+		\label{eq:modelsize}
+	\end{equation}
+	The same 32-bit convention is applied to every model so that sizes can be compared directly. The native text model file of LightGBM, which also stores training statistics such as split gains and node counts, is larger and is reported alongside.
+	\item \textbf{Classification time per window.} The time to classify one window,
+	\begin{equation}
+		t_{\mathrm{inf}} = \frac{T_{\mathrm{test}}}{N_{\mathrm{test}}},
+		\label{eq:inference}
+	\end{equation}
+	where $N_{\mathrm{test}}$ is the number of test windows, measured on the CPU for the classifiers and on the GPU for the networks.
+	\item \textbf{Total processing time per window.} The classification time plus the per-window time $t_{\mathrm{prep}}$ needed to convert a raw window into the input of the model,
+	\begin{equation}
+		t_{\mathrm{total}} = t_{\mathrm{prep}} + t_{\mathrm{inf}}.
+		\label{eq:totaltime}
+	\end{equation}
+	For the feature pipeline, $t_{\mathrm{prep}}$ is the feature-extraction time, measured for each domain. For the networks, which read raw or lightly transformed windows, $t_{\mathrm{total}}$ equals $t_{\mathrm{inf}}$, except where the input of a network is computed outside the timed forward pass; the measured value is then a lower bound and is marked as such.
+	\item \textbf{Training time.} $T_{\mathrm{train}}$ on the full training split, together with the processor it requires.
 \end{enumerate}
-Inference latency is amortised over the test set, which corresponds to the operation of a monitoring system that buffers windows. It is not the latency of a single isolated call, which would add a fixed per-call overhead to every model.
+The total processing time per window is compared with the window-arrival interval implied by the acquisition geometry,
+\begin{equation}
+	\Delta t = \frac{H}{f_s},
+	\label{eq:arrival}
+\end{equation}
+which is $102.4$\,ms for Tomasov ($H = 2{,}048$, $f_s = 20$\,kHz) and $204.8$\,ms for Cao at its nominal sampling rate of 10\,kHz. A pipeline keeps pace with one stream of windows on a single core when $t_{\mathrm{total}} \le \Delta t$, and otherwise requires $\lceil t_{\mathrm{total}} / \Delta t \rceil$ cores. The classification time is amortised over the test set, which corresponds to the operation of a monitoring system that buffers windows; it is not the latency of a single isolated call, which would add a fixed per-call overhead to every model. Offline and online costs are reported separately because they have different computational implications.
 
 \section{DSRM Activity 6: Communication}
 \label{sec:chap3DSRMCommunication}
@@ -1106,4 +1233,4 @@ The sixth activity communicates the artefact and the knowledge gained in buildin
 \section{Summary}
 \label{sec:chap3Summary}
 \autoBookmark{sec}{Summary}
-This chapter organised the research around the six DSRM activities of Peffers et al.~\cite{peffers2007dsrm} and mapped each research question and objective to an activity and a section of the thesis. Activity~1 identified the need for an accurate, interpretable, and lightweight DAS classifier, established that lightness had no common measure in the literature, and added the requirement that the evaluation protocol be verified rather than assumed. Activity~2 translated that need into objectives and six design criteria, among them a lightweight footprint defined by model size, inference and end-to-end latency, and training cost, and evaluative validity. Activity~3 constructed the artefact in six phases on the primary Tomasov dataset and applied it unchanged to the Cao evaluation dataset. The first phase converted both datasets into sample manifests, traced the leakage in their released protocols to window overlap and session structure, and replaced those protocols with blocked, guard-banded and session-grouped partitions that are verified in code and decimated only after partitioning. The remaining phases comprise a stateless three-stage preprocessing chain, the extraction and fusion of $1{,}002$ features, model-ready matrices with every fitted component confined to training rows, consensus selection designed and measured as the lightweight configuration, class balancing, and a single fixed configuration of seven CPU-only classifiers, together with the reimplementation of the CNN published with each dataset and of five recent architectures. Activity~4 specified the demonstration on embedded hardware and reported the realised partitions, and Activity~5 defined the metrics, the confound and protocol-attribution diagnostics, the generalisation protocols including the Tomasov--Cao label mapping, the statistics over independent acquisitions, and the measurement of the size, latency, and training cost of each model. Chapter~\ref{chap:ResultsAndDiscussion} reports the results of this process.
+This chapter organised the research around the six DSRM activities of Peffers et al.~\cite{peffers2007dsrm} and mapped each research question and objective to the activity that addresses it (Table~\ref{tab:dsrm_mapping}). Activity~1 drew on the review of feature representations to define the problem: no earlier study combined all four signal domains, the cost of computing and using descriptors was seldom reported, and the evaluation protocols of both datasets had to be verified rather than assumed. Activity~2 stated what the pipeline must do and derived six design criteria from the research objectives, among them lightness, measured by model size, classification time and total processing time per window, and training time, and evaluative validity. Activity~3 constructed the artefact in six phases on the primary Tomasov dataset and applied it unchanged to the Cao evaluation dataset. The first phase converted both datasets into sample manifests, traced the leakage in their released protocols to window overlap and session structure, and replaced those protocols with blocked, guard-banded and session-grouped partitions that are verified in code and decimated only after partitioning. The remaining phases comprise a stateless three-stage preprocessing chain, the extraction and fusion of $1{,}002$ named features whose names, definitions, and code are linked, model-ready matrices with every fitted component confined to training rows, consensus selection designed and measured as the lightweight configuration, class balancing, and a single fixed configuration of seven CPU-only classifiers, together with the reimplementation of the CNN published with each dataset and of five recent architectures. Activity~4 specified the demonstration on embedded hardware and the implementation, and Activity~5 defined the metrics, the confound and protocol-attribution diagnostics, the generalisation protocols including the Tomasov--Cao label mapping, the statistics over independent acquisitions, and the measurement of model size, training time, and processing time per window. Chapter~\ref{chap:ResultsAndDiscussion} reports the results of this process.

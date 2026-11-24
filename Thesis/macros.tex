@@ -239,7 +239,7 @@
 
 \def\ie{\emph{i.e.~}}
 \def\eg{\emph{e.g.~}}
-\def\etal{{\em et al.~}}
+\def\etal{{\em et al.}}
 \def\etc{{\em etc.~}}
 
 \newcommand{\PutOverDes}{\small \put(13,0){Gau} \put(29,0){FT}\put(42,0){SEG}\put(56,0){\GRAB}\put(75,0){CB}\put(88,0){Ours}}
@@ -267,4 +267,26 @@
     urlcolor=richelectricblue,
     citecolor=richelectricblue,
     filecolor=richelectricblue
+}
+
+% Code excerpts from the dasfe library (Chapter 3): one typewriter face for all
+% code, identifiers, and program output, matching \texttt in the running text.
+\lstdefinestyle{dasfe}{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\bfseries,
+    commentstyle=\slshape\color{halfgray},
+    stringstyle=\ttfamily,
+    showstringspaces=false,
+    keepspaces=true,
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny\color{halfgray},
+    frame=single,
+    rulecolor=\color{black!40},
+    backgroundcolor=\color{ipython_bg},
+    xleftmargin=6ex,
+    framexleftmargin=5ex,
+    aboveskip=2ex,
+    belowskip=2ex,
 }

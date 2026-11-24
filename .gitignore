@@ -74,6 +74,7 @@ Dataset/*
 Thesis/main.pdf
 Thesis/**/*.aux
 Thesis/*.bbl
+Thesis/*-blx.bib
 Thesis/*.bcf
 Thesis/*.blg
 Thesis/*.fdb_latexmk

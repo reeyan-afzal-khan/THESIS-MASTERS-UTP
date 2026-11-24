@@ -119,7 +119,9 @@ unchanged on either machine.
 
 `Thesis/` is the LaTeX project. It started from `Reeyan-Thesis.zip`, the original Overleaf
 export, which stays in the working folder and is not committed. The thesis builds with
-pdfLaTeX and biber (biblatex).
+pdfLaTeX and biblatex, using bibtex8 as the bibliography backend: Windows Smart App
+Control blocks MiKTeX's unsigned `biber.exe`. The typeset references are identical. Keep
+`ref.bib` ASCII, writing accents as LaTeX escapes (`{\"u}`), as bibtex8 is not Unicode-aware.
 
 Every figure the thesis includes sits in `Thesis/Figures/`, with the draw.io sources in
 `Thesis/Figures/drawio/`. Figure 3.2 (`fig03_EC_pineline.png`) is exported from
